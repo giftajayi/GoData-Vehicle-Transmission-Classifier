@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 from imblearn.over_sampling import SMOTE
 import joblib
 
@@ -146,10 +146,19 @@ elif section == "Model Preprocessing & Training":
         # Select features (X) and target (y)
         X = merged_df[["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]].dropna()  # Features
         y = merged_df["transmission_from_vin"].loc[X.index]  # Target
+        
+        # Ensure that non-numeric features are encoded
+        categorical_columns = X.select_dtypes(include=['object']).columns
+        for col in categorical_columns:
+            X[col] = le.fit_transform(X[col].astype(str))
+
+        # Standardization of features
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
 
         # Data Imbalance Handling using SMOTE (Synthetic Minority Over-sampling Technique)
         smote = SMOTE(random_state=42)
-        X_res, y_res = smote.fit_resample(X, y)  # Resample the data
+        X_res, y_res = smote.fit_resample(X_scaled, y)  # Resample the data
 
         # Display the original and resampled class distribution
         st.write("Original class distribution:")
@@ -189,13 +198,18 @@ elif section == "Model Validation":
 
         # Model Performance on Test Data
         st.write("### Model Evaluation:")
-        X_test = merged_df[["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]].dropna()  # Test data features
-        y_test = merged_df["transmission_from_vin"].loc[X_test.index]  # Test data target
-        y_pred = model.predict(X_test)
+        X_test = merged_df[["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]]
+        X_test = X_test.dropna()  # Drop missing values
+        y_test = merged_df["transmission_from_vin"].loc[X_test.index]
 
-        st.write("Accuracy Score:", accuracy_score(y_test, y_pred))
-        st.write("Confusion Matrix:")
-        st.write(confusion_matrix(y_test, y_pred))
+        # Ensure proper preprocessing and transformation for the test set
+        X_test = le.transform(X_test)
+        X_test = scaler.transform(X_test)
+        
+        y_pred = model.predict(X_test)
+        st.write(f"### Test Accuracy: {accuracy_score(y_test, y_pred)}")
+        st.write("### Classification Report:")
+        st.text(classification_report(y_test, y_pred))
 
     except Exception as e:
         st.error(f"Error during model validation: {e}")
@@ -203,10 +217,5 @@ elif section == "Model Validation":
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-
-    # Embed the Power BI dashboard using an iframe
-    st.markdown("""
-    <iframe width="100%" height="600" 
-    src="https://app.powerbi.com/reportEmbed?reportId=abc123xyz456&autoAuth=true&ctid=12345678-1234-5678-abcd-efghijklmnop" 
-    frameborder="0" allowFullScreen="true"></iframe>
-    """, unsafe_allow_html=True)
+    st.write("This section provides a Power BI dashboard for advanced visualization of the dataset.")
+    st.image("powerbi_dashboard.png", caption="Interactive Power BI Dashboard", use_column_width=True)
