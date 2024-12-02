@@ -172,4 +172,4 @@ elif section == "Power BI Dashboard":
     # Embed Power BI Report
     st.markdown("""
     <iframe width="100%" height="600px" src="https://app.powerbi.com/reportEmbed?reportId=<your_report_id>&autoAuth=true" frameborder="0" allowFullScreen="true"></iframe>
-    """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True) 
