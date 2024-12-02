@@ -23,4 +23,8 @@ with st.expander("🔍 Introduction"):
     The dataset contains vehicle listings from Edmonton dealerships.
     """)
 
+### 2. Dataset Overview and EDA ###
+if 'df' in locals():
+    with st.expander("📊 Exploratory Data Analysis (EDA)"):
+
 
