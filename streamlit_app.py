@@ -11,7 +11,7 @@ import joblib
 st.sidebar.title("Navigation")
 section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization"])
 
-# Define paths to CSV files
+# Define paths to multiple datasets
 csv_files = {
     "Main Dataset": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data1.csv",
     "Dataset 2": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data2.csv",
@@ -32,12 +32,20 @@ for name, path in csv_files.items():
 common_key = "vehicle_id"
 try:
     merged_df = dataframes["Main Dataset"]
+    
     for name, df in dataframes.items():
         if name != "Main Dataset" and common_key in df.columns:
-            merged_df = merged_df.merge(df, on=common_key, how="inner")
+            # Rename columns in the other datasets to prevent conflicts
+            df_renamed = df.rename(columns=lambda x: f"{x}_{name}" if x != common_key else x)
+            merged_df = merged_df.merge(df_renamed, on=common_key, how="inner")
     st.success("Datasets successfully merged!")
+    
 except Exception as e:
     st.error(f"An error occurred during merging: {e}")
+
+# Sidebar Navigation
+st.sidebar.title("Navigation")
+section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization"])
 
 # Introduction Section
 if section == "Introduction":
@@ -65,21 +73,6 @@ elif section == "Dataset Overview":
     # Display general statistics
     st.write("### General Statistics:")
     st.write(merged_df.describe())
-
-# Introduction Section
-if section == "Introduction":
-    st.title("🚗 Vehicle Transmission Classifier")
-    st.write("""
-    This app demonstrates a machine learning workflow for classifying vehicle transmissions 
-    (Automatic or Manual) based on various features like model year, make, mileage, price, and more.
-    The dataset contains vehicle listings from Edmonton dealerships and additional related datasets.
-    """)
-
-    st.write("### Datasets Overview")
-    for name, df in dataframes.items():
-        st.subheader(name)
-        st.write(f"**Shape:** {df.shape}")
-        st.dataframe(df.head())
 
 # Visualization Section
 elif section == "Visualization":
