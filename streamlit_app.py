@@ -1,18 +1,9 @@
 import streamlit as st
 import pandas as pd
 
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from sklearn.preprocessing import LabelEncoder
-import numpy as np
-import joblib
-
 # Sidebar Navigation
 st.sidebar.title("Navigation")
-# Add a unique key for this radio button to prevent duplication
-section = st.sidebar.radio("Choose a section", ["Introduction", "Visualization"], key="main_navigation")
-
+section = st.sidebar.radio("Go to", ["Introduction", "Visualization"])
 
 # Define paths to CSV files
 csv_files = {
@@ -31,13 +22,63 @@ for name, path in csv_files.items():
     except Exception as e:
         st.error(f"Could not load {name}: {e}")
 
-# Merge all datasets into one (assuming a common key exists)
-try:
-    # Define the common key for merging (replace with the correct key, e.g., 'vehicle_id')
-    common_key = "vehicle_id"
+# Check column names in all datasets
+st.write("### Columns in Each Dataset")
+for name, df in dataframes.items():
+    st.write(f"**{name}**")
+    st.write(df.columns.tolist())
 
+# Define the common key (update based on inspection of column names)
+common_key = "vehicle_id"  # Replace with the correct column name if necessary
+
+try:
     # Merge datasets iteratively
     merged_df = dataframes["Main Dataset"]
     for name, df in dataframes.items():
         if name != "Main Dataset":
-            merged_df = merged_df.merge(df, on
+            if common_key in df.columns:
+                merged_df = merged_df.merge(df, on=common_key, how="inner")
+            else:
+                st.warning(f"Skipping merge with {name} as it lacks the common key '{common_key}'")
+
+    st.success("Datasets successfully merged!")
+    st.write(f"Merged Dataset Shape: {merged_df.shape}")
+    st.dataframe(merged_df.head())
+
+except Exception as e:
+    st.error(f"An error occurred during the merge: {e}")
+
+# Section: Introduction
+if section == "Introduction":
+    st.title("🚗 Vehicle Transmission Classifier")
+    st.write("""
+    This app demonstrates a machine learning workflow for classifying vehicle transmissions 
+    (Automatic or Manual) based on various features like model year, make, mileage, price, and more.
+    The dataset contains vehicle listings from Edmonton dealerships and additional related datasets.
+    """)
+
+    st.write("### Datasets Overview")
+    for name, df in dataframes.items():
+        st.subheader(name)
+        st.write(f"**Shape:** {df.shape}")
+        st.dataframe(df.head())
+
+# Section: Visualization
+elif section == "Visualization":
+    st.title("📊 Data Visualizations")
+    st.write("Explore key insights and trends in the dataset through the visualizations below:")
+
+    # Visualizations 1 to 8
+    visualizations = {
+        "Transmission Type Distribution": "plt1.png",
+        "Price vs Mileage Scatter Plot": "plt2.png",
+        "Feature Correlation Heatmap": "plt3.png",
+        "Model Year Distribution": "plt4.png",
+        "Price Distribution by Fuel Type": "plt5.png",
+        "Mileage Boxplot by Transmission Type": "plt6.png",
+        "Price vs Model Year Trend": "plt7.png",
+        "Make Popularity Countplot": "plt8.png",
+    }
+
+    for caption, img_path in visualizations.items():
+        st.image(img_path, caption=caption, use_column_width=True)
