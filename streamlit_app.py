@@ -7,6 +7,8 @@ from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import joblib
 
+st.title("🚗 Vehicle Transmission Classifier")
+
 # Define paths to multiple datasets
 csv_files = {
     "Main Dataset": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data1.csv",
