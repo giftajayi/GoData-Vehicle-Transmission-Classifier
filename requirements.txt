@@ -3,3 +3,4 @@ numpy
 panda
 scikit-learn
 imbalanced-learn
+joblib
