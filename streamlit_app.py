@@ -1,30 +1,34 @@
 import streamlit as st
 import pandas as pd
-#import matplotlib.pyplot as plt
-#import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import joblib
-import pandas as pd
 
-# Title of the App
-st.title("🚗 Vehicle Transmission Classifier")
-
+# Load the dataset
 df = pd.read_csv("https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data1.csv")
-df.head(10) 
 
-### 1. Introduction Section ###
-with st.expander("🔍 Introduction"):
+# Define sidebar navigation
+st.sidebar.title("Navigation")
+section = st.sidebar.radio("Go to", ["Introduction", "Visualization"])
+
+# Introduction Section
+if section == "Introduction":
+    st.title("🚗 Vehicle Transmission Classifier")
     st.write("""
-    This app demonstrates a machine learning workflow for classifying vehicle transmissions (Automatic or Manual) based on various features like model year, make, mileage, price, and more.
+    This app demonstrates a machine learning workflow for classifying vehicle transmissions 
+    (Automatic or Manual) based on various features like model year, make, mileage, price, and more.
     The dataset contains vehicle listings from Edmonton dealerships.
     """)
-    
-### 2. Data Visualization ###
-with st.expander("📊 Visualization"):
+    st.write("Here's a preview of the dataset:")
+    st.dataframe(df.head(10))
+
+# Visualization Section
+elif section == "Visualization":
+    st.title("📊 Data Visualizations")
+    st.write("Explore key insights and trends in the dataset through the visualizations below:")
 
     # Visualization 1: Transmission Type Distribution
     image_url_1 = "plt1.png"
@@ -59,10 +63,3 @@ with st.expander("📊 Visualization"):
     st.image(image_url_8, caption="Make Popularity Countplot", use_column_width=True)
 
     st.write("These visualizations provide insights into the dataset and model performance.")
-
-
-
-   
-
-
-
