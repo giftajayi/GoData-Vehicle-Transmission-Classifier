@@ -9,7 +9,7 @@ import joblib
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Introduction", "Visualization"])
+section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization"])
 
 # Define paths to CSV files
 csv_files = {
@@ -38,10 +38,6 @@ try:
     st.success("Datasets successfully merged!")
 except Exception as e:
     st.error(f"An error occurred during merging: {e}")
-
-# Sidebar Navigation
-st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization"])
 
 # Introduction Section
 if section == "Introduction":
