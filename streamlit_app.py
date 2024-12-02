@@ -14,11 +14,10 @@ section = st.sidebar.radio("Go to", ["Introduction", "Visualization"])
 # Define paths to CSV files
 csv_files = {
     "Main Dataset": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data1.csv",
-    "Dataset 2": "https://example.com/dataset2.csv",
-    "Dataset 3": "https://example.com/dataset3.csv",
-    "Dataset 4": "https://example.com/dataset4.csv",
-    "Dataset 5": "https://example.com/dataset5.csv",
-    "Dataset 6": "https://example.com/dataset6.csv",
+    "Dataset 2": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data2.csv",
+    "Dataset 3": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data3.csv",
+    "Dataset 4": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data4.csv",
+    "Dataset 5": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data5.csv",
 }
 
 # Load all datasets
