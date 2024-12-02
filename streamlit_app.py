@@ -193,37 +193,15 @@ elif section == "Model Validation":
         try:
             model = joblib.load("vehicle_transmission_model.pkl")
         except FileNotFoundError:
-            st.error("Model file 'vehicle_transmission_model.pkl' not found. Please train the model first.")
-            raise
+            st.warning("Model file not found. Please train the model first.")
 
-        # Label Encoding the target variable again
-        le = LabelEncoder()
-        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+        # Test the model with some sample data (e.g., from the original test set)
+        test_sample = X_test.sample(1)
+        st.write("Sample Test Data:", test_sample)
+        predicted_class = model.predict(test_sample)
+        predicted_label = le.inverse_transform(predicted_class)[0]
 
-        # Model Performance on Test Data
-        st.write("### Model Evaluation:")
-        X_test = merged_df[["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]]
-        X_test = X_test.dropna()  # Drop missing values
-        y_test = merged_df["transmission_from_vin"].loc[X_test.index]
-
-        # Ensure proper preprocessing and transformation for the test set
-        categorical_columns = X_test.select_dtypes(include=['object']).columns
-        for col in categorical_columns:
-            X_test[col] = le.fit_transform(X_test[col].astype(str))
-
-        # Standardization of features for test data
-        X_test_scaled = scaler.transform(X_test)
-
-        y_pred = model.predict(X_test_scaled)
-        st.write(f"### Test Accuracy: {accuracy_score(y_test, y_pred)}")
-        st.write("### Classification Report:")
-        st.text(classification_report(y_test, y_pred))
+        st.write(f"Predicted Transmission Type: {predicted_label}")
 
     except Exception as e:
-        st.error(f"Error during model validation: {e}")
-
-# Power BI Dashboard Section
-elif section == "Power BI Dashboard":
-    st.title("📊 Power BI Dashboard")
-    st.write("This section provides a Power BI dashboard for advanced visualization of the dataset.")
-    st.image("powerbi_dashboard.png", caption="Interactive Power BI Dashboard", use_column_width=True)
+        st.error(f"An error occurred during model validation: {e}")
