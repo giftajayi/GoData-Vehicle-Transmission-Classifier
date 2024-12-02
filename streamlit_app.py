@@ -25,16 +25,15 @@ for name, path in csv_files.items():
     except Exception as e:
         st.error(f"Could not load {name}: {e}")
 
-# Merge datasets based on a common key
-common_key = "vehicle_id"
+# Concatenate datasets vertically
 try:
+    # Start with the main dataset
     merged_df = dataframes["Main Dataset"]
     
+    # Concatenate other datasets one by one
     for name, df in dataframes.items():
-        if name != "Main Dataset" and common_key in df.columns:
-            # Rename columns in the other datasets to prevent conflicts
-            df_renamed = df.rename(columns=lambda x: f"{x}_{name}" if x != common_key else x)
-            merged_df = merged_df.merge(df_renamed, on=common_key, how="inner")
+        if name != "Main Dataset":
+            merged_df = pd.concat([merged_df, df], ignore_index=True)
     
 except Exception as e:
     st.error(f"An error occurred during merging: {e}")
@@ -61,7 +60,7 @@ elif section == "Dataset Overview":
     available_columns = [col for col in main_columns if col in merged_df.columns]
     
     if available_columns:
-        st.write("### Merged Dataset (First 5 Rows of Main Columns):")
+        st.write("### First 5 Rows of the Dataset:")
         st.dataframe(merged_df[available_columns].head(5))
     else:
         st.warning("Main columns not found in the dataset.")
