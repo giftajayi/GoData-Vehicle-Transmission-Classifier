@@ -20,13 +20,55 @@ csv_files = {
     "Dataset 5": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data5.csv",
 }
 
-# Load all datasets
+# Load datasets
 dataframes = {}
 for name, path in csv_files.items():
     try:
         dataframes[name] = pd.read_csv(path)
     except Exception as e:
         st.error(f"Could not load {name}: {e}")
+
+# Merge datasets based on a common key
+common_key = "vehicle_id"
+try:
+    merged_df = dataframes["Main Dataset"]
+    for name, df in dataframes.items():
+        if name != "Main Dataset" and common_key in df.columns:
+            merged_df = merged_df.merge(df, on=common_key, how="inner")
+    st.success("Datasets successfully merged!")
+except Exception as e:
+    st.error(f"An error occurred during merging: {e}")
+
+# Sidebar Navigation
+st.sidebar.title("Navigation")
+section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization"])
+
+# Introduction Section
+if section == "Introduction":
+    st.title("🚗 Vehicle Transmission Classifier")
+    st.write("""
+    This app demonstrates a machine learning workflow for classifying vehicle transmissions 
+    (Automatic or Manual) based on various features like model year, make, mileage, price, and more.
+    The dataset contains vehicle listings from Edmonton dealerships and additional related datasets.
+    """)
+
+# Dataset Overview Section
+elif section == "Dataset Overview":
+    st.title("📊 Dataset Overview")
+    
+    # Display the first 5 rows of main columns
+    main_columns = ["vehicle_id", "model_year", "make", "price", "mileage", "transmission_type"]
+    available_columns = [col for col in main_columns if col in merged_df.columns]
+    
+    if available_columns:
+        st.write("### Merged Dataset (First 5 Rows of Main Columns):")
+        st.dataframe(merged_df[available_columns].head(5))
+    else:
+        st.warning("Main columns not found in the dataset.")
+    
+    # Display general statistics
+    st.write("### General Statistics:")
+    st.write(merged_df.describe())
 
 # Introduction Section
 if section == "Introduction":
