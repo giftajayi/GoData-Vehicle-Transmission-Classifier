@@ -73,7 +73,7 @@ elif section == "Dataset Overview":
 elif section == "Visualization":
     st.title("📊 Data Visualizations")
     st.write("""
-    Explore key insights and trends in the dataset through the visualizations below. These charts help uncover patterns 
+    These charts help uncover patterns 
     and relationships between variables in the vehicle transmission dataset.
     """)
 
