@@ -22,14 +22,6 @@ with st.expander("🔍 Introduction"):
     This app demonstrates a machine learning workflow for classifying vehicle transmissions (Automatic or Manual) based on various features like model year, make, mileage, price, and more.
     The dataset contains vehicle listings from Edmonton dealerships.
     """)
-### 2. Dataset Overview and EDA ###
-# if 'df' in locals():
-    # with st.expander("📊 Exploratory Data Analysis (EDA)"):
-
-### 2. Data Visualization###
-with st.expander("📊 Visualization)"):
-    image_url = "plt1.png"
-    st.image(image_url, caption="Visualization from GitHub", use_column_width=True)
     
 ### 2. Data Visualization ###
 with st.expander("📊 Visualization"):
