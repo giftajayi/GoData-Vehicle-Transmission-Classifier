@@ -31,7 +31,42 @@ with st.expander("📊 Visualization)"):
     image_url = "plt1.png"
     st.image(image_url, caption="Visualization from GitHub", use_column_width=True)
     
-   
+### 2. Data Visualization ###
+with st.expander("📊 Visualization"):
+
+    # Visualization 1: Transmission Type Distribution
+    image_url_1 = "plt1.png"
+    st.image(image_url_1, caption="Transmission Type Distribution", use_column_width=True)
+
+    # Visualization 2: Price vs Mileage Scatter Plot
+    image_url_2 = "plt2.png"
+    st.image(image_url_2, caption="Price vs Mileage Scatter Plot", use_column_width=True)
+
+    # Visualization 3: Correlation Heatmap
+    image_url_3 = "plt3.png"
+    st.image(image_url_3, caption="Feature Correlation Heatmap", use_column_width=True)
+
+    # Visualization 4: Model Year Distribution
+    image_url_4 = "plt 4.png"
+    st.image(image_url_4, caption="Model Year Distribution", use_column_width=True)
+
+    # Visualization 5: Price Distribution by Fuel Type
+    image_url_5 = "plt5.png"
+    st.image(image_url_5, caption="Price Distribution by Fuel Type", use_column_width=True)
+
+    # Visualization 6: Mileage Boxplot by Transmission Type
+    image_url_6 = "plt6.png"
+    st.image(image_url_6, caption="Mileage Boxplot by Transmission Type", use_column_width=True)
+
+    # Visualization 7: Price vs Model Year Line Plot
+    image_url_7 = "plt7.png"
+    st.image(image_url_7, caption="Price vs Model Year Trend", use_column_width=True)
+
+    # Visualization 8: Make Popularity Countplot
+    image_url_8 = "plt8.png"
+    st.image(image_url_8, caption="Make Popularity Countplot", use_column_width=True)
+
+    st.write("These visualizations provide insights into the dataset and model performance.")
 
 
 
