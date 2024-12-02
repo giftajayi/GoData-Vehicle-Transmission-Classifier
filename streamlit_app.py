@@ -24,7 +24,11 @@ with st.expander("🔍 Introduction"):
     """)
 
 ### 2. Dataset Overview and EDA ###
-if 'df' in locals():
-    with st.expander("📊 Exploratory Data Analysis (EDA)"):
+with st.expander("📊 Exploratory Data Analysis (EDA)"):
+    image_url = "plt1.png"
+    st.image(image_url, caption="Visualization from GitHub", use_column_width=True)
+
+   
+
 
 
