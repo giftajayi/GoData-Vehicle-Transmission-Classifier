@@ -196,6 +196,10 @@ elif section == "Model Validation":
             st.error("Model file 'vehicle_transmission_model.pkl' not found. Please train the model first.")
             raise
 
+        # Label Encoding the target variable again
+        le = LabelEncoder()
+        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+
         # Model Performance on Test Data
         st.write("### Model Evaluation:")
         X_test = merged_df[["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]]
@@ -203,10 +207,14 @@ elif section == "Model Validation":
         y_test = merged_df["transmission_from_vin"].loc[X_test.index]
 
         # Ensure proper preprocessing and transformation for the test set
-        X_test = le.transform(X_test)
-        X_test = scaler.transform(X_test)
-        
-        y_pred = model.predict(X_test)
+        categorical_columns = X_test.select_dtypes(include=['object']).columns
+        for col in categorical_columns:
+            X_test[col] = le.fit_transform(X_test[col].astype(str))
+
+        # Standardization of features for test data
+        X_test_scaled = scaler.transform(X_test)
+
+        y_pred = model.predict(X_test_scaled)
         st.write(f"### Test Accuracy: {accuracy_score(y_test, y_pred)}")
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
