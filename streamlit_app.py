@@ -56,7 +56,7 @@ elif section == "Dataset Overview":
     st.title("📊 Dataset Overview")
     
     # Display the first 5 rows of main columns
-    main_columns = ["vehicle_id", "model_year", "make", "price", "mileage", "transmission_type"]
+    main_columns = ["vehicle_id", "dealer_type", "stock_type", "model_year", "model", "make", "price", "mileage", "transmission_type", "certified", "transmission_from_vin", "fuel_type_from_vin", "number_price_changes"]
     available_columns = [col for col in main_columns if col in merged_df.columns]
     
     if available_columns:
