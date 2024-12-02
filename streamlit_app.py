@@ -181,22 +181,27 @@ elif section == "Model Validation":
     st.title("🔍 Model Validation")
 
     try:
-        # Load the model saved during training
-        model = joblib.load("vehicle_transmission_model.pkl")
+        # Check if the model file exists before loading
+        try:
+            model = joblib.load("vehicle_transmission_model.pkl")
+        except FileNotFoundError:
+            st.error("Model file 'vehicle_transmission_model.pkl' not found. Please train the model first.")
+            model = None
 
-        # Validate the model using the resampled dataset (X_res, y_res from preprocessing)
-        X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
-        y_pred = model.predict(X_test)
-        
-        # Display the classification report
-        st.write("### Classification Report:")
-        st.text(classification_report(y_test, y_pred))
-        
-        # Display confusion matrix
-        cm = confusion_matrix(y_test, y_pred)
-        cm_df = pd.DataFrame(cm, index=le.classes_, columns=le.classes_)
-        st.write("### Confusion Matrix:")
-        st.write(cm_df)
+        if model:
+            # Validate the model using the resampled dataset (X_res, y_res from preprocessing)
+            X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
+            y_pred = model.predict(X_test)
+            
+            # Display the classification report
+            st.write("### Classification Report:")
+            st.text(classification_report(y_test, y_pred))
+            
+            # Display confusion matrix
+            cm = confusion_matrix(y_test, y_pred)
+            cm_df = pd.DataFrame(cm, index=le.classes_, columns=le.classes_)
+            st.write("### Confusion Matrix:")
+            st.write(cm_df)
 
     except Exception as e:
         st.error(f"Error during model validation: {e}")
@@ -205,11 +210,6 @@ elif section == "Model Validation":
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
     st.write("""
-    In this section, you can explore an interactive Power BI dashboard to gain insights from the model predictions.
-    For an actual deployment, you can embed the Power BI dashboard here or provide a link to it.
+    Visualize your model's insights and explore the results interactively using Power BI.
     """)
 
-    # Link to Power BI dashboard (for demonstration)
-    st.markdown("[Click here to view the Power BI Dashboard](https://app.powerbi.com)")
-
-# End of app logic
