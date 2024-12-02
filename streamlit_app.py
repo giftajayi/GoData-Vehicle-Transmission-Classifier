@@ -169,45 +169,35 @@ elif section == "Model Preprocessing & Training":
         st.write("### Accuracy Score:", accuracy_score(y_test, y_pred))
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
-        st.write("### Confusion Matrix:")
-        cm = confusion_matrix(y_test, y_pred)
 
-        # Display confusion matrix as a table
-        cm_df = pd.DataFrame(cm, index=le.classes_, columns=le.classes_)
-        st.write(cm_df)
+        # Save the model for future use
+        joblib.dump(model, "vehicle_transmission_model.pkl")
 
-        # Save the trained model
-        joblib.dump(model, 'model.pkl')
-
-        st.write("""
-        The model has been trained and saved. You can use this trained model for further predictions.
-        """)
-        
     except Exception as e:
-        st.error(f"An error occurred during preprocessing or training: {e}")  
+        st.error(f"Error during model preprocessing/training: {e}")
 
 # Model Validation Section
 elif section == "Model Validation":
     st.title("🔍 Model Validation")
-    
+
     try:
-        # Load the trained model
-        model = joblib.load('model.pkl')
-        
-        # Calculate confusion matrix
-        X_test, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)[1:3]
+        # Load the model saved during training
+        model = joblib.load("vehicle_transmission_model.pkl")
+
+        # Validate the model using the resampled dataset (X_res, y_res from preprocessing)
+        X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
         y_pred = model.predict(X_test)
-        cm = confusion_matrix(y_test, y_pred)
         
         # Display the classification report
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
         
         # Display confusion matrix
-        st.write("### Confusion Matrix:")
+        cm = confusion_matrix(y_test, y_pred)
         cm_df = pd.DataFrame(cm, index=le.classes_, columns=le.classes_)
+        st.write("### Confusion Matrix:")
         st.write(cm_df)
-        
+
     except Exception as e:
         st.error(f"Error during model validation: {e}")
 
@@ -215,6 +205,6 @@ elif section == "Model Validation":
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
     st.write("""
-    Visualize data insights using an integrated Power BI dashboard.
+    In this section, you can explore an interactive Power BI dashboard to gain insights from the model predictions.
+    For an actual deployment, you can embed the Power BI dashboard here or provide a link to it.
     """)
- 
