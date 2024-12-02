@@ -35,7 +35,6 @@ try:
             # Rename columns in the other datasets to prevent conflicts
             df_renamed = df.rename(columns=lambda x: f"{x}_{name}" if x != common_key else x)
             merged_df = merged_df.merge(df_renamed, on=common_key, how="inner")
-    st.success("Datasets successfully merged!")
     
 except Exception as e:
     st.error(f"An error occurred during merging: {e}")
@@ -136,4 +135,3 @@ elif section == "Visualization":
     st.write("""
     This countplot highlights the most popular vehicle makes in the dataset, showing the relative frequency of each brand.
     """)
-
