@@ -201,46 +201,29 @@ elif section == "Model Validation":
         le = LabelEncoder()
         merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
 
-        # Select features (X) and target (y)
-        X = merged_df[["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]].dropna()  # Features
-        y = merged_df["transmission_from_vin"].loc[X.index]  # Target
-        
-        # Ensure that non-numeric features are encoded
+        X = merged_df[["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]].dropna()
+        y = merged_df["transmission_from_vin"].loc[X.index]
         categorical_columns = X.select_dtypes(include=['object']).columns
         for col in categorical_columns:
             X[col] = le.fit_transform(X[col].astype(str))
-
-        # Standardization of features
+        
+        # Standardize the features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        # Data Imbalance Handling using SMOTE (Synthetic Minority Over-sampling Technique)
-        smote = SMOTE(random_state=42)
-        X_res, y_res = smote.fit_resample(X_scaled, y)  # Resample the data
-
-        # Split the resampled data for validation
-        X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
-
-        # Test the model with some sample data (e.g., from the original test set)
-        test_sample = X_test.sample(1)
-        st.write("Sample Test Data:", test_sample)
-        predicted_class = model.predict(test_sample)
-        predicted_label = le.inverse_transform(predicted_class)[0]
-
-        st.write(f"Predicted Transmission Type: {predicted_label}")
-
-        # Show performance metrics (accuracy, classification report)
-        y_pred = model.predict(X_test)
-        st.write("### Accuracy Score:", accuracy_score(y_test, y_pred))
+        # Model Validation
+        y_pred = model.predict(X_scaled)
+        st.write("### Model Validation Results")
+        st.write("### Accuracy Score:", accuracy_score(y, y_pred))
         st.write("### Classification Report:")
-        st.text(classification_report(y_test, y_pred))
+        st.text(classification_report(y, y_pred))
+        st.write("### Confusion Matrix:")
+        st.write(confusion_matrix(y, y_pred))
 
     except Exception as e:
-        st.error(f"An error occurred during model validation: {e}")
+        st.error(f"Error during model validation: {e}")
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-    st.write("This section provides a Power BI dashboard for advanced visualization of the dataset.")
-    st.image("powerbi_dashboard.png", caption="Interactive Power BI Dashboard", use_column_width=True)
-
+    st.write("Link to Power BI dashboard or embedded visualization can be added here.")
