@@ -58,23 +58,18 @@ elif section == "Visualization":
     image_url_3 = "plt3.png"
     st.image(image_url_3, caption="Feature Correlation Heatmap", use_column_width=True)
 
-    # Visualization 4: Model Year Distribution
     image_url_4 = "plt4.png"
     st.image(image_url_4, caption="Model Year Distribution", use_column_width=True)
 
-    # Visualization 5: Price Distribution by Fuel Type
     image_url_5 = "plt5.png"
     st.image(image_url_5, caption="Price Distribution by Fuel Type", use_column_width=True)
 
-    # Visualization 6: Mileage Boxplot by Transmission Type
     image_url_6 = "plt6.png"
     st.image(image_url_6, caption="Mileage Boxplot by Transmission Type", use_column_width=True)
 
-    # Visualization 7: Price vs Model Year Line Plot
     image_url_7 = "plt7.png"
     st.image(image_url_7, caption="Price vs Model Year Trend", use_column_width=True)
 
-    # Visualization 8: Make Popularity Countplot
     image_url_8 = "plt8.png"
     st.image(image_url_8, caption="Make Popularity Countplot", use_column_width=True)
 
