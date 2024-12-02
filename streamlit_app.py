@@ -7,9 +7,6 @@ from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import joblib
 
-# Sidebar Navigation
-st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization"])
 
 # Define paths to multiple datasets
 csv_files = {
@@ -43,9 +40,9 @@ try:
 except Exception as e:
     st.error(f"An error occurred during merging: {e}")
 
-# Sidebar Navigation
+# Sidebar Navigation with custom 'key' for the radio button to prevent duplicate element IDs
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization"])
+section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization"], key="section_radio")
 
 # Introduction Section
 if section == "Introduction":
