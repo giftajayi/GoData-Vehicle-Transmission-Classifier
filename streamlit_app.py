@@ -26,19 +26,6 @@ for name, path in csv_files.items():
     except Exception as e:
         st.error(f"Could not load {name}: {e}")
 
-# Merge datasets based on a common key
-common_key = "vehicle_id"  # Replace with the appropriate key if needed
-try:
-    merged_df = dataframes["Main Dataset"]
-    for name, df in dataframes.items():
-        if name != "Main Dataset":
-            if common_key in df.columns:
-                merged_df = merged_df.merge(df, on=common_key, how="inner")
-            else:
-                st.warning(f"Skipping merge with {name} as it lacks the common key '{common_key}'")
-    st.success("Datasets successfully merged!")
-except Exception as e:
-    st.error(f"An error occurred during merging: {e}")
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
