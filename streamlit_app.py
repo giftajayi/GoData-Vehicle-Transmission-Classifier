@@ -145,7 +145,7 @@ elif section == "Model Preprocessing & Training":
         merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
 
         # Select features (X) and target (y)
-        X = merged_df[["model_year", "mileage", "price"]].dropna()  # Features
+        X = merged_df[["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]].dropna()  # Features
         y = merged_df["transmission_from_vin"].loc[X.index]  # Target
 
         # Data Imbalance Handling using SMOTE (Synthetic Minority Over-sampling Technique)
@@ -190,13 +190,19 @@ elif section == "Model Validation":
 
         # Model Performance on Test Data
         st.write("### Model Evaluation:")
-        X_test = merged_df[["model_year", "mileage", "price"]].dropna()  # Test data features
+        X_test = merged_df[["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]].dropna()  # Test data features
         y_test = merged_df["transmission_from_vin"].loc[X_test.index]  # Test data target
         y_pred = model.predict(X_test)
 
         st.write("Accuracy Score:", accuracy_score(y_test, y_pred))
-        st.write("Classification Report:")
-        st.text(classification_report(y_test, y_pred))
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred))
 
     except Exception as e:
-        st.error(f"Error in model validation: {e}")
+        st.error(f"Error during model validation: {e}")
+
+# Power BI Dashboard Section
+elif section == "Power BI Dashboard":
+    st.title("📊 Power BI Dashboard")
+    st.write("This section will embed a Power BI dashboard for deeper insights into the vehicle transmission dataset.")
+    st.write("Power BI Dashboard will be integrated here in the final version.")
