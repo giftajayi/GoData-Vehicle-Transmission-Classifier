@@ -7,29 +7,27 @@ from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import joblib
 
-st.title("🚗 Vehicle Transmission Classifier")
+# Sidebar Navigation
+st.sidebar.title("Navigation")
+section = st.sidebar.radio("Go to", ["Introduction", "Visualization"])
 
-# Define paths to multiple datasets
+# Define paths to CSV files
 csv_files = {
     "Main Dataset": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data1.csv",
-    "Dataset 2": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data2.csv",
-    "Dataset 3": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data3.csv",
-    "Dataset 4": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data4.csv",
-    "Dataset 5": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data5.csv",
+    "Dataset 2": "https://example.com/dataset2.csv",
+    "Dataset 3": "https://example.com/dataset3.csv",
+    "Dataset 4": "https://example.com/dataset4.csv",
+    "Dataset 5": "https://example.com/dataset5.csv",
+    "Dataset 6": "https://example.com/dataset6.csv",
 }
 
-# Load datasets
+# Load all datasets
 dataframes = {}
 for name, path in csv_files.items():
     try:
         dataframes[name] = pd.read_csv(path)
     except Exception as e:
         st.error(f"Could not load {name}: {e}")
-
-
-# Sidebar Navigation
-st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Introduction", "Dataset", "Visualization"])
 
 # Introduction Section
 if section == "Introduction":
@@ -40,32 +38,24 @@ if section == "Introduction":
     The dataset contains vehicle listings from Edmonton dealerships and additional related datasets.
     """)
 
-# Dataset Section
-elif section == "Dataset":
-    st.title("📁 Dataset Overview")
-    st.write("""
-    The datasets contain detailed information about vehicle listings from Edmonton dealerships, 
-    which have been merged for analysis. Below is an overview of the merged dataset.
-    """)
-    st.write(f"### Merged Dataset Shape: {merged_df.shape}")
-    st.dataframe(merged_df.head(10))
-    st.write("### Column Names in the Merged Dataset:")
-    st.write(merged_df.columns.tolist())
+    st.write("### Datasets Overview")
+    for name, df in dataframes.items():
+        st.subheader(name)
+        st.write(f"**Shape:** {df.shape}")
+        st.dataframe(df.head())
 
 # Visualization Section
 elif section == "Visualization":
     st.title("📊 Data Visualizations")
     st.write("Explore key insights and trends in the dataset through the visualizations below:")
 
-    # Visualization 1: Transmission Type Distribution
+    # Example visualizations (use appropriate URLs for images)
     image_url_1 = "plt1.png"
     st.image(image_url_1, caption="Transmission Type Distribution", use_column_width=True)
 
-    # Visualization 2: Price vs Mileage Scatter Plot
     image_url_2 = "plt2.png"
     st.image(image_url_2, caption="Price vs Mileage Scatter Plot", use_column_width=True)
 
-    # Visualization 3: Correlation Heatmap
     image_url_3 = "plt3.png"
     st.image(image_url_3, caption="Feature Correlation Heatmap", use_column_width=True)
 
