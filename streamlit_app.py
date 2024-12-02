@@ -134,3 +134,42 @@ elif section == "Visualization":
     st.write("""
     This countplot highlights the most popular vehicle makes in the dataset, showing the relative frequency of each brand.
     """)
+# Model Training & Prediction Section
+elif section == "Model Training & Prediction":
+    st.title("🧠 Model Training & Prediction")
+    
+    # Preprocess the data
+    try:
+        le = LabelEncoder()
+        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+        X = merged_df[["model_year", "mileage", "price"]].dropna()
+        y = merged_df["transmission_from_vin"].loc[X.index]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        
+        # Train a Random Forest Classifier
+        model = RandomForestClassifier()
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        
+        # Display performance metrics
+        st.write("### Accuracy Score:", accuracy_score(y_test, y_pred))
+        st.write("### Classification Report:")
+        st.text(classification_report(y_test, y_pred))
+        st.write("### Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred))
+        
+        # Save the model
+        joblib.dump(model, 'model.pkl')
+    except Exception as e:
+        st.error(f"An error occurred during model training: {e}")
+
+# Power BI Dashboard Section
+elif section == "Power BI Dashboard":
+    st.title("📈 Power BI Dashboard")
+    st.write("""
+    Below is the embedded Power BI report providing interactive insights into vehicle sales and transmission types.
+    """)
+    # Embed Power BI Report
+    st.markdown("""
+    <iframe width="100%" height="600px" src="https://app.powerbi.com/reportEmbed?reportId=<your_report_id>&autoAuth=true" frameborder="0" allowFullScreen="true"></iframe>
+    """, unsafe_allow_html=True)
