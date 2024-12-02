@@ -7,7 +7,7 @@ from sklearn.preprocessing import LabelEncoder
 from imblearn.over_sampling import SMOTE
 import numpy as np
 import joblib
-
+from imblearn.over_sampling import SMOTE
 
 # Define paths to multiple datasets
 csv_files = {
@@ -138,33 +138,39 @@ elif section == "Data Visualization":
 
 # Model Preprocessing Section
 elif section == "Model Preprocessing":
-    st.title("🔧 Model Preprocessing")
+    st.title("🧑‍🔬 Model Preprocessing")
+    
+    try:
+        # Label Encoding for the target variable
+        le = LabelEncoder()
+        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
 
-    # Encoding 'transmission_from_vin' using LabelEncoder
-    st.subheader("1️⃣ Label Encoding")
-    le = LabelEncoder()
-    merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
-    st.write("The 'transmission_from_vin' column has been label-encoded.")
+        # Select features (X) and target (y)
+        X = merged_df[["model_year", "mileage", "price"]].dropna()  # Features
+        y = merged_df["transmission_from_vin"].loc[X.index]  # Target
 
-    # Handle class imbalance using SMOTE
-    st.subheader("2️⃣ Handling Data Imbalance")
-    X = merged_df[["model_year", "mileage", "price"]].dropna()
-    y = merged_df["transmission_from_vin"].loc[X.index]
+        # Data Imbalance Handling using SMOTE (Synthetic Minority Over-sampling Technique)
+        smote = SMOTE(random_state=42)
+        X_res, y_res = smote.fit_resample(X, y)  # Resample the data
 
-    smote = SMOTE(random_state=42)
-    X_res, y_res = smote.fit_resample(X, y)
-    st.write(f"Data has been balanced. Original class distribution: {y.value_counts()}, New class distribution: {y_res.value_counts()}")
+        # Display the original and resampled class distribution
+        st.write("Original class distribution:")
+        st.write(y.value_counts())
+        st.write("Resampled class distribution:")
+        st.write(y_res.value_counts())
 
-    # Displaying preprocessed data sample
-    st.write("Sample of Preprocessed Data:")
-    st.dataframe(X_res[:5])
+        st.write("""
+        SMOTE has been applied to balance the dataset, creating synthetic examples 
+        for the minority class to handle class imbalance.
+        """)
+        
+    except Exception as e:
+        st.error(f"An error occurred during preprocessing: {e}")
 
-    st.write("Data is now ready for model training.")
-
-# Model Training & Prediction Section
+# Model Training Section
 elif section == "Model Training & Prediction":
     st.title("🧠 Model Training & Prediction")
-    
+
     try:
         # Train a Random Forest Classifier
         X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
@@ -172,16 +178,23 @@ elif section == "Model Training & Prediction":
         model = RandomForestClassifier()
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
-        
-        # Display performance metrics
+
+        # Model Validation: Display performance metrics
         st.write("### Accuracy Score:", accuracy_score(y_test, y_pred))
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
-        
-        # Save the model
+        st.write("### Confusion Matrix:")
+        cm = confusion_matrix(y_test, y_pred)
+
+        # Display confusion matrix as a table
+        cm_df = pd.DataFrame(cm, index=le.classes_, columns=le.classes_)
+        st.write(cm_df)
+
+        # Save the trained model
         joblib.dump(model, 'model.pkl')
+
     except Exception as e:
-        st.error(f"An error occurred during model training: {e}")
+        st.error(f"An error occurred during model training: {e}")  
 
 # Model Validation Section
 elif section == "Model Validation":
