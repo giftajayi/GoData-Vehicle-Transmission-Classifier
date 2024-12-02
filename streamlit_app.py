@@ -13,6 +13,7 @@ st.sidebar.title("Navigation")
 # Add a unique key for this radio button to prevent duplication
 section = st.sidebar.radio("Choose a section", ["Introduction", "Visualization"], key="main_navigation")
 
+
 # Define paths to CSV files
 csv_files = {
     "Main Dataset": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data1.csv",
