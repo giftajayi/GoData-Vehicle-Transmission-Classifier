@@ -24,12 +24,6 @@ for name, path in csv_files.items():
     except Exception as e:
         st.error(f"Could not load {name}: {e}")
 
-# Display dataset column names for debugging
-st.write("### Columns in Each Dataset")
-for name, df in dataframes.items():
-    st.write(f"**{name}**")
-    st.write(df.columns.tolist())
-
 # Merge datasets based on a common key
 common_key = "vehicle_id"  # Replace with the appropriate key if needed
 try:
@@ -41,15 +35,12 @@ try:
             else:
                 st.warning(f"Skipping merge with {name} as it lacks the common key '{common_key}'")
     st.success("Datasets successfully merged!")
-    st.write(f"Merged Dataset Shape: {merged_df.shape}")
-    st.dataframe(merged_df.head())
-
 except Exception as e:
     st.error(f"An error occurred during merging: {e}")
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Introduction", "Visualization"])
+section = st.sidebar.radio("Go to", ["Introduction", "Dataset", "Visualization"])
 
 # Introduction Section
 if section == "Introduction":
@@ -59,8 +50,18 @@ if section == "Introduction":
     (Automatic or Manual) based on various features like model year, make, mileage, price, and more.
     The dataset contains vehicle listings from Edmonton dealerships and additional related datasets.
     """)
-    st.write("### Merged Dataset Preview:")
+
+# Dataset Section
+elif section == "Dataset":
+    st.title("📁 Dataset Overview")
+    st.write("""
+    The datasets contain detailed information about vehicle listings from Edmonton dealerships, 
+    which have been merged for analysis. Below is an overview of the merged dataset.
+    """)
+    st.write(f"### Merged Dataset Shape: {merged_df.shape}")
     st.dataframe(merged_df.head(10))
+    st.write("### Column Names in the Merged Dataset:")
+    st.write(merged_df.columns.tolist())
 
 # Visualization Section
 elif section == "Visualization":
