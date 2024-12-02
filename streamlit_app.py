@@ -11,6 +11,6 @@ import joblib
 import pandas as pd
 
 # Title of the App
-st.title("🚗 Vehicle Transmission Classifier")import streamlit as st
+st.title("🚗 Vehicle Transmission Classifier")
 
 
