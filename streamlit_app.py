@@ -16,3 +16,11 @@ st.title("🚗 Vehicle Transmission Classifier")
 df = pd.read_csv("https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data1.csv")
 df.head(10) 
 
+### 1. Introduction Section ###
+with st.expander("🔍 Introduction"):
+    st.write("""
+    This app demonstrates a machine learning workflow for classifying vehicle transmissions (Automatic or Manual) based on various features like model year, make, mileage, price, and more.
+    The dataset contains vehicle listings from Edmonton dealerships.
+    """)
+
+
