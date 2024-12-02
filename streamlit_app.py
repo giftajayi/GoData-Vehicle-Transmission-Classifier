@@ -46,31 +46,66 @@ if section == "Introduction":
 # Visualization Section
 elif section == "Visualization":
     st.title("📊 Data Visualizations")
-    st.write("Explore key insights and trends in the dataset through the visualizations below:")
+    st.write("""
+    Explore key insights and trends in the dataset through the visualizations below. These charts help uncover patterns 
+    and relationships between variables in the vehicle transmission dataset.
+    """)
 
-    # Example visualizations (use appropriate URLs for images)
-    image_url_1 = "plt1.png"
-    st.image(image_url_1, caption="Transmission Type Distribution", use_column_width=True)
+    # Visualization 1: Transmission Type Distribution
+    st.subheader("1️⃣ Transmission Type Distribution")
+    st.image("plt1.png", caption="Proportion of Automatic vs Manual Transmissions", use_column_width=True)
+    st.write("""
+    This chart shows the distribution of transmission types across the dataset, providing insights into the balance 
+    between automatic and manual vehicles.
+    """)
 
-    image_url_2 = "plt2.png"
-    st.image(image_url_2, caption="Price vs Mileage Scatter Plot", use_column_width=True)
+    # Visualization 2: Price vs Mileage Scatter Plot
+    st.subheader("2️⃣ Price vs Mileage Scatter Plot")
+    st.image("plt2.png", caption="Price vs Mileage for Different Vehicles", use_column_width=True)
+    st.write("""
+    This scatter plot illustrates the relationship between vehicle price and mileage, showing how mileage impacts 
+    price variation.
+    """)
 
-    image_url_3 = "plt3.png"
-    st.image(image_url_3, caption="Feature Correlation Heatmap", use_column_width=True)
+    # Visualization 3: Feature Correlation Heatmap
+    st.subheader("3️⃣ Correlation Heatmap")
+    st.image("plt3.png", caption="Correlation Among Dataset Features", use_column_width=True)
+    st.write("""
+    The heatmap highlights the strength of correlations between features, helping identify key predictors for transmission types.
+    """)
 
-    image_url_4 = "plt4.png"
-    st.image(image_url_4, caption="Model Year Distribution", use_column_width=True)
+    # Visualization 4: Model Year Distribution
+    st.subheader("4️⃣ Model Year Distribution")
+    st.image("plt4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
+    st.write("""
+    This chart shows the frequency of vehicles manufactured in each model year, revealing trends in dataset age distribution.
+    """)
 
-    image_url_5 = "plt5.png"
-    st.image(image_url_5, caption="Price Distribution by Fuel Type", use_column_width=True)
+    # Visualization 5: Price Distribution by Fuel Type
+    st.subheader("5️⃣ Price Distribution by Fuel Type")
+    st.image("plt5.png", caption="Price Variation Across Fuel Types", use_column_width=True)
+    st.write("""
+    Analyzing vehicle price distribution across different fuel types provides insights into market segmentation by fuel preferences.
+    """)
 
-    image_url_6 = "plt6.png"
-    st.image(image_url_6, caption="Mileage Boxplot by Transmission Type", use_column_width=True)
+    # Visualization 6: Mileage Boxplot by Transmission Type
+    st.subheader("6️⃣ Mileage Boxplot by Transmission Type")
+    st.image("plt6.png", caption="Mileage Distribution for Automatic and Manual Transmissions", use_column_width=True)
+    st.write("""
+    This boxplot compares the mileage distribution between automatic and manual vehicles, highlighting central tendencies and outliers.
+    """)
 
-    image_url_7 = "plt7.png"
-    st.image(image_url_7, caption="Price vs Model Year Trend", use_column_width=True)
+    # Visualization 7: Price vs Model Year Line Plot
+    st.subheader("7️⃣ Price vs Model Year Trend")
+    st.image("plt7.png", caption="Average Price Trends by Model Year", use_column_width=True)
+    st.write("""
+    The line plot showcases how vehicle prices vary over model years, helping identify depreciation or appreciation trends.
+    """)
 
-    image_url_8 = "plt8.png"
-    st.image(image_url_8, caption="Make Popularity Countplot", use_column_width=True)
+    # Visualization 8: Make Popularity Countplot
+    st.subheader("8️⃣ Make Popularity Countplot")
+    st.image("plt8.png", caption="Frequency of Vehicle Makes in the Dataset", use_column_width=True)
+    st.write("""
+    This countplot highlights the most popular vehicle makes in the dataset, showing the relative frequency of each brand.
+    """)
 
-    st.write("These visualizations provide insights into the dataset and model performance.")
