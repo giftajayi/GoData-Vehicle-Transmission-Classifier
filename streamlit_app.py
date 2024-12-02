@@ -102,7 +102,7 @@ elif section == "Data Visualization":
 
     # Visualization 4: Model Year Distribution
     st.subheader("4️⃣ Model Year Distribution")
-    st.image("plt 4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
+    st.image("plt4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
     st.write("""
     This chart shows the frequency of vehicles manufactured in each model year, revealing trends in dataset age distribution.
     """)
@@ -186,30 +186,17 @@ elif section == "Model Validation":
             model = joblib.load("vehicle_transmission_model.pkl")
         except FileNotFoundError:
             st.error("Model file 'vehicle_transmission_model.pkl' not found. Please train the model first.")
-            model = None
+            raise
 
-        if model:
-            # Validate the model using the resampled dataset (X_res, y_res from preprocessing)
-            X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
-            y_pred = model.predict(X_test)
-            
-            # Display the classification report
-            st.write("### Classification Report:")
-            st.text(classification_report(y_test, y_pred))
-            
-            # Display confusion matrix
-            cm = confusion_matrix(y_test, y_pred)
-            cm_df = pd.DataFrame(cm, index=le.classes_, columns=le.classes_)
-            st.write("### Confusion Matrix:")
-            st.write(cm_df)
+        # Model Performance on Test Data
+        st.write("### Model Evaluation:")
+        X_test = merged_df[["model_year", "mileage", "price"]].dropna()  # Test data features
+        y_test = merged_df["transmission_from_vin"].loc[X_test.index]  # Test data target
+        y_pred = model.predict(X_test)
+
+        st.write("Accuracy Score:", accuracy_score(y_test, y_pred))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred))
 
     except Exception as e:
-        st.error(f"Error during model validation: {e}")
-
-# Power BI Dashboard Section
-elif section == "Power BI Dashboard":
-    st.title("📊 Power BI Dashboard")
-    st.write("""
-    Visualize your model's insights and explore the results interactively using Power BI.
-    """)
-
+        st.error(f"Error in model validation: {e}")
