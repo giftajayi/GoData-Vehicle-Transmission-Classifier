@@ -5,7 +5,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.preprocessing import LabelEncoder
 from imblearn.over_sampling import SMOTE
-import numpy as np
 import joblib
 
 # Define paths to multiple datasets
@@ -204,5 +203,10 @@ elif section == "Model Validation":
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-    st.write("This section will embed a Power BI dashboard for deeper insights into the vehicle transmission dataset.")
-    st.write("Power BI Dashboard will be integrated here in the final version.")
+
+    # Embed the Power BI dashboard using an iframe
+    st.markdown("""
+    <iframe width="100%" height="600" 
+    src="https://app.powerbi.com/reportEmbed?reportId=abc123xyz456&autoAuth=true&ctid=12345678-1234-5678-abcd-efghijklmnop" 
+    frameborder="0" allowFullScreen="true"></iframe>
+    """, unsafe_allow_html=True)
