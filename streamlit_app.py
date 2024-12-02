@@ -30,7 +30,7 @@ try:
     # Start with the main dataset
     merged_df = dataframes["Main Dataset"]
     
-    # Concatenate other datasets one by one
+    # Concatenate other datasets one by one (excluding the main dataset)
     for name, df in dataframes.items():
         if name != "Main Dataset":
             merged_df = pd.concat([merged_df, df], ignore_index=True)
@@ -40,7 +40,7 @@ except Exception as e:
 
 # Sidebar Navigation with custom 'key' for the radio button to prevent duplicate element IDs
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization"], key="section_radio")
+section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization", "Model Training & Prediction", "Power BI Dashboard"], key="section_radio")
 
 # Introduction Section
 if section == "Introduction":
@@ -102,7 +102,7 @@ elif section == "Visualization":
 
     # Visualization 4: Model Year Distribution
     st.subheader("4️⃣ Model Year Distribution")
-    st.image("plt 4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
+    st.image("plt4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
     st.write("""
     This chart shows the frequency of vehicles manufactured in each model year, revealing trends in dataset age distribution.
     """)
@@ -134,6 +134,7 @@ elif section == "Visualization":
     st.write("""
     This countplot highlights the most popular vehicle makes in the dataset, showing the relative frequency of each brand.
     """)
+
 # Model Training & Prediction Section
 elif section == "Model Training & Prediction":
     st.title("🧠 Model Training & Prediction")
@@ -160,6 +161,7 @@ elif section == "Model Training & Prediction":
         
         # Save the model
         joblib.dump(model, 'model.pkl')
+        st.write("### Model has been saved successfully!")
     except Exception as e:
         st.error(f"An error occurred during model training: {e}")
 
@@ -172,4 +174,4 @@ elif section == "Power BI Dashboard":
     # Embed Power BI Report
     st.markdown("""
     <iframe width="100%" height="600px" src="https://app.powerbi.com/reportEmbed?reportId=<your_report_id>&autoAuth=true" frameborder="0" allowFullScreen="true"></iframe>
-    """, unsafe_allow_html=True) 
+    """, unsafe_allow_html=True)
