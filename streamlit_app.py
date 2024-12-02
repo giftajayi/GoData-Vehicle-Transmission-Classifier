@@ -97,14 +97,14 @@ elif section == "Visualization":
 
     # Visualization 7: Price vs Model Year Line Plot
     st.subheader("7️⃣ Price vs Model Year Trend")
-    st.image("plt7.png.png", caption="Average Price Trends by Model Year", use_column_width=True)
+    st.image("plt7.png", caption="Average Price Trends by Model Year", use_column_width=True)
     st.write("""
     The line plot showcases how vehicle prices vary over model years, helping identify depreciation or appreciation trends.
     """)
 
     # Visualization 8: Make Popularity Countplot
     st.subheader("8️⃣ Make Popularity Countplot")
-    st.image("plt8.png.png", caption="Frequency of Vehicle Makes in the Dataset", use_column_width=True)
+    st.image("plt8.png", caption="Frequency of Vehicle Makes in the Dataset", use_column_width=True)
     st.write("""
     This countplot highlights the most popular vehicle makes in the dataset, showing the relative frequency of each brand.
     """)
