@@ -7,7 +7,6 @@ from sklearn.preprocessing import LabelEncoder
 from imblearn.over_sampling import SMOTE
 import numpy as np
 import joblib
-from imblearn.over_sampling import SMOTE
 
 # Define paths to multiple datasets
 csv_files = {
@@ -41,7 +40,7 @@ except Exception as e:
 
 # Sidebar Navigation with custom 'key' for the radio button to prevent duplicate element IDs
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization", "Model Preprocessing", "Model Training & Prediction", "Model Validation", "Power BI Dashboard"], key="section_radio")
+section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization", "Model Preprocessing & Training", "Model Validation", "Power BI Dashboard"], key="section_radio")
 
 # Introduction Section
 if section == "Introduction":
@@ -136,10 +135,10 @@ elif section == "Data Visualization":
     This countplot highlights the most popular vehicle makes in the dataset, showing the relative frequency of each brand.
     """)
 
-# Model Preprocessing Section
-elif section == "Model Preprocessing":
-    st.title("🧑‍🔬 Model Preprocessing")
-    
+# Model Preprocessing & Training Section
+elif section == "Model Preprocessing & Training":
+    st.title("🧑‍🔬 Model Preprocessing & Training")
+
     try:
         # Label Encoding for the target variable
         le = LabelEncoder()
@@ -159,19 +158,6 @@ elif section == "Model Preprocessing":
         st.write("Resampled class distribution:")
         st.write(y_res.value_counts())
 
-        st.write("""
-        SMOTE has been applied to balance the dataset, creating synthetic examples 
-        for the minority class to handle class imbalance.
-        """)
-        
-    except Exception as e:
-        st.error(f"An error occurred during preprocessing: {e}")
-
-# Model Training Section
-elif section == "Model Training & Prediction":
-    st.title("🧠 Model Training & Prediction")
-
-    try:
         # Train a Random Forest Classifier
         X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
         
@@ -193,8 +179,12 @@ elif section == "Model Training & Prediction":
         # Save the trained model
         joblib.dump(model, 'model.pkl')
 
+        st.write("""
+        The model has been trained and saved. You can use this trained model for further predictions.
+        """)
+        
     except Exception as e:
-        st.error(f"An error occurred during model training: {e}")  
+        st.error(f"An error occurred during preprocessing or training: {e}")  
 
 # Model Validation Section
 elif section == "Model Validation":
@@ -205,16 +195,21 @@ elif section == "Model Validation":
         model = joblib.load('model.pkl')
         
         # Calculate confusion matrix
-        X_test, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)[1], y_res
+        X_test, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)[1:3]
         y_pred = model.predict(X_test)
         cm = confusion_matrix(y_test, y_pred)
         
-        # Display confusion matrix as a table
+        # Display the classification report
+        st.write("### Classification Report:")
+        st.text(classification_report(y_test, y_pred))
+        
+        # Display confusion matrix
         st.write("### Confusion Matrix:")
-        cm_df = pd.DataFrame(cm, columns=["Predicted 0", "Predicted 1"], index=["Actual 0", "Actual 1"])
-        st.table(cm_df)
+        cm_df = pd.DataFrame(cm, index=le.classes_, columns=le.classes_)
+        st.write(cm_df)
+        
     except Exception as e:
-        st.error(f"An error occurred during model validation: {e}")
+        st.error(f"Error during model validation: {e}")
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
