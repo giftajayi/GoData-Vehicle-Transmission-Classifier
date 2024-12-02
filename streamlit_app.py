@@ -13,4 +13,6 @@ import pandas as pd
 # Title of the App
 st.title("🚗 Vehicle Transmission Classifier")
 
+df = pd.read_csv("https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data1.csv")
+df.head(10)
 
