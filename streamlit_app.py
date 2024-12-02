@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.preprocessing import LabelEncoder
+from imblearn.over_sampling import SMOTE
 import numpy as np
 import joblib
 
@@ -30,7 +31,7 @@ try:
     # Start with the main dataset
     merged_df = dataframes["Main Dataset"]
     
-    # Concatenate other datasets one by one (excluding the main dataset)
+    # Concatenate other datasets one by one
     for name, df in dataframes.items():
         if name != "Main Dataset":
             merged_df = pd.concat([merged_df, df], ignore_index=True)
@@ -40,7 +41,7 @@ except Exception as e:
 
 # Sidebar Navigation with custom 'key' for the radio button to prevent duplicate element IDs
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization", "Model Training & Prediction", "Power BI Dashboard"], key="section_radio")
+section = st.sidebar.radio("Go to", ["Introduction", "Dataset Overview", "Visualization", "Model Preprocessing", "Model Training & Prediction", "Model Validation", "Power BI Dashboard"], key="section_radio")
 
 # Introduction Section
 if section == "Introduction":
@@ -70,7 +71,7 @@ elif section == "Dataset Overview":
     st.write(merged_df.describe())
 
 # Visualization Section
-elif section == "Visualization":
+elif section == "Data Visualization":
     st.title("📊 Data Visualizations")
     st.write("""
     These charts help uncover patterns 
@@ -102,7 +103,7 @@ elif section == "Visualization":
 
     # Visualization 4: Model Year Distribution
     st.subheader("4️⃣ Model Year Distribution")
-    st.image("plt4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
+    st.image("plt 4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
     st.write("""
     This chart shows the frequency of vehicles manufactured in each model year, revealing trends in dataset age distribution.
     """)
@@ -135,19 +136,39 @@ elif section == "Visualization":
     This countplot highlights the most popular vehicle makes in the dataset, showing the relative frequency of each brand.
     """)
 
+# Model Preprocessing Section
+elif section == "Model Preprocessing":
+    st.title("🔧 Model Preprocessing")
+
+    # Encoding 'transmission_from_vin' using LabelEncoder
+    st.subheader("1️⃣ Label Encoding")
+    le = LabelEncoder()
+    merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+    st.write("The 'transmission_from_vin' column has been label-encoded.")
+
+    # Handle class imbalance using SMOTE
+    st.subheader("2️⃣ Handling Data Imbalance")
+    X = merged_df[["model_year", "mileage", "price"]].dropna()
+    y = merged_df["transmission_from_vin"].loc[X.index]
+
+    smote = SMOTE(random_state=42)
+    X_res, y_res = smote.fit_resample(X, y)
+    st.write(f"Data has been balanced. Original class distribution: {y.value_counts()}, New class distribution: {y_res.value_counts()}")
+
+    # Displaying preprocessed data sample
+    st.write("Sample of Preprocessed Data:")
+    st.dataframe(X_res[:5])
+
+    st.write("Data is now ready for model training.")
+
 # Model Training & Prediction Section
 elif section == "Model Training & Prediction":
     st.title("🧠 Model Training & Prediction")
     
-    # Preprocess the data
     try:
-        le = LabelEncoder()
-        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
-        X = merged_df[["model_year", "mileage", "price"]].dropna()
-        y = merged_df["transmission_from_vin"].loc[X.index]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        
         # Train a Random Forest Classifier
+        X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
+        
         model = RandomForestClassifier()
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
@@ -156,22 +177,36 @@ elif section == "Model Training & Prediction":
         st.write("### Accuracy Score:", accuracy_score(y_test, y_pred))
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
-        st.write("### Confusion Matrix:")
-        st.write(confusion_matrix(y_test, y_pred))
         
         # Save the model
         joblib.dump(model, 'model.pkl')
-        st.write("### Model has been saved successfully!")
     except Exception as e:
         st.error(f"An error occurred during model training: {e}")
 
+# Model Validation Section
+elif section == "Model Validation":
+    st.title("🔍 Model Validation")
+    
+    try:
+        # Load the trained model
+        model = joblib.load('model.pkl')
+        
+        # Calculate confusion matrix
+        X_test, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)[1], y_res
+        y_pred = model.predict(X_test)
+        cm = confusion_matrix(y_test, y_pred)
+        
+        # Display confusion matrix as a table
+        st.write("### Confusion Matrix:")
+        cm_df = pd.DataFrame(cm, columns=["Predicted 0", "Predicted 1"], index=["Actual 0", "Actual 1"])
+        st.table(cm_df)
+    except Exception as e:
+        st.error(f"An error occurred during model validation: {e}")
+
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
-    st.title("📈 Power BI Dashboard")
+    st.title("📊 Power BI Dashboard")
     st.write("""
-    Below is the embedded Power BI report providing interactive insights into vehicle sales and transmission types.
+    Visualize data insights using an integrated Power BI dashboard.
     """)
-    # Embed Power BI Report
-    st.markdown("""
-    <iframe width="100%" height="600px" src="https://app.powerbi.com/reportEmbed?reportId=<your_report_id>&autoAuth=true" frameborder="0" allowFullScreen="true"></iframe>
-    """, unsafe_allow_html=True)
+
