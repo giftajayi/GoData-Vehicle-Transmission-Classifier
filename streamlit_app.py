@@ -208,3 +208,8 @@ elif section == "Power BI Dashboard":
     In this section, you can explore an interactive Power BI dashboard to gain insights from the model predictions.
     For an actual deployment, you can embed the Power BI dashboard here or provide a link to it.
     """)
+
+    # Link to Power BI dashboard (for demonstration)
+    st.markdown("[Click here to view the Power BI Dashboard](https://app.powerbi.com)")
+
+# End of app logic
