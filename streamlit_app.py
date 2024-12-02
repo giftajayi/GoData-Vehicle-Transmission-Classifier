@@ -194,7 +194,7 @@ elif section == "Model Validation":
             model = joblib.load("vehicle_transmission_model.pkl")
         except FileNotFoundError:
             st.warning("Model file not found. Please train the model first.")
-            return  # Exit if the model is not found
+                return  # Exit if the model is not found
 
         # Recreate the necessary data for validation (from the previous dataset)
         # Label Encoding for the target variable
