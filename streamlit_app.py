@@ -78,31 +78,35 @@ elif section == "Data Visualization":
     """)
 
     st.subheader("1️⃣ Transmission Type Distribution")
-    st.image("plt1.png", caption="Proportion of Automatic vs Manual Transmissions", use_column_width=True)
+    st.image("chart1.png", caption="Proportion of Automatic vs Manual Transmissions", use_column_width=True)
     st.write("This chart shows the distribution of automatic and manual transmissions in the dataset.")
 
     st.subheader("2️⃣ Price vs Mileage Scatter Plot")
-    st.image("plt2.png", caption="Price vs Mileage for Different Vehicles", use_column_width=True)
+    st.image("chart2.png", caption="Price vs Mileage for Different Vehicles", use_column_width=True)
     st.write("This scatter plot visualizes the relationship between price and mileage for various vehicles.")
 
     st.subheader("3️⃣ Correlation Heatmap")
-    st.image("plt3.png", caption="Correlation Among Dataset Features", use_column_width=True)
+    st.image("chart3.png", caption="Correlation Among Dataset Features", use_column_width=True)
     st.write("The heatmap highlights the correlation between different features in the dataset.")
 
-    st.subheader("4️⃣ Price Distribution by Fuel Type")
-    st.image("plt4.png", caption="Price Variation Across Fuel Types", use_column_width=True)
+    st.subheader("4️⃣ Model Year Distribution")
+    st.image("chart4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
+    st.write("This chart displays the distribution of vehicles across different model years.")
+
+    st.subheader("5️⃣ Price Distribution by Fuel Type")
+    st.image("plt5.png", caption="Price Variation Across Fuel Types", use_column_width=True)
     st.write("This plot shows how prices vary across different fuel types.")
 
-    st.subheader("5️⃣ Mileage Boxplot by Transmission Type")
-    st.image("plt5.png", caption="Mileage Distribution for Automatic and Manual Transmissions", use_column_width=True)
+    st.subheader("6️⃣ Mileage Boxplot by Transmission Type")
+    st.image("chart5.png", caption="Mileage Distribution for Automatic and Manual Transmissions", use_column_width=True)
     st.write("This boxplot compares the mileage distribution between automatic and manual transmissions.")
 
-    st.subheader("6️⃣ Price vs Model Year Trend")
-    st.image("plt6.png", caption="Average Price Trends by Model Year", use_column_width=True)
+    st.subheader("7️⃣ Price vs Model Year Trend")
+    st.image("plt7.png", caption="Average Price Trends by Model Year", use_column_width=True)
     st.write("This chart illustrates the trend of average prices over different model years.")
 
-    st.subheader("7️⃣ Make Popularity Countplot")
-    st.image("plt7.png", caption="Frequency of Vehicle Makes in the Dataset", use_column_width=True)
+    st.subheader("8️⃣ Make Popularity Countplot")
+    st.image("chart6.png", caption="Frequency of Vehicle Makes in the Dataset", use_column_width=True)
     st.write("This countplot shows the frequency of different vehicle makes in the dataset.")
 
 # Feature Engineering and Model Training Section
