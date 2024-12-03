@@ -68,10 +68,6 @@ elif section == "Dataset Overview":
 
     st.write("### General Statistics:")
     st.write(merged_df.describe())
-
-    st.write("### General Information:")
-    st.write(merged_df.info())
-    
     
 # Visualization Section
 # Visualization Section
