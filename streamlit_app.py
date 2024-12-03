@@ -235,7 +235,6 @@ elif section == "Model Evaluation":
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
     st.write("""
-    Explore and analyze the dataset using an interactive Power BI dashboard. 
     The dashboard provides insights and visualizations on transmission types, pricing trends, and more.
     """)
 
