@@ -166,9 +166,10 @@ elif section == "Model Validation":
         # Predict and evaluate
         y_pred = model.predict(X_scaled)
 
+        # Specify the labels parameter to match the number of classes in y_encoded
         st.write("### Accuracy Score:", accuracy_score(y_encoded, y_pred))
         st.write("### Classification Report:")
-        st.text(classification_report(y_encoded, y_pred, target_names=le.classes_))
+        st.text(classification_report(y_encoded, y_pred, labels=[0, 1], target_names=['A', 'M']))
         st.write("### Confusion Matrix:")
         st.write(confusion_matrix(y_encoded, y_pred))
         
