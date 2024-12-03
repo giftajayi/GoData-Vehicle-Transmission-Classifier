@@ -231,4 +231,4 @@ elif section == "Power BI Dashboard":
     The dashboard provides insights and visualizations on transmission types, pricing trends, and more.
     """)
 
-    st.write("The Power BI dashboard will be embedded here soon.")
+    st.write("The Power BI dashboard will be embedded here soon.") 
