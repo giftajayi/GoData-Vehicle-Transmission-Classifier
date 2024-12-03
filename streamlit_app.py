@@ -37,7 +37,7 @@ except Exception as e:
 st.sidebar.title("Navigation")
 section = st.sidebar.radio(
     "Go to",
-    ["Introduction", "Dataset Overview", "Visualization", "Model Preprocessing & Training", "Model Validation", "Power BI Dashboard"],
+    ["Introduction", "Dataset Overview", "Visualization", "Feature Engineering and Model Training", "Model Validation", "Power BI Dashboard"],
     key="section_radio"
 )
 
@@ -101,38 +101,51 @@ elif section == "Visualization":
     st.subheader("8️⃣ Make Popularity Countplot")
     st.image("plt8.png", caption="Frequency of Vehicle Makes in the Dataset", use_column_width=True)
 
-# Model Preprocessing & Training Section
-elif section == "Model Preprocessing & Training":
-    st.title("🧑‍🔬 Model Preprocessing & Training")
+# Feature Engineering and Model Training Section
+elif section == "Feature Engineering and Model Training":
+    st.title("🧑‍🔬 Feature Engineering and Model Training")
     try:
+        # Encode target variable for transmission type
         le = LabelEncoder()
         merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+
+        # Select and prepare features (X) and target (y)
         X = merged_df[[
             "dealer_type", "stock_type", "mileage", "price", "model_year",
             "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
         ]].dropna()
         y = merged_df["transmission_from_vin"].loc[X.index]
+
+        # Encode categorical features
         for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
 
+        # Standardize features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
+        # Apply SMOTE for balancing the dataset
         smote = SMOTE(random_state=42)
         X_res, y_res = smote.fit_resample(X_scaled, y)
 
+        # Train-test split
         X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
+
+        # Train a Random Forest Classifier
         model = RandomForestClassifier()
         model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
 
+        # Predict and evaluate the model
+        y_pred = model.predict(X_test)
         st.write("### Accuracy Score:", accuracy_score(y_test, y_pred))
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
 
+        # Save the model
         joblib.dump(model, "vehicle_transmission_model.pkl")
+        st.success("Model trained and saved successfully.")
     except Exception as e:
-        st.error(f"Error during model preprocessing/training: {e}")
+        st.error(f"Error during feature engineering/model training: {e}")
 
 # Model Validation Section
 elif section == "Model Validation":
@@ -181,4 +194,4 @@ elif section == "Model Validation":
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-    st.write("Link to Power BI dashboard or embedded visualization.")
+    st.write("Integration of Power BI dashboard (to be added later).")
