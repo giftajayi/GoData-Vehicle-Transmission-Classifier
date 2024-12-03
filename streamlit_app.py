@@ -71,7 +71,7 @@ elif section == "Dataset Overview":
 
 # Visualization Section
 elif section == "Data Visualization":
-    st.title("📊 Data Visualizations")
+    st.title("📊 Data Visualization")
     st.write("""
     These charts help uncover patterns 
     and relationships between variables in the vehicle transmission dataset.
