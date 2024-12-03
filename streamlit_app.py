@@ -71,11 +71,11 @@ elif section == "Dataset Overview":
 
 # Visualization Section
 elif section == "Data Visualization":
-st.title("📊 Data Visualizations")
-st.write("""
-These charts help uncover patterns 
-and relationships between variables in the vehicle transmission dataset.
-""")
+    st.title("📊 Data Visualizations")
+    st.write("""
+    These charts help uncover patterns 
+    and relationships between variables in the vehicle transmission dataset.
+    """)
 
     st.subheader("1️⃣ Transmission Type Distribution")
     st.image("chart1.png", caption="Proportion of Automatic vs Manual Transmissions", use_column_width=True)
