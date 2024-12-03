@@ -71,35 +71,35 @@ elif section == "Dataset Overview":
 
 # Visualization Section
 elif section == "Data Visualization":
-    st.title("📊 Data Visualizations")
-    st.write("""
-    These charts help uncover patterns 
-    and relationships between variables in the vehicle transmission dataset.
-    """)
+st.title("📊 Data Visualizations")
+st.write("""
+These charts help uncover patterns 
+and relationships between variables in the vehicle transmission dataset.
+""")
 
-    st.subheader("1️⃣ Transmission Type Distribution")
-    st.image("chart1.png", caption="Proportion of Automatic vs Manual Transmissions", use_column_width=True)
-    
-    st.subheader("2️⃣ Price vs Mileage Scatter Plot")
-    st.image("chart2.png", caption="Price vs Mileage for Different Vehicles", use_column_width=True)
-    
-    st.subheader("3️⃣ Correlation Heatmap")
-    st.image("plt3.png", caption="Correlation Among Dataset Features", use_column_width=True)
-    
-    st.subheader("4️⃣ Model Year Distribution")
-    st.image("plt4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
-    
-    st.subheader("5️⃣ Price Distribution by Fuel Type")
-    st.image("chart5.png", caption="Price Variation Across Fuel Types", use_column_width=True)
-    
-    st.subheader("6️⃣ Mileage Boxplot by Transmission Type")
-    st.image("plt6.png", caption="Mileage Distribution for Automatic and Manual Transmissions", use_column_width=True)
-    
-    st.subheader("7️⃣ Price vs Model Year Trend")
-    st.image("plt7.png", caption="Average Price Trends by Model Year", use_column_width=True)
-    
-    st.subheader("8️⃣ Make Popularity Countplot")
-    st.image("chart6.png", caption="Frequency of Vehicle Makes in the Dataset", use_column_width=True)
+st.subheader("1️⃣ Transmission Type Distribution")
+st.image("chart1.png", caption="Proportion of Automatic vs Manual Transmissions", use_column_width=True)
+
+st.subheader("2️⃣ Price vs Mileage Scatter Plot")
+st.image("chart2.png", caption="Price vs Mileage for Different Vehicles", use_column_width=True)
+
+st.subheader("3️⃣ Correlation Heatmap")
+st.image("plt3.png", caption="Correlation Among Dataset Features", use_column_width=True)
+
+st.subheader("4️⃣ Model Year Distribution")
+st.image("plt4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
+
+st.subheader("5️⃣ Price Distribution by Fuel Type")
+st.image("chart5.png", caption="Price Variation Across Fuel Types", use_column_width=True)
+
+st.subheader("6️⃣ Mileage Boxplot by Transmission Type")
+st.image("plt6.png", caption="Mileage Distribution for Automatic and Manual Transmissions", use_column_width=True)
+
+st.subheader("7️⃣ Price vs Model Year Trend")
+st.image("plt7.png", caption="Average Price Trends by Model Year", use_column_width=True)
+
+st.subheader("8️⃣ Make Popularity Countplot")
+st.image("chart6.png", caption="Frequency of Vehicle Makes in the Dataset", use_column_width=True)
 
 # Feature Engineering and Model Training Section
 elif section == "Feature Engineering and Model Training":
