@@ -37,7 +37,7 @@ except Exception as e:
 st.sidebar.title("Navigation")
 section = st.sidebar.radio(
     "Go to",
-    ["Introduction", "Dataset Overview", "Visualization", "Feature Engineering and Model Training", "Model Validation", "Power BI Dashboard"],
+    ["Introduction", "Dataset Overview", "Visualization", "Feature Engineering and Model Training", "Model Evaluation", "Power BI Dashboard"],
     key="section_radio"
 )
 
@@ -147,9 +147,9 @@ elif section == "Feature Engineering and Model Training":
     except Exception as e:
         st.error(f"Error during feature engineering/model training: {e}")
 
-# Model Validation Section
-elif section == "Model Validation":
-    st.title("🔍 Model Validation")
+# Model Evaluation Section
+elif section == "Model Evaluation":
+    st.title("🔍 Model Evaluation")
     try:
         # Load the model
         model = joblib.load("vehicle_transmission_model.pkl")
@@ -157,7 +157,7 @@ elif section == "Model Validation":
 
         le = LabelEncoder()
 
-        # Prepare the data for validation
+        # Prepare the data for evaluation
         X = merged_df[[
             "dealer_type", "stock_type", "mileage", "price", "model_year",
             "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
@@ -189,9 +189,14 @@ elif section == "Model Validation":
     except FileNotFoundError:
         st.warning("Model file not found. Please train the model first.")
     except Exception as e:
-        st.error(f"Error during model validation: {e}")
+        st.error(f"Error during model evaluation: {e}")
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-    st.write("Integration of Power BI dashboard (to be added later).")
+    st.write("""
+    Explore and analyze the dataset using an interactive Power BI dashboard. 
+    The dashboard provides insights and visualizations on transmission types, pricing trends, and more.
+    """)
+
+    st.write("The Power BI dashboard will be embedded here soon.")
