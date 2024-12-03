@@ -86,7 +86,7 @@ elif section == "Visualization":
     st.image("plt3.png", caption="Correlation Among Dataset Features", use_column_width=True)
 
     st.subheader("4️⃣ Model Year Distribution")
-    st.image("plt4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
+    st.image("plt 4.png", caption="Distribution of Vehicles by Model Year", use_column_width=True)
 
     st.subheader("5️⃣ Price Distribution by Fuel Type")
     st.image("plt5.png", caption="Price Variation Across Fuel Types", use_column_width=True)
@@ -137,6 +137,7 @@ elif section == "Model Preprocessing & Training":
 elif section == "Model Validation":
     st.title("🔍 Model Validation")
     try:
+        # Load the model
         model = joblib.load("vehicle_transmission_model.pkl")
         st.success("Model loaded successfully.")
 
@@ -150,7 +151,10 @@ elif section == "Model Validation":
 
         y = merged_df["transmission_from_vin"].loc[X.index]
 
-        # Encode categorical columns
+        # Encode y_true using the same encoder
+        y_encoded = le.fit_transform(y)
+
+        # Encode categorical columns in X
         for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
 
@@ -161,17 +165,16 @@ elif section == "Model Validation":
         # Predict and evaluate
         y_pred = model.predict(X_scaled)
 
-        st.write("### Accuracy Score:", accuracy_score(y, y_pred))
+        st.write("### Accuracy Score:", accuracy_score(y_encoded, y_pred))
         st.write("### Classification Report:")
-        st.text(classification_report(y, y_pred))
+        st.text(classification_report(y_encoded, y_pred, target_names=le.classes_))
         st.write("### Confusion Matrix:")
-        st.write(confusion_matrix(y, y_pred))
+        st.write(confusion_matrix(y_encoded, y_pred))
         
     except FileNotFoundError:
         st.warning("Model file not found. Please train the model first.")
     except Exception as e:
         st.error(f"Error during model validation: {e}")
-
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
