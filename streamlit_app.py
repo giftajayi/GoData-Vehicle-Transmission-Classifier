@@ -70,7 +70,7 @@ elif section == "Dataset Overview":
     st.write(merged_df.describe())
 
 # Visualization Section
-elif section == "Visualization":
+elif section == "Data Visualization":
     st.title("📊 Data Visualizations")
     st.write("""
     These charts help uncover patterns 
