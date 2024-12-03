@@ -37,7 +37,7 @@ except Exception as e:
 st.sidebar.title("Navigation")
 section = st.sidebar.radio(
     "Go to",
-    ["Introduction", "Dataset Overview", "Visualization", "Feature Engineering and Model Training", "Model Evaluation", "Power BI Dashboard"],
+    ["Introduction", "Dataset Overview", "Data Visualization", "Feature Engineering and Model Training", "Model Evaluation", "Power BI Dashboard"],
     key="section_radio"
 )
 
