@@ -138,17 +138,27 @@ elif section == "Model Validation":
     st.title("🔍 Model Validation")
     try:
         model = joblib.load("vehicle_transmission_model.pkl")
+        st.success("Model loaded successfully.")
+
         le = LabelEncoder()
-        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+
+        # Prepare the data for validation
         X = merged_df[[
             "dealer_type", "stock_type", "mileage", "price", "model_year",
             "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
         ]].dropna()
+
+        y = merged_df["transmission_from_vin"].loc[X.index]
+
+        # Encode categorical columns
         for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
 
+        # Standardize features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
+
+        # Predict and evaluate
         y_pred = model.predict(X_scaled)
 
         st.write("### Accuracy Score:", accuracy_score(y, y_pred))
@@ -156,8 +166,12 @@ elif section == "Model Validation":
         st.text(classification_report(y, y_pred))
         st.write("### Confusion Matrix:")
         st.write(confusion_matrix(y, y_pred))
+        
+    except FileNotFoundError:
+        st.warning("Model file not found. Please train the model first.")
     except Exception as e:
         st.error(f"Error during model validation: {e}")
+
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
