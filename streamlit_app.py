@@ -66,9 +66,12 @@ elif section == "Dataset Overview":
     else:
         st.warning("Main columns not found in the dataset.")
 
+    st.write("### General Information:")
+    st.write(merged_df.info())
+    
     st.write("### General Statistics:")
     st.write(merged_df.describe())
-
+    
 # Visualization Section
 # Visualization Section
 elif section == "Data Visualization":
