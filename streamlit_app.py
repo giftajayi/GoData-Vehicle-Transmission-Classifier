@@ -57,6 +57,7 @@ elif section == "EDA":
 elif section == "ML Model":
     st.title("🏋️ Model Training & Evaluation")
     try:
+        # Preprocess dataset
         merged_df.dropna(subset=['transmission_from_vin'], inplace=True)
         le = LabelEncoder()
         merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
@@ -68,17 +69,27 @@ elif section == "ML Model":
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
         joblib.dump(scaler, "scaler.pkl")
+        
+        # Train-test split
         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-        smote = SMOTE()
+        
+        # Handle class imbalance with SMOTE
+        smote = SMOTE(random_state=42)
         X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
-        model = RandomForestClassifier()
+        
+        # Train model
+        model = RandomForestClassifier(random_state=42)
         model.fit(X_train_res, y_train_res)
         y_pred = model.predict(X_test)
+        
+        # Metrics
         st.write("### Accuracy:", accuracy_score(y_test, y_pred))
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred, target_names=['Manual', 'Automatic']))
         st.write("### Confusion Matrix:")
         st.write(confusion_matrix(y_test, y_pred))
+        
+        # Save model
         joblib.dump(model, "vehicle_transmission_model.pkl")
         st.success("Model trained and saved successfully!")
     except Exception as e:
@@ -106,7 +117,7 @@ elif section == "Model Prediction":
 
     # Encode categorical inputs
     certified = 1 if certified == "Yes" else 0
-    fuel_type_encoded = LabelEncoder().fit_transform([fuel_type])[0]
+    fuel_type_encoded = LabelEncoder().fit(merged_df['fuel_type_from_vin'].unique()).transform([fuel_type])[0]
 
     input_data = pd.DataFrame([[mileage, price, model_year, fuel_type_encoded, certified, price_changes]],
                               columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
@@ -115,12 +126,7 @@ elif section == "Model Prediction":
         scaler = joblib.load("scaler.pkl")
         model = joblib.load("vehicle_transmission_model.pkl")
 
-        # Ensure feature compatibility
-        if set(input_data.columns) != set(["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]):
-            raise ValueError("Input feature columns do not match model's expected features.")
-        
         input_data_scaled = scaler.transform(input_data)
-
         prediction = model.predict(input_data_scaled)
         transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
         st.write(f"### Predicted Transmission: **{transmission_type}**")
