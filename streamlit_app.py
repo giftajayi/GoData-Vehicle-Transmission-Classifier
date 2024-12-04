@@ -102,6 +102,7 @@ elif section == "ML Model Type":
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
+    # User input for prediction
     mileage = st.number_input("Mileage (in km)", min_value=0, value=50000)
     price = st.number_input("Price (in CAD)", min_value=0, value=25000)
     model_year = st.number_input("Model Year", min_value=2000, max_value=2024, value=2020)
@@ -109,46 +110,54 @@ elif section == "Model Prediction":
     certified = st.selectbox("Certified", ["Yes", "No"])
     price_changes = st.number_input("Price Changes", min_value=0, value=2)
 
-    # Encode categorical inputs
-    certified = 1 if certified == "Yes" else 0
-    fuel_type_encoded = LabelEncoder().fit_transform([fuel_type])[0]
+    # Button to generate prediction
+    if st.button("Predict Transmission"):
+        # Encode categorical inputs
+        certified = 1 if certified == "Yes" else 0
+        fuel_type_encoded = LabelEncoder().fit_transform([fuel_type])[0]
 
-    input_data = pd.DataFrame([[mileage, price, model_year, fuel_type_encoded, certified, price_changes]],
-                              columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
+        input_data = pd.DataFrame([[mileage, price, model_year, fuel_type_encoded, certified, price_changes]],
+                                  columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
 
-    try:
-        if not os.path.exists(scaler_path) or not os.path.exists(model_path):
-            st.warning("Required files are missing. Training the model now...")
-            
-            # Automatically train the model if files are missing
-            merged_df.dropna(subset=['transmission_from_vin'], inplace=True)
-            le = LabelEncoder()
-            merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
-            features = ["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]
-            X = merged_df[features]
-            y = merged_df['transmission_encoded']
-            for col in X.select_dtypes(include=['object']).columns:
-                X[col] = le.fit_transform(X[col].astype(str))
-            scaler = StandardScaler()
-            X_scaled = scaler.fit_transform(X)
-            joblib.dump(scaler, scaler_path)
-            X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-            smote = SMOTE()
-            X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
-            model = RandomForestClassifier()
-            model.fit(X_train_res, y_train_res)
-            joblib.dump(model, model_path)
-            st.success("Model trained successfully during prediction process!")
+        try:
+            # Check if model files are present
+            if not os.path.exists(scaler_path) or not os.path.exists(model_path):
+                st.warning("Required files are missing. Training the model now...")
+                
+                # Automatically train the model if files are missing
+                merged_df.dropna(subset=['transmission_from_vin'], inplace=True)
+                le = LabelEncoder()
+                merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
+                features = ["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]
+                X = merged_df[features]
+                y = merged_df['transmission_encoded']
+                for col in X.select_dtypes(include=['object']).columns:
+                    X[col] = le.fit_transform(X[col].astype(str))
+                scaler = StandardScaler()
+                X_scaled = scaler.fit_transform(X)
+                joblib.dump(scaler, scaler_path)
+                X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+                smote = SMOTE()
+                X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
+                model = RandomForestClassifier()
+                model.fit(X_train_res, y_train_res)
+                joblib.dump(model, model_path)
+                st.success("Model trained successfully during prediction process!")
 
-        scaler = joblib.load(scaler_path)
-        model = joblib.load(model_path)
+            # Load the scaler and model
+            scaler = joblib.load(scaler_path)
+            model = joblib.load(model_path)
 
-        input_data_scaled = scaler.transform(input_data)
-        prediction = model.predict(input_data_scaled)
-        transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
-        st.write(f"### Predicted Transmission: **{transmission_type}**")
-    except Exception as e:
-        st.error(f"Prediction error: {e}")
+            # Scale the input data
+            input_data_scaled = scaler.transform(input_data)
+
+            # Make the prediction
+            prediction = model.predict(input_data_scaled)
+            transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
+            st.write(f"### Predicted Transmission: **{transmission_type}**")
+        except Exception as e:
+            st.error(f"Prediction error: {e}")
+
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
