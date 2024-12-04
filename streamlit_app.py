@@ -7,7 +7,6 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from imblearn.over_sampling import SMOTE
 import joblib
 
-
 # Load and merge datasets
 csv_urls = [
     "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data1.csv",
@@ -64,22 +63,34 @@ elif section == "ML Model":
         features = ["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]
         X = merged_df[features]
         y = merged_df['transmission_encoded']
+        
+        # Encoding categorical variables
         for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
+        
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
         joblib.dump(scaler, "scaler.pkl")
+        
         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+        
+        # SMOTE to handle class imbalance
         smote = SMOTE()
         X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
+        
+        # Train the model
         model = RandomForestClassifier()
         model.fit(X_train_res, y_train_res)
+        
+        # Evaluate the model
         y_pred = model.predict(X_test)
         st.write("### Accuracy:", accuracy_score(y_test, y_pred))
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred, target_names=['Manual', 'Automatic']))
         st.write("### Confusion Matrix:")
         st.write(confusion_matrix(y_test, y_pred))
+        
+        # Save the model
         joblib.dump(model, "vehicle_transmission_model.pkl")
         st.success("Model trained and saved successfully!")
     except Exception as e:
