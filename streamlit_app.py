@@ -28,7 +28,7 @@ merged_df = load_and_merge_data()
 st.sidebar.title("Navigation")
 section = st.sidebar.radio(
     "Go to",
-    ["Dashboard", "EDA", "ML Model", "ML Model Type", "Model Prediction"]
+    ["Dashboard", "EDA", "ML Model", "ML Model Type", "Model Prediction", "Power BI Dashboard"]
 )
 
 # Dashboard Section
@@ -54,7 +54,9 @@ elif section == "EDA":
     st.bar_chart(merged_df['transmission_from_vin'].value_counts())
 
     st.write("### Correlation Heatmap:")
-    corr = merged_df.corr()
+    # Ensure only numeric columns are used for correlation
+    numeric_df = merged_df.select_dtypes(include=['float64', 'int64'])
+    corr = numeric_df.corr()
     st.write(corr)
 
 # ML Model Section
@@ -64,6 +66,8 @@ elif section == "ML Model":
     try:
         # Data Preprocessing
         merged_df.dropna(subset=['transmission_from_vin'], inplace=True)
+
+        # Label encoding for transmission type and categorical features
         le = LabelEncoder()
         merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
 
@@ -71,6 +75,7 @@ elif section == "ML Model":
         X = merged_df[features]
         y = merged_df['transmission_encoded']
 
+        # Label encoding for categorical features in X
         for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
 
@@ -137,7 +142,8 @@ elif section == "Model Prediction":
     price_changes = st.number_input("Price Changes", min_value=0, value=2)
 
     # Preprocessing for prediction
-    fuel_type = le.transform([fuel_type])[0]
+    le_fuel_type = LabelEncoder()
+    fuel_type = le_fuel_type.fit(merged_df['fuel_type_from_vin']).transform([fuel_type])[0]
     certified = 1 if certified == "Yes" else 0
 
     # Prepare the features for prediction
@@ -156,9 +162,14 @@ elif section == "Model Prediction":
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
+
     st.write("""
-    The dashboard provides insights and visualizations on transmission types, pricing trends, and more.
+    Below is the embedded Power BI dashboard that visualizes key metrics and trends related to the vehicle data, 
+    helping with insights for decision-making:
     """)
 
-    # Link to Power BI Dashboard
-    st.write("Click [here](https://app.powerbi.com/groups/me/reports/c9772dbc-0131-4e5a-a559-43a5c22874b3/ca237ccb0ae673ae960a?experience=power-bi) to view the Power BI dashboard.")
+    # Embed Power BI dashboard using iframe
+    power_bi_url = "https://app.powerbi.com/view?r=YOUR_POWER_BI_EMBED_URL"
+    iframe_code = f'<iframe width="100%" height="600" src="{power_bi_url}" frameborder="0" allowFullScreen="true"></iframe>'
+    
+    st.markdown(iframe_code, unsafe_allow_html=True)
