@@ -7,229 +7,153 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from imblearn.over_sampling import SMOTE
 import joblib
 
-# Define paths to multiple datasets
-csv_files = {
-    "Main Dataset": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data1.csv",
-    "Dataset 2": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data2.csv",
-    "Dataset 3": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data3.csv",
-    "Dataset 4": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data4.csv",
-    "Dataset 5": "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/refs/heads/master/Cleaned_data5.csv",
-}
+# Load and merge datasets
+csv_urls = [
+    "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data1.csv",
+    "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data2.csv",
+    "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data3.csv",
+    "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data4.csv",
+    "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data5.csv",
+]
 
-# Load datasets
-dataframes = {}
-for name, path in csv_files.items():
-    try:
-        dataframes[name] = pd.read_csv(path)
-    except Exception as e:
-        st.error(f"Could not load {name}: {e}")
+@st.cache_data
+def load_and_merge_data():
+    dfs = [pd.read_csv(url) for url in csv_urls]
+    merged = pd.concat(dfs, ignore_index=True)
+    return merged
 
-# Concatenate datasets vertically
-try:
-    merged_df = dataframes["Main Dataset"]
-    for name, df in dataframes.items():
-        if name != "Main Dataset":
-            merged_df = pd.concat([merged_df, df], ignore_index=True)
-except Exception as e:
-    st.error(f"An error occurred during merging: {e}")
+merged_df = load_and_merge_data()
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
 section = st.sidebar.radio(
     "Go to",
-    ["Introduction", "Dataset Overview", "Data Visualization", "Feature Engineering and Model Training", "Model Evaluation", "Power BI Dashboard"],
-    key="section_radio"
+    ["Dashboard", "EDA", "ML Model", "ML Model Type", "Model Prediction"]
 )
 
-# Introduction Section
-if section == "Introduction":
+# Dashboard Section
+if section == "Dashboard":
     st.title("🚗 Vehicle Transmission Classifier")
     st.write("""
-    The primary objective of this project is to develop a machine learning model that can reliably predict whether a vehicle has an automatic or manual transmission. By leveraging this model, Go Auto aims to enhance its decision-making processes, streamline inventory classification, and target marketing efforts more effectively. A successful model would not only improve operational efficiency but also provide valuable insights into consumer preferences, helping dealerships better align their offerings with market demand. The ability to accurately identify the transmission type can contribute significantly to improving customer experiences and boosting sales.
-
-The Go Auto business intelligence team has provided a comprehensive dataset consisting of over 140,000 vehicle listings from various dealerships in Edmonton. This dataset contains a wide array of vehicle-related details, including attributes such as mileage, price, model year, make, and more. The GoData team’s challenge is to sift through this data and identify the most relevant features that will enable the development of an accurate classification model. With the goal of predicting transmission types, the team will focus on data preprocessing, feature selection, and machine learning techniques to ensure the model performs well across diverse vehicle listings. By doing so, the team aims to create a tool that offers actionable insights and supports Go Auto’s operational and strategic objectives.
+    This project uses machine learning to classify vehicles as either **Manual** or **Automatic**.
+    The goal is to help optimize inventory management, marketing, and sales strategies for Go Auto by predicting 
+    the transmission type of vehicles in their listings.
     """)
 
-# Dataset Overview Section
-elif section == "Dataset Overview":
-    st.title("📊 Dataset Overview")
-    main_columns = [
-        "vehicle_id", "dealer_type", "stock_type", "model_year", "model", "make",
-        "price", "mileage", "transmission_type", "certified", "transmission_from_vin",
-        "fuel_type_from_vin", "number_price_changes"
-    ]
-    available_columns = [col for col in main_columns if col in merged_df.columns]
+# Exploratory Data Analysis (EDA) Section
+elif section == "EDA":
+    st.title("🔍 Exploratory Data Analysis (EDA)")
 
-    if available_columns:
-        st.write("### First 5 Rows of the Dataset:")
-        st.dataframe(merged_df[available_columns].head(5))
-    else:
-        st.warning("Main columns not found in the dataset.")
+    st.write("### First 5 Rows of the Dataset:")
+    st.dataframe(merged_df.head(5))
 
-    st.write("### General Statistics:")
+    st.write("### Dataset Statistics:")
     st.write(merged_df.describe())
+
+    st.write("### Distribution of Transmission Types:")
+    st.bar_chart(merged_df['transmission_from_vin'].value_counts())
+
+    st.write("### Correlation Heatmap:")
+    corr = merged_df.corr()
+    st.write(corr)
+
+# ML Model Section
+elif section == "ML Model":
+    st.title("🏋️ Model Training & Evaluation")
     
-# Visualization Section
-# Visualization Section
-elif section == "Data Visualization":
-    st.title("📊 Data Visualization")
-    st.write("""
-    Visualizations help us understand patterns, distributions, and relationships within the dataset.
-    """)
-
-    st.subheader("1️⃣ Transmission Type Distribution")
-    st.image("chart1.png", caption="Proportion of Automatic vs Manual Transmissions")
-    st.write("This pie chart shows the proportion of vehicles with automatic versus manual transmissions.")
-
-    st.subheader("2️⃣ Price vs Mileage Scatter Plot")
-    st.image("chart2.png", caption="Price vs Mileage for Different Vehicles")
-    st.write("This scatter plot highlights how vehicle price relates to mileage, offering insights into pricing patterns.")
-
-    st.subheader("3️⃣ Correlation Heatmap")
-    st.image("plt3.png", caption="Correlation Among Dataset Features")
-    st.write("This heatmap illustrates the strength of correlations between key features in the dataset.")
-
-    st.subheader("4️⃣ Model Year Distribution")
-    st.image("plt4.png", caption="Distribution of Vehicles by Model Year")
-    st.write("This bar chart shows how vehicle models are distributed across different production years.")
-
-    st.subheader("5️⃣ Price Distribution by Fuel Type")
-    st.image("chart5.png", caption="Price Variation Across Fuel Types")
-    st.write("This plot compares price distributions across different fuel types, helping identify trends by fuel preference.")
-
-    st.subheader("6️⃣ Mileage Boxplot by Transmission Type")
-    st.image("plt6.png", caption="Mileage Distribution for Automatic and Manual Transmissions")
-    st.write("This boxplot presents mileage variability for both automatic and manual transmissions.")
-
-    st.subheader("7️⃣ Price vs Model Year Trend")
-    st.image("plt7.png", caption="Average Price Trends by Model Year")
-    st.write("This line chart tracks average vehicle prices over different model years, showing depreciation trends.")
-
-    st.subheader("8️⃣ Make Popularity Countplot")
-    st.image("chart6.png", caption="Frequency of Vehicle Makes in the Dataset")
-    st.write("This count plot displays the frequency of various vehicle makes, indicating market preferences.")
-
-# Feature Engineering and Model Training Section
-elif section == "Feature Engineering and Model Training":
-    st.title("🧑‍🔬 Feature Engineering and Model Training")
-
-    # Feature Engineering Steps
-    st.subheader("🔧 Feature Engineering")
-
-    st.write("""
-    In this section, we apply transformations and preprocessing steps to prepare the data for training. 
-    Feature engineering is critical as it impacts the model’s performance.
-    """)
-
     try:
-        # 1. Encoding categorical variables using LabelEncoder
+        # Data Preprocessing
+        merged_df.dropna(subset=['transmission_from_vin'], inplace=True)
         le = LabelEncoder()
-        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+        merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
 
-        # 2. Handling missing data (if applicable)
-        # We drop rows with missing values for simplicity. Alternatively, we could impute values.
-        merged_df = merged_df.dropna()
+        features = ["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]
+        X = merged_df[features]
+        y = merged_df['transmission_encoded']
 
-        # 3. Selecting features to use in the model
-        X = merged_df[[
-            "dealer_type", "stock_type", "mileage", "price", "model_year",
-            "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
-        ]]
-        
-        # Target variable
-        y = merged_df["transmission_from_vin"]
-
-        # 4. Encoding categorical features in X (if any)
         for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
 
-        # 5. Scaling numerical features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        st.write("### Preprocessing completed: Features prepared for model training.")
-
-    except Exception as e:
-        st.error(f"Error during feature engineering: {e}")
-
-    # Model Training Steps
-    st.subheader("🏋️‍♂️ Model Training")
-
-    st.write("""
-    In this section, we will split the data into training and testing sets, train the RandomForestClassifier, 
-    and evaluate its initial performance. 
-    """)
-
-    try:
-        # 1. Splitting the data into training and test sets
+        # Train/Test Split
         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-        st.write("### Data split into training and testing sets.")
 
-        # 2. Training the RandomForestClassifier
+        # Handle class imbalance
+        smote = SMOTE()
+        X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
+
+        # Train Model
         model = RandomForestClassifier()
-        model.fit(X_train, y_train)
-        st.write("### Model training completed.")
+        model.fit(X_train_res, y_train_res)
 
-        # 3. Predicting and evaluating on the test set
+        # Evaluation
         y_pred = model.predict(X_test)
-
-        st.write("### Initial Model Evaluation:")
-        st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+        st.write("### Accuracy:", accuracy_score(y_test, y_pred))
         st.write("### Classification Report:")
-        st.text(classification_report(y_test, y_pred))
-
-        # Save the trained model
-        joblib.dump(model, "vehicle_transmission_model.pkl")
-        st.success("Model trained and saved successfully.")
-
-    except Exception as e:
-        st.error(f"Error during model training: {e}")
-
-
-
-# Model Evaluation Section
-elif section == "Model Evaluation":
-    st.title("🔍 Model Evaluation")
-    try:
-        # Load the model
-        model = joblib.load("vehicle_transmission_model.pkl")
-        st.success("Model loaded successfully.")
-
-        le = LabelEncoder()
-
-        # Prepare the data for evaluation
-        X = merged_df[[
-            "dealer_type", "stock_type", "mileage", "price", "model_year",
-            "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
-        ]].dropna()
-
-        y = merged_df["transmission_from_vin"].loc[X.index]
-
-        # Encode y_true using the same encoder
-        y_encoded = le.fit_transform(y)
-
-        # Encode categorical columns in X
-        for col in X.select_dtypes(include=['object']).columns:
-            X[col] = le.fit_transform(X[col].astype(str))
-
-        # Standardize features
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
-
-        # Predict and evaluate
-        y_pred = model.predict(X_scaled)
-
-        # Specify the labels parameter to match the number of classes in y_encoded
-        st.write("### Accuracy Score:", accuracy_score(y_encoded, y_pred))
-        st.write("### Classification Report:")
-        st.text(classification_report(y_encoded, y_pred, labels=[0, 1], target_names=['A', 'M']))
+        st.text(classification_report(y_test, y_pred, target_names=['Manual', 'Automatic']))
         st.write("### Confusion Matrix:")
-        st.write(confusion_matrix(y_encoded, y_pred))
-        
-    except FileNotFoundError:
-        st.warning("Model file not found. Please train the model first.")
+        st.write(confusion_matrix(y_test, y_pred))
+
+        # Save the model
+        joblib.dump(model, "vehicle_transmission_model.pkl")
+        st.success("Model trained and saved successfully!")
+
     except Exception as e:
-        st.error(f"Error during model evaluation: {e}")
+        st.error(f"Model training error: {e}")
+
+# ML Model Type Section
+elif section == "ML Model Type":
+    st.title("🧠 ML Model Type")
+
+    st.write("""
+    For this classification task, we are using a **Random Forest Classifier**. It is an ensemble learning method
+    that works by creating multiple decision trees and combining their predictions. This model is effective for
+    classification problems and helps in handling complex data with multiple features, such as vehicle characteristics.
+    """)
+    st.write("### Why Random Forest?")
+    st.write("""
+    - **Robustness**: It handles large datasets with higher dimensionality well.
+    - **Non-linearity**: It captures complex relationships between variables.
+    - **Feature importance**: It can rank features based on their importance.
+    """)
+
+# Model Prediction Section
+elif section == "Model Prediction":
+    st.title("🔮 Model Prediction")
+
+    st.write("""
+    Use the form below to predict whether a vehicle is **Manual** or **Automatic** based on its characteristics.
+    Select the values for the following features:
+    """)
+
+    # Interactive form to input values
+    mileage = st.number_input("Mileage (in km)", min_value=0, value=50000)
+    price = st.number_input("Price (in CAD)", min_value=0, value=25000)
+    model_year = st.number_input("Model Year", min_value=2000, max_value=2024, value=2020)
+    fuel_type = st.selectbox("Fuel Type", ["Gasoline", "Diesel", "Electric", "Hybrid"])
+    certified = st.selectbox("Certified", ["Yes", "No"])
+    price_changes = st.number_input("Price Changes", min_value=0, value=2)
+
+    # Preprocessing for prediction
+    fuel_type = le.transform([fuel_type])[0]
+    certified = 1 if certified == "Yes" else 0
+
+    # Prepare the features for prediction
+    input_data = pd.DataFrame([[mileage, price, model_year, fuel_type, certified, price_changes]],
+                              columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
+
+    input_data_scaled = scaler.transform(input_data)
+
+    # Load model and predict
+    model = joblib.load("vehicle_transmission_model.pkl")
+    prediction = model.predict(input_data_scaled)
+
+    transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
+    st.write(f"### Predicted Transmission: **{transmission_type}**")
+
+
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
