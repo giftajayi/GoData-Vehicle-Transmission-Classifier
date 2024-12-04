@@ -153,8 +153,6 @@ elif section == "Model Prediction":
     transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
     st.write(f"### Predicted Transmission: **{transmission_type}**")
 
-
-
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
