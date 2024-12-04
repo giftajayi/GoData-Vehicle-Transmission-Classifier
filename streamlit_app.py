@@ -96,25 +96,39 @@ elif section == "ML Model Type":
 # Model Prediction Section
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
+
     mileage = st.number_input("Mileage (in km)", min_value=0, value=50000)
     price = st.number_input("Price (in CAD)", min_value=0, value=25000)
     model_year = st.number_input("Model Year", min_value=2000, max_value=2024, value=2020)
     fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].unique())
     certified = st.selectbox("Certified", ["Yes", "No"])
     price_changes = st.number_input("Price Changes", min_value=0, value=2)
+
+    # Encode categorical inputs
     certified = 1 if certified == "Yes" else 0
-    input_data = pd.DataFrame([[mileage, price, model_year, fuel_type, certified, price_changes]],
+    fuel_type_encoded = LabelEncoder().fit_transform([fuel_type])[0]
+
+    input_data = pd.DataFrame([[mileage, price, model_year, fuel_type_encoded, certified, price_changes]],
                               columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
+
     try:
         scaler = joblib.load("scaler.pkl")
         model = joblib.load("vehicle_transmission_model.pkl")
+
+        # Ensure feature compatibility
+        if set(input_data.columns) != set(["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]):
+            raise ValueError("Input feature columns do not match model's expected features.")
+        
         input_data_scaled = scaler.transform(input_data)
+
         prediction = model.predict(input_data_scaled)
         transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
         st.write(f"### Predicted Transmission: **{transmission_type}**")
+    except FileNotFoundError as e:
+        st.error("Required model or scaler files not found. Please ensure 'scaler.pkl' and 'vehicle_transmission_model.pkl' are in place.")
     except Exception as e:
         st.error(f"Prediction error: {e}")
-
+        
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
