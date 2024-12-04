@@ -61,7 +61,7 @@ elif section == "EDA":
 # ML Model Section
 elif section == "ML Model":
     st.title("🏋️ Model Training & Evaluation")
-    
+
     try:
         # Data Preprocessing
         merged_df.dropna(subset=['transmission_from_vin'], inplace=True)
@@ -95,8 +95,10 @@ elif section == "ML Model":
         st.write("### Confusion Matrix:")
         st.write(confusion_matrix(y_test, y_pred))
 
+        # Save model and scaler
         joblib.dump(model, "vehicle_transmission_model.pkl")
-        st.success("Model trained and saved successfully!")
+        joblib.dump(scaler, "scaler.pkl")
+        st.success("Model and scaler trained and saved successfully!")
 
     except Exception as e:
         st.error(f"Model training error: {e}")
@@ -133,11 +135,17 @@ elif section == "Model Prediction":
         input_data = pd.DataFrame([[mileage, price, model_year, input_fuel_type, certified, price_changes]],
                                   columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
 
-        input_data_scaled = scaler.transform(input_data)
-        model = joblib.load("vehicle_transmission_model.pkl")
-        prediction = model.predict(input_data_scaled)
-        transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
-        st.write(f"### Predicted Transmission: **{transmission_type}**")
+        try:
+            scaler = joblib.load("scaler.pkl")
+            input_data_scaled = scaler.transform(input_data)
+
+            model = joblib.load("vehicle_transmission_model.pkl")
+            prediction = model.predict(input_data_scaled)
+            transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
+            st.write(f"### Predicted Transmission: **{transmission_type}**")
+
+        except Exception as e:
+            st.error(f"Prediction error: {e}")
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
