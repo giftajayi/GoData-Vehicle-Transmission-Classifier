@@ -134,6 +134,8 @@ elif section == "ML Model":
 # Model Prediction Section
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
+    
+    # User inputs for prediction
     dealer_type = st.selectbox("Dealer Type", merged_df['dealer_type'].unique())
     stock_type = st.selectbox("Stock Type", merged_df['stock_type'].unique())
     mileage = st.number_input("Mileage", min_value=0)
@@ -145,21 +147,45 @@ elif section == "Model Prediction":
     fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].unique())
     price_changes = st.number_input("Number of Price Changes", min_value=0)
 
+    # Encode 'Certified' feature (Yes=1, No=0)
     certified_encoded = 1 if certified == "Yes" else 0
 
+    # Load LabelEncoders for each categorical feature
+    le_dict = {
+        'dealer_type': LabelEncoder().fit(merged_df['dealer_type']),
+        'stock_type': LabelEncoder().fit(merged_df['stock_type']),
+        'make': LabelEncoder().fit(merged_df['make']),
+        'model': LabelEncoder().fit(merged_df['model']),
+        'fuel_type_from_vin': LabelEncoder().fit(merged_df['fuel_type_from_vin'])
+    }
+
+    # Encode user inputs based on pre-trained label encoders
+    dealer_type_encoded = le_dict['dealer_type'].transform([dealer_type])[0]
+    stock_type_encoded = le_dict['stock_type'].transform([stock_type])[0]
+    make_encoded = le_dict['make'].transform([make])[0]
+    model_encoded = le_dict['model'].transform([model])[0]
+    fuel_type_encoded = le_dict['fuel_type_from_vin'].transform([fuel_type])[0]
+
+    # Prepare input data for prediction
     input_data = pd.DataFrame([[
-        le.fit_transform([dealer_type])[0], le.fit_transform([stock_type])[0], mileage, price, model_year,
-        le.fit_transform([make])[0], le.fit_transform([model])[0], certified_encoded,
-        le.fit_transform([fuel_type])[0], price_changes
-    ]], columns=features)
+        dealer_type_encoded, stock_type_encoded, mileage, price, model_year,
+        make_encoded, model_encoded, certified_encoded, fuel_type_encoded, price_changes
+    ]], columns=["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"])
 
     if st.button("Generate Prediction"):
         try:
+            # Load pre-trained model and scaler
             scaler = joblib.load("scaler.pkl")
             model = joblib.load("vehicle_transmission_model.pkl")
+
+            # Scale input data
             input_scaled = scaler.transform(input_data)
+
+            # Make prediction
             prediction = model.predict(input_scaled)
             transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
+
+            # Display result
             st.write(f"### Predicted Transmission: **{transmission_type}**")
         except Exception as e:
             st.error(f"Prediction error: {e}")
