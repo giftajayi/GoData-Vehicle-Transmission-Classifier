@@ -23,6 +23,7 @@ def load_and_merge_data():
     merged = pd.concat(dfs, ignore_index=True)
     return merged
 
+# Load data
 merged_df = load_and_merge_data()
 
 # Sidebar Navigation
@@ -65,7 +66,7 @@ elif section == "ML Model":
         features = ["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]
         X = merged_df[features]
         y = merged_df['transmission_encoded']
-        
+
         # Encode categorical features
         for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
@@ -116,20 +117,21 @@ elif section == "Model Prediction":
     mileage = st.number_input("Mileage (in km)", min_value=0, value=50000)
     price = st.number_input("Price (in CAD)", min_value=0, value=25000)
     model_year = st.number_input("Model Year", min_value=2000, max_value=2024, value=2020)
-    fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].unique())
+    fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].dropna().unique())
     certified = st.selectbox("Certified", ["Yes", "No"])
     price_changes = st.number_input("Price Changes", min_value=0, value=2)
 
-    # Encode categorical inputs
-    certified = 1 if certified == "Yes" else 0
-    le_fuel = LabelEncoder()
-    le_fuel.fit(merged_df['fuel_type_from_vin'].unique())
-    fuel_type_encoded = le_fuel.transform([fuel_type])[0]
-
-    input_data = pd.DataFrame([[mileage, price, model_year, fuel_type_encoded, certified, price_changes]],
-                              columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
-
     try:
+        # Encode inputs
+        certified = 1 if certified == "Yes" else 0
+        le_fuel = LabelEncoder()
+        le_fuel.fit(merged_df['fuel_type_from_vin'].dropna().unique())
+        fuel_type_encoded = le_fuel.transform([fuel_type])[0]
+
+        input_data = pd.DataFrame([[mileage, price, model_year, fuel_type_encoded, certified, price_changes]],
+                                  columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
+
+        # Load model and scaler
         scaler = joblib.load("scaler.pkl")
         model = joblib.load("vehicle_transmission_model.pkl")
 
