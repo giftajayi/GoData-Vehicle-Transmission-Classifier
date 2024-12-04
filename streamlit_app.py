@@ -39,7 +39,6 @@ if section == "Dashboard":
     st.title("🚗 Vehicle Transmission Classifier")
     st.write("""
     The primary objective of this project is to develop a machine learning model that can reliably predict whether a vehicle has an automatic or manual transmission. By leveraging this model, Go Auto aims to enhance its decision-making processes, streamline inventory classification, and target marketing efforts more effectively. A successful model would not only improve operational efficiency but also provide valuable insights into consumer preferences, helping dealerships better align their offerings with market demand. The ability to accurately identify the transmission type can contribute significantly to improving customer experiences and boosting sales.
-
     """)
 
 # Exploratory Data Analysis (EDA) Section
@@ -99,7 +98,7 @@ elif section == "ML Model":
 
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
-        joblib.dump(scaler, "scaler.pkl")
+        joblib.dump(scaler, "scaler.pkl")  # Ensure it's saved to the correct path
 
         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
         smote = SMOTE()
@@ -126,7 +125,7 @@ elif section == "ML Model":
         st.write(confusion_matrix(y_test, y_pred))
 
         # Save the tuned model
-        joblib.dump(best_model, "vehicle_transmission_model.pkl")
+        joblib.dump(best_model, "vehicle_transmission_model.pkl")  # Save to the correct path
         st.success("Model trained and saved successfully!")
     except Exception as e:
         st.error(f"Model training error: {e}")
@@ -166,31 +165,37 @@ elif section == "Model Prediction":
     model_encoded = le_dict['model'].transform([model])[0]
     fuel_type_encoded = le_dict['fuel_type_from_vin'].transform([fuel_type])[0]
 
-    # Prepare input data for prediction
-    input_data = pd.DataFrame([[
-        dealer_type_encoded, stock_type_encoded, mileage, price, model_year,
-        make_encoded, model_encoded, certified_encoded, fuel_type_encoded, price_changes
-    ]], columns=["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"])
+    # Load the saved model and scaler
+    try:
+        scaler = joblib.load("scaler.pkl")
+        model = joblib.load("vehicle_transmission_model.pkl")
 
-    if st.button("Generate Prediction"):
-        try:
-            # Load pre-trained model and scaler
-            scaler = joblib.load("scaler.pkl")
-            model = joblib.load("vehicle_transmission_model.pkl")
+        # Prepare input features for prediction
+        input_data = pd.DataFrame({
+            'dealer_type': [dealer_type_encoded],
+            'stock_type': [stock_type_encoded],
+            'mileage': [mileage],
+            'price': [price],
+            'model_year': [model_year],
+            'make': [make_encoded],
+            'model': [model_encoded],
+            'certified': [certified_encoded],
+            'fuel_type_from_vin': [fuel_type_encoded],
+            'number_price_changes': [price_changes]
+        })
 
-            # Scale input data
-            input_scaled = scaler.transform(input_data)
+        # Scale the input data using the saved scaler
+        input_data_scaled = scaler.transform(input_data)
 
-            # Make prediction
-            prediction = model.predict(input_scaled)
-            transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
+        # Make prediction
+        prediction = model.predict(input_data_scaled)
+        result = "Automatic" if prediction == 1 else "Manual"
 
-            # Display result
-            st.write(f"### Predicted Transmission: **{transmission_type}**")
-        except Exception as e:
-            st.error(f"Prediction error: {e}")
+        st.write(f"The predicted transmission type is: **{result}**")
+    except Exception as e:
+        st.error(f"Error loading model or scaler: {e}")
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-    st.write("[View the Power BI dashboard here](https://app.powerbi.com/groups/me/reports/c9772dbc-0131-4e5a-a559-43a5c22874b3/ca237ccb0ae673ae960a?experience=power-bi)")
+    st.write("This section will provide insights using Power BI for data visualization.")
