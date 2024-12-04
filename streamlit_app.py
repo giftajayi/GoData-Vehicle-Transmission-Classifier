@@ -184,18 +184,18 @@ elif section == "Model Prediction":
             'number_price_changes': [price_changes]
         })
 
-        # Scale the input data using the saved scaler
-        input_data_scaled = scaler.transform(input_data)
+        # Scale input features
+        input_scaled = scaler.transform(input_data)
 
-        # Make prediction
-        prediction = model.predict(input_data_scaled)
-        result = "Automatic" if prediction == 1 else "Manual"
+        # Predict the transmission type
+        prediction = model.predict(input_scaled)
+        transmission = le.inverse_transform(prediction)[0]
 
-        st.write(f"The predicted transmission type is: **{result}**")
+        st.write(f"Predicted Transmission Type: {transmission}")
     except Exception as e:
-        st.error(f"Error loading model or scaler: {e}")
+        st.error(f"Prediction error: {e}")
 
-# Power BI Dashboard Section
+# Power BI Section (not implemented here)
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-    st.write("This section will provide insights using Power BI for data visualization.")
+    st.write("Power BI dashboard can be embedded here.")
