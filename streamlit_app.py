@@ -138,10 +138,3 @@ elif section == "Model Prediction":
             st.error("Required model or scaler files not found. Please ensure 'scaler.pkl' and 'vehicle_transmission_model.pkl' are in place.")
         except Exception as e:
             st.error(f"Prediction error: {e}")
-
-# Power BI Dashboard Section
-elif section == "Power BI Dashboard":
-    st.title("📊 Power BI Dashboard")
-    power_bi_url = "https://app.powerbi.com/view?r=YOUR_POWER_BI_EMBED_URL"
-    iframe_code = f'<iframe width="100%" height="600" src="{power_bi_url}" frameborder="0" allowFullScreen="true"></iframe>'
-    st.markdown(iframe_code, unsafe_allow_html=True)
