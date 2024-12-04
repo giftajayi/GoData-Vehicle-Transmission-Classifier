@@ -124,7 +124,7 @@ elif section == "Model Prediction":
             expected_columns = ["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]
             if set(input_data.columns) != set(expected_columns):
                 st.error(f"Input columns mismatch. Expected columns: {expected_columns}")
-                return  # This will stop the function and show an error, but we won't use return outside the function
+                st.stop()  # Stop execution here
 
             # Scale input data
             input_data_scaled = scaler.transform(input_data)
