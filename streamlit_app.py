@@ -6,6 +6,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from imblearn.over_sampling import SMOTE
 import joblib
+import numpy as np
 
 # Load and merge datasets
 csv_urls = [
@@ -64,8 +65,12 @@ elif section == "ML Model":
         features = ["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]
         X = merged_df[features]
         y = merged_df['transmission_encoded']
+        
+        # Encode categorical features
         for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
+        
+        # Scale data
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
         joblib.dump(scaler, "scaler.pkl")
@@ -117,7 +122,9 @@ elif section == "Model Prediction":
 
     # Encode categorical inputs
     certified = 1 if certified == "Yes" else 0
-    fuel_type_encoded = LabelEncoder().fit(merged_df['fuel_type_from_vin'].unique()).transform([fuel_type])[0]
+    le_fuel = LabelEncoder()
+    le_fuel.fit(merged_df['fuel_type_from_vin'].unique())
+    fuel_type_encoded = le_fuel.transform([fuel_type])[0]
 
     input_data = pd.DataFrame([[mileage, price, model_year, fuel_type_encoded, certified, price_changes]],
                               columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
@@ -126,15 +133,18 @@ elif section == "Model Prediction":
         scaler = joblib.load("scaler.pkl")
         model = joblib.load("vehicle_transmission_model.pkl")
 
+        # Scale input data
         input_data_scaled = scaler.transform(input_data)
+
+        # Predict
         prediction = model.predict(input_data_scaled)
         transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
         st.write(f"### Predicted Transmission: **{transmission_type}**")
     except FileNotFoundError as e:
-        st.error("Required model or scaler files not found. Please ensure 'scaler.pkl' and 'vehicle_transmission_model.pkl' are in place.")
+        st.error(f"Required file not found: {e}")
     except Exception as e:
         st.error(f"Prediction error: {e}")
-        
+
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
