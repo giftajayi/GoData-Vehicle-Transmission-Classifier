@@ -43,109 +43,77 @@ if section == "Dashboard":
 # Exploratory Data Analysis (EDA) Section
 elif section == "EDA":
     st.title("🔍 Exploratory Data Analysis (EDA)")
-
     st.write("### First 5 Rows of the Dataset:")
     st.dataframe(merged_df.head(5))
-
     st.write("### Dataset Statistics:")
     st.write(merged_df.describe())
-
     st.write("### Distribution of Transmission Types:")
     st.bar_chart(merged_df['transmission_from_vin'].value_counts())
-
     st.write("### Correlation Heatmap:")
     numeric_df = merged_df.select_dtypes(include=['float64', 'int64'])
-    corr = numeric_df.corr()
-    st.write(corr)
+    st.write(numeric_df.corr())
 
 # ML Model Section
 elif section == "ML Model":
     st.title("🏋️ Model Training & Evaluation")
-
     try:
-        # Data Preprocessing
         merged_df.dropna(subset=['transmission_from_vin'], inplace=True)
-
         le = LabelEncoder()
         merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
-
         features = ["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]
         X = merged_df[features]
         y = merged_df['transmission_encoded']
-
-        # Encode categorical features
         for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
-
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
-
+        joblib.dump(scaler, "scaler.pkl")
         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-
         smote = SMOTE()
         X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
-
         model = RandomForestClassifier()
         model.fit(X_train_res, y_train_res)
-
         y_pred = model.predict(X_test)
         st.write("### Accuracy:", accuracy_score(y_test, y_pred))
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred, target_names=['Manual', 'Automatic']))
         st.write("### Confusion Matrix:")
         st.write(confusion_matrix(y_test, y_pred))
-
-        # Save model and scaler
         joblib.dump(model, "vehicle_transmission_model.pkl")
-        joblib.dump(scaler, "scaler.pkl")
-        st.success("Model and scaler trained and saved successfully!")
-
+        st.success("Model trained and saved successfully!")
     except Exception as e:
         st.error(f"Model training error: {e}")
 
 # ML Model Type Section
 elif section == "ML Model Type":
     st.title("🧠 ML Model Type")
-
     st.write("""
     For this classification task, we are using a **Random Forest Classifier**. It is an ensemble learning method
     that works by creating multiple decision trees and combining their predictions. This model is effective for
-    classification problems and helps in handling complex data with multiple features, such as vehicle characteristics.
+    classification problems and helps in handling complex data with multiple features.
     """)
 
 # Model Prediction Section
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
-    st.write("Enter the vehicle details below:")
-
     mileage = st.number_input("Mileage (in km)", min_value=0, value=50000)
     price = st.number_input("Price (in CAD)", min_value=0, value=25000)
     model_year = st.number_input("Model Year", min_value=2000, max_value=2024, value=2020)
     fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].unique())
     certified = st.selectbox("Certified", ["Yes", "No"])
     price_changes = st.number_input("Price Changes", min_value=0, value=2)
-
-    fuel_type_mapping = {fuel: idx for idx, fuel in enumerate(merged_df['fuel_type_from_vin'].unique())}
-    input_fuel_type = fuel_type_mapping.get(fuel_type, -1)
-
-    if input_fuel_type == -1:
-        st.warning(f"Unseen fuel type: '{fuel_type}' is not in the training data. Please check your input.")
-    else:
-        certified = 1 if certified == "Yes" else 0
-        input_data = pd.DataFrame([[mileage, price, model_year, input_fuel_type, certified, price_changes]],
-                                  columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
-
-        try:
-            scaler = joblib.load("scaler.pkl")
-            input_data_scaled = scaler.transform(input_data)
-
-            model = joblib.load("vehicle_transmission_model.pkl")
-            prediction = model.predict(input_data_scaled)
-            transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
-            st.write(f"### Predicted Transmission: **{transmission_type}**")
-
-        except Exception as e:
-            st.error(f"Prediction error: {e}")
+    certified = 1 if certified == "Yes" else 0
+    input_data = pd.DataFrame([[mileage, price, model_year, fuel_type, certified, price_changes]],
+                              columns=["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"])
+    try:
+        scaler = joblib.load("scaler.pkl")
+        model = joblib.load("vehicle_transmission_model.pkl")
+        input_data_scaled = scaler.transform(input_data)
+        prediction = model.predict(input_data_scaled)
+        transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
+        st.write(f"### Predicted Transmission: **{transmission_type}**")
+    except Exception as e:
+        st.error(f"Prediction error: {e}")
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
