@@ -118,7 +118,27 @@ elif section == "Model Prediction":
 
     try:
         if not os.path.exists(scaler_path) or not os.path.exists(model_path):
-            raise FileNotFoundError("Required files missing. Please train the model first in the 'ML Model' section.")
+            st.warning("Required files are missing. Training the model now...")
+            
+            # Automatically train the model if files are missing
+            merged_df.dropna(subset=['transmission_from_vin'], inplace=True)
+            le = LabelEncoder()
+            merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
+            features = ["mileage", "price", "model_year", "fuel_type_from_vin", "certified", "number_price_changes"]
+            X = merged_df[features]
+            y = merged_df['transmission_encoded']
+            for col in X.select_dtypes(include=['object']).columns:
+                X[col] = le.fit_transform(X[col].astype(str))
+            scaler = StandardScaler()
+            X_scaled = scaler.fit_transform(X)
+            joblib.dump(scaler, scaler_path)
+            X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+            smote = SMOTE()
+            X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
+            model = RandomForestClassifier()
+            model.fit(X_train_res, y_train_res)
+            joblib.dump(model, model_path)
+            st.success("Model trained successfully during prediction process!")
 
         scaler = joblib.load(scaler_path)
         model = joblib.load(model_path)
@@ -127,8 +147,6 @@ elif section == "Model Prediction":
         prediction = model.predict(input_data_scaled)
         transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
         st.write(f"### Predicted Transmission: **{transmission_type}**")
-    except FileNotFoundError as e:
-        st.error(str(e))
     except Exception as e:
         st.error(f"Prediction error: {e}")
 
