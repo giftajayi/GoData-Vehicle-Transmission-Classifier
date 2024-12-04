@@ -43,15 +43,41 @@ if section == "Dashboard":
 # Exploratory Data Analysis (EDA) Section
 elif section == "EDA":
     st.title("🔍 Exploratory Data Analysis (EDA)")
-    st.write("### First 5 Rows of the Dataset:")
-    st.dataframe(merged_df.head(5))
-    st.write("### Dataset Statistics:")
-    st.write(merged_df.describe())
-    st.write("### Distribution of Transmission Types:")
-    st.bar_chart(merged_df['transmission_from_vin'].value_counts())
-    st.write("### Correlation Heatmap:")
-    numeric_df = merged_df.select_dtypes(include=['float64', 'int64'])
-    st.write(numeric_df.corr())
+    st.write("""
+    Visualizations help us understand patterns, distributions, and relationships within the dataset.
+    """)
+
+    st.subheader("1️⃣ Transmission Type Distribution")
+    st.image("chart1.png", caption="Proportion of Automatic vs Manual Transmissions")
+    st.write("This pie chart shows the proportion of vehicles with automatic versus manual transmissions.")
+
+    st.subheader("2️⃣ Price vs Mileage Scatter Plot")
+    st.image("chart2.png", caption="Price vs Mileage for Different Vehicles")
+    st.write("This scatter plot highlights how vehicle price relates to mileage, offering insights into pricing patterns.")
+
+    st.subheader("3️⃣ Correlation Heatmap")
+    st.image("plt3.png", caption="Correlation Among Dataset Features")
+    st.write("This heatmap illustrates the strength of correlations between key features in the dataset.")
+
+    st.subheader("4️⃣ Model Year Distribution")
+    st.image("plt4.png", caption="Distribution of Vehicles by Model Year")
+    st.write("This bar chart shows how vehicle models are distributed across different production years.")
+
+    st.subheader("5️⃣ Price Distribution by Fuel Type")
+    st.image("chart5.png", caption="Price Variation Across Fuel Types")
+    st.write("This plot compares price distributions across different fuel types, helping identify trends by fuel preference.")
+
+    st.subheader("6️⃣ Mileage Boxplot by Transmission Type")
+    st.image("plt6.png", caption="Mileage Distribution for Automatic and Manual Transmissions")
+    st.write("This boxplot presents mileage variability for both automatic and manual transmissions.")
+
+    st.subheader("7️⃣ Price vs Model Year Trend")
+    st.image("plt7.png", caption="Average Price Trends by Model Year")
+    st.write("This line chart tracks average vehicle prices over different model years, showing depreciation trends.")
+
+    st.subheader("8️⃣ Make Popularity Countplot")
+    st.image("chart6.png", caption="Frequency of Vehicle Makes in the Dataset")
+    st.write("This count plot displays the frequency of various vehicle makes, indicating market preferences.")
 
 # ML Model Section
 elif section == "ML Model":
