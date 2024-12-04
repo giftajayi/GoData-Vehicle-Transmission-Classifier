@@ -1,12 +1,12 @@
-import streamlit as st
+import os
+import joblib
 import pandas as pd
+import streamlit as st
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from sklearn.preprocessing import LabelEncoder, StandardScaler
 from imblearn.over_sampling import SMOTE
-import joblib
-import os
 
 # Load and merge datasets
 csv_urls = [
@@ -25,7 +25,7 @@ def load_and_merge_data():
 
 merged_df = load_and_merge_data()
 
-# File paths
+# Define file paths for model and scaler
 scaler_path = "scaler.pkl"
 model_path = "vehicle_transmission_model.pkl"
 
@@ -144,7 +144,7 @@ elif section == "Model Prediction":
                 joblib.dump(model, model_path)
                 st.success("Model trained successfully during prediction process!")
 
-            # Load the scaler and model
+            # Load the scaler and model (refresh the data to ensure it's updated)
             scaler = joblib.load(scaler_path)
             model = joblib.load(model_path)
 
@@ -155,9 +155,9 @@ elif section == "Model Prediction":
             prediction = model.predict(input_data_scaled)
             transmission_type = "Manual" if prediction[0] == 0 else "Automatic"
             st.write(f"### Predicted Transmission: **{transmission_type}**")
+        
         except Exception as e:
             st.error(f"Prediction error: {e}")
-
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
