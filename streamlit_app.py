@@ -42,18 +42,30 @@ if section == "Dashboard":
 
     """)
 
-# Exploratory Data Analysis (EDA) Section
-elif section == "EDA":
-    st.title("🔍 Exploratory Data Analysis (EDA)")
-    st.write("""
-    Visualizations help us understand patterns, distributions, and relationships within the dataset.
-    """)
-    st.image("info1.jpeg", caption="Dataset Information - Part 1")
-    st.image("info2.jpeg", caption="Dataset Information - Part 2")
-    st.image("chart7.jpeg.png", caption="Transmission Distribution (Auto vs Manual)")
-    st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
-    st.image("plt3.png", caption="Correlation Heatmap") 
-
+    # Dataset Information Section
+    st.subheader("Dataset Information")
+    st.image("info1.png", caption="Dataset Overview - Part 1")
+    st.image("info2.png", caption="Dataset Overview - Part 2")
+    st.write("These images provide an overview of the dataset, including key attributes and data structure.")
+    
+    # Visualizations Section
+    st.subheader("Visualizations")
+    
+    # Transmission Type Distribution
+    st.subheader("1️⃣ Transmission Type Distribution")
+    st.image("chart7.jpeg.png", caption="Proportion of Automatic vs Manual Transmissions")
+    st.write("This chart displays the distribution of vehicles with automatic and manual transmissions in the dataset.")
+    
+    # Price vs Mileage Scatter Plot
+    st.subheader("2️⃣ Price vs Mileage Scatter Plot")
+    st.image("chart2.png", caption="Price vs Mileage for Different Vehicles")
+    st.write("This scatter plot shows how vehicle price correlates with mileage, offering insights into pricing trends based on usage.")
+    
+    # Correlation Heatmap
+    st.subheader("3️⃣ Correlation Heatmap")
+    st.image("plt3.png", caption="Correlation Among Dataset Features")
+    st.write("The heatmap illustrates the correlation strength between different features, revealing potential relationships and dependencies.")
+    
 # ML Model Section
 elif section == "ML Model":
     st.title("🏋️ Model Training & Hyperparameter Tuning")
