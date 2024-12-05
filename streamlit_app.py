@@ -38,16 +38,14 @@ section = st.sidebar.radio(
 if section == "Dashboard":
     st.title("🚗 Vehicle Transmission Classifier")
     st.write("""
-    The primary objective of this project is to develop a machine learning model that can reliably predict whether a vehicle has an automatic or manual transmission. By leveraging this model, Go Auto aims to enhance its decision-making processes, streamline inventory classification, and target marketing efforts more effectively. A successful model would not only improve operational efficiency but also provide valuable insights into consumer preferences, helping dealerships better align their offerings with market demand. The ability to accurately identify the transmission type can contribute significantly to improving customer experiences and boosting sales.
-
+    The primary objective of this project is to develop a machine learning model that can reliably predict whether a vehicle has an automatic or manual transmission. By leveraging this model, Go Auto aims to enhance its decision-making processes, streamline inventory classification, and target marketing efforts more effectively. The ability to accurately identify the transmission type can contribute significantly to improving customer experiences and boosting sales.
     """)
 
-# Visualization Section
-# Visualization Section
-elif section == "Data Visualization":
-    st.title("📊 Data Visualization")
+# EDA Section
+elif section == "EDA":
+    st.title("📊 Exploratory Data Analysis (EDA)")
     st.write("""
-    Visualizations help us understand patterns, distributions, and relationships within the dataset.
+    EDA uses visualizations to uncover patterns, distributions, and relationships within the dataset, providing valuable insights for further analysis.
     """)
 
     # Dataset Information
@@ -58,10 +56,10 @@ elif section == "Data Visualization":
     
     # Visualizations
     st.subheader("Visualizations")
-    st.image("chart7.jpeg, caption="Transmission Distribution (Auto vs Manual)")
+    st.image("chart7.jpeg", caption="Transmission Distribution (Auto vs Manual)")
     st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
-    st.image("plt3.png", caption="Correlation Heatmap") 
-    
+    st.image("plt3.png", caption="Correlation Heatmap")
+
 # ML Model Section
 elif section == "ML Model":
     st.title("🏋️ Model Training & Hyperparameter Tuning")
