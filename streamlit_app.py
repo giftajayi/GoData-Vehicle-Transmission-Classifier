@@ -149,15 +149,23 @@ elif section == "Model Prediction":
     st.subheader("Enter Vehicle Details:")
 
     # Create input fields for each feature
-    dealer_type = st.selectbox("Dealer Type", ["I", "F"])  # 'I' for Independent, 'F' for Franchise
-    stock_type = st.selectbox("Stock Type", ["USED"])  # Since the dataset only uses "USED"
+    dealer_type = st.selectbox("Dealer Type", ["New", "Used"])
+    stock_type = st.selectbox("Stock Type", ["Used", "New"])  # Updated stock type options
     mileage = st.number_input("Mileage (in km)", min_value=0, max_value=500000, value=30000)
     price = st.number_input("Price (in CAD)", min_value=0, value=25000)
     model_year = st.number_input("Model Year", min_value=2000, max_value=2024, value=2020)
-    make = st.text_input("Make (e.g., Toyota)")
-    model = st.text_input("Model (e.g., Corolla)")
-    certified = st.selectbox("Certified", [1, 0])  # 1 for Certified, 0 for Non-Certified
-    fuel_type = st.selectbox("Fuel Type", ["Gas", "Diesel", "CNG", "Electric", "Hybrid"])
+    
+    # Dropdown options for Make and Model (example lists for demonstration)
+    make = st.selectbox("Make", ["Toyota", "Honda", "Ford", "BMW", "Mazda", "Volkswagen"])  # List of vehicle makes
+    model = st.selectbox("Model", ["Corolla", "Civic", "F-150", "3 Series", "Mazda3", "Golf"])  # List of vehicle models
+
+    # Certified dropdown options
+    certified = st.selectbox("Certified", ["Yes", "No"])  # "Yes" or "No"
+    
+    # Fuel Type options
+    fuel_type = st.selectbox("Fuel Type", ["Gas", "Electric", "CNG", "Hybrid"])
+    
+    # Number of Price Changes
     number_price_changes = st.number_input("Number of Price Changes", min_value=0, max_value=10, value=3)
 
     # Prepare the input data as a DataFrame
@@ -169,7 +177,7 @@ elif section == "Model Prediction":
         "model_year": model_year,
         "make": make,
         "model": model,
-        "certified": certified,
+        "certified": 1 if certified == "Yes" else 0,  # Convert Yes/No to 1/0
         "fuel_type_from_vin": fuel_type,
         "number_price_changes": number_price_changes
     }])
