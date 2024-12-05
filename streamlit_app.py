@@ -56,7 +56,6 @@ elif section == "ML Model":
         le = LabelEncoder()
         merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
 
-        global features
         features = ["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]
         X = merged_df[features]
         y = merged_df['transmission_encoded']
@@ -81,10 +80,10 @@ elif section == "ML Model":
         grid_search = GridSearchCV(RandomForestClassifier(), param_grid, cv=3, scoring='accuracy', n_jobs=-1)
         grid_search.fit(X_train_res, y_train_res)
         
-        return grid_search, X_test, y_test
+        return grid_search, X_test, y_test, features
 
     try:
-        grid_search, X_test, y_test = train_model()
+        grid_search, X_test, y_test, features = train_model()
         y_pred = grid_search.best_estimator_.predict(X_test)
         st.write("### Best Hyperparameters:", grid_search.best_params_)
         st.write("### Accuracy:", accuracy_score(y_test, y_pred))
@@ -100,32 +99,33 @@ elif section == "ML Model":
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
-    def predict_transmission():
+    def predict_transmission(input_data):
         model = joblib.load("vehicle_transmission_model.pkl")
         scaler = joblib.load("scaler.pkl")
-
-        # Placeholder user input for demo purposes
-        input_data = pd.DataFrame({
-            "dealer_type": ["Dealer"],
-            "stock_type": ["Used"],
-            "mileage": [15000],
-            "price": [25000],
-            "model_year": [2020],
-            "make": ["Toyota"],
-            "model": ["Corolla"],
-            "certified": [1],
-            "fuel_type_from_vin": ["Gasoline"],
-            "number_price_changes": [2]
-        })
-        input_data = pd.get_dummies(input_data, drop_first=True).reindex(columns=X.columns, fill_value=0)
-
         scaled_input = scaler.transform(input_data)
-        prediction = model.predict(scaled_input)
-        return prediction
+        return model.predict(scaled_input)
+
+    # Example feature input for user testing
+    st.subheader("Enter Vehicle Details:")
+    input_data = pd.DataFrame([{
+        "dealer_type": "Used", 
+        "stock_type": "Certified", 
+        "mileage": 30000, 
+        "price": 25000, 
+        "model_year": 2020, 
+        "make": "Toyota", 
+        "model": "Corolla", 
+        "certified": 1, 
+        "fuel_type_from_vin": "Gasoline", 
+        "number_price_changes": 3
+    }])  # Example data; integrate with user inputs later.
+
+    # Preprocess input
+    input_data = pd.get_dummies(input_data.reindex(columns=features, fill_value=0))
 
     if st.button("Generate Prediction"):
         try:
-            prediction = predict_transmission()
+            prediction = predict_transmission(input_data)
             st.write(f"### Predicted Transmission: {'Automatic' if prediction[0] == 1 else 'Manual'}")
         except Exception as e:
             st.error(f"Prediction error: {e}")
