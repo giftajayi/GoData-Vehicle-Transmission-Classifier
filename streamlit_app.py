@@ -48,7 +48,7 @@ elif section == "EDA":
     st.write("""
     Visualizations help us understand patterns, distributions, and relationships within the dataset.
     """)
-    st.image("info1.jpeg.png","info2.jpeg.png", caption="Dataset Information")
+    st.image(["info1.jpeg.png", "info2.jpeg.png"], caption=["Dataset Information - Part 1", "Dataset Information - Part 2"])
     st.image("chart7.jpeg.png", caption="Transmission Distribution (Auto vs Manual)")
     st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
     st.image("plt3.png", caption="Correlation Heatmap") 
