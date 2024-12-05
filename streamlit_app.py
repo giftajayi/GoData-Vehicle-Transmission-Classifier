@@ -56,6 +56,7 @@ elif section == "ML Model":
         le = LabelEncoder()
         merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
 
+        global features
         features = ["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]
         X = merged_df[features]
         y = merged_df['transmission_encoded']
@@ -102,8 +103,22 @@ elif section == "Model Prediction":
     def predict_transmission():
         model = joblib.load("vehicle_transmission_model.pkl")
         scaler = joblib.load("scaler.pkl")
-        input_data = pd.DataFrame(columns=features)
-        # Adjust input data accordingly
+
+        # Placeholder user input for demo purposes
+        input_data = pd.DataFrame({
+            "dealer_type": ["Dealer"],
+            "stock_type": ["Used"],
+            "mileage": [15000],
+            "price": [25000],
+            "model_year": [2020],
+            "make": ["Toyota"],
+            "model": ["Corolla"],
+            "certified": [1],
+            "fuel_type_from_vin": ["Gasoline"],
+            "number_price_changes": [2]
+        })
+        input_data = pd.get_dummies(input_data, drop_first=True).reindex(columns=X.columns, fill_value=0)
+
         scaled_input = scaler.transform(input_data)
         prediction = model.predict(scaled_input)
         return prediction
