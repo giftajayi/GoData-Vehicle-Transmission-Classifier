@@ -193,17 +193,6 @@ elif section == "Model Prediction":
         "number_price_changes": number_price_changes
     }])
 
-    # Display the features entered by the user (before encoding)
-    st.write("### Features Entered (Before Encoding):")
-    st.write(input_data)
-
-    # Preprocess input (encode categorical variables and ensure matching columns)
-    input_data_encoded = pd.get_dummies(input_data, drop_first=True)
-
-    # Display the features after encoding
-    st.write("### Features Entered (After Encoding):")
-    st.write(input_data_encoded)
-
     if st.button("Generate Prediction"):
         try:
             # Predict using the aligned input data
