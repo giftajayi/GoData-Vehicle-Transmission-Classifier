@@ -7,10 +7,11 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from imblearn.over_sampling import SMOTE
 import joblib
 import warnings
+import gc  # Garbage collector to free up memory
 
 warnings.filterwarnings('ignore')
 
-# Load and merge datasets
+# Load and merge datasets efficiently
 csv_urls = [
     "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data1.csv",
     "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data2.csv",
@@ -21,8 +22,8 @@ csv_urls = [
 
 @st.cache_data
 def load_and_merge_data():
-    dfs = [pd.read_csv(url) for url in csv_urls]
-    merged = pd.concat(dfs, ignore_index=True)
+    merged = pd.concat((pd.read_csv(url) for url in csv_urls), ignore_index=True)
+    gc.collect()  # Free up memory
     return merged
 
 merged_df = load_and_merge_data()
@@ -31,21 +32,18 @@ merged_df = load_and_merge_data()
 st.sidebar.title("Navigation")
 section = st.sidebar.radio(
     "Go to",
-    ["Dashboard", "EDA", "ML Model", "Model Prediction", "Power BI Dashboard"]
+    ["Dashboard", "ML Model", "Prediction", "Power BI Dashboard"]
 )
 
 # Dashboard Section
 if section == "Dashboard":
     st.title("🚗 Vehicle Transmission Classifier")
-    st.write("""
-    The primary objective of this project is to develop a machine learning model that can reliably predict whether a vehicle has an automatic or manual transmission...
-    """)
+    st.write("The primary objective of this project is to develop a machine learning model that can reliably predict whether a vehicle has an automatic or manual transmission...")
 
 # ML Model Section
 elif section == "ML Model":
     st.title("🏋️ Model Training")
     try:
-        # Prepare dataset
         merged_df.dropna(subset=['transmission_from_vin'], inplace=True)
         le = LabelEncoder()
         merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
@@ -81,11 +79,46 @@ elif section == "ML Model":
 
         joblib.dump(model, "vehicle_transmission_model.pkl")
         st.success("Model trained and saved successfully!")
+
     except Exception as e:
         st.error(f"Model training error: {e}")
 
+# Prediction Section
+elif section == "Prediction":
+    st.title("🔍 Model Prediction")
+    try:
+        # Load trained model and scaler
+        model = joblib.load("vehicle_transmission_model.pkl")
+        scaler = joblib.load("scaler.pkl")
 
-# Power BI Section (not implemented here)
+        st.write("Upload CSV for Prediction:")
+        uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+        
+        if uploaded_file:
+            prediction_df = pd.read_csv(uploaded_file)
+            
+            # Feature preparation
+            prediction_features = ["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]
+            prediction_data = pd.get_dummies(prediction_df[prediction_features], columns=prediction_df.select_dtypes(include=['object']).columns)
+            prediction_data = prediction_data.reindex(columns=X.columns, fill_value=0)  # Ensure same column alignment
+            
+            # Scale input features
+            prediction_data_scaled = scaler.transform(prediction_data)
+            predictions = model.predict(prediction_data_scaled)
+
+            # Decode predictions
+            prediction_df['Predicted Transmission'] = le.inverse_transform(predictions)
+            st.write("### Prediction Results:")
+            st.write(prediction_df[['make', 'model', 'mileage', 'price', 'Predicted Transmission']])
+            
+            # Option to download results
+            csv_output = prediction_df.to_csv(index=False).encode('utf-8')
+            st.download_button("Download Predictions", csv_output, "predictions.csv", "text/csv")
+
+    except Exception as e:
+        st.error(f"Prediction error: {e}")
+
+# Power BI Section (Placeholder)
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
     st.write("Power BI dashboard can be embedded here.")
