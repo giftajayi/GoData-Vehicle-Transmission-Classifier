@@ -196,7 +196,7 @@ elif section == "Model Prediction":
     if st.button("Generate Prediction"):
         try:
             # Predict using the aligned input data
-            prediction = predict_transmission(input_data_encoded)
+            prediction = predict_transmission(input_data)
             st.write(f"### Predicted Transmission: {'Automatic' if prediction[0] == 1 else 'Manual'}")
         except Exception as e:
             st.error(f"Prediction error: {e}")
