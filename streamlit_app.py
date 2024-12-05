@@ -129,6 +129,7 @@ elif section == "Feature Engineering and Model Training":
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
+    # Function to predict transmission type
     def predict_transmission(input_data):
         model = joblib.load("vehicle_transmission_model.pkl")
         scaler = joblib.load("scaler.pkl")
@@ -146,21 +147,39 @@ elif section == "Model Prediction":
 
     # Example feature input for user testing
     st.subheader("Enter Vehicle Details:")
-    input_data = pd.DataFrame([{
-        "dealer_type": "Used", 
-        "stock_type": "Certified", 
-        "mileage": 30000, 
-        "price": 25000, 
-        "model_year": 2020, 
-        "make": "Toyota", 
-        "model": "Corolla", 
-        "certified": 1, 
-        "fuel_type_from_vin": "Gasoline", 
-        "number_price_changes": 3
-    }])  # Example data; integrate with user inputs later.
 
-    # Preprocess input
+    # Create input fields for each feature
+    dealer_type = st.selectbox("Dealer Type", ["New", "Used"])
+    stock_type = st.selectbox("Stock Type", ["Certified", "Non-Certified"])
+    mileage = st.number_input("Mileage (in km)", min_value=0, max_value=500000, value=30000)
+    price = st.number_input("Price (in CAD)", min_value=0, value=25000)
+    model_year = st.number_input("Model Year", min_value=2000, max_value=2024, value=2020)
+    make = st.text_input("Make (e.g., Toyota)")
+    model = st.text_input("Model (e.g., Corolla)")
+    certified = st.selectbox("Certified", [1, 0])  # 1 for Yes, 0 for No
+    fuel_type = st.selectbox("Fuel Type", ["Gasoline", "Diesel", "Electric", "Hybrid"])
+    number_price_changes = st.number_input("Number of Price Changes", min_value=0, max_value=10, value=3)
+
+    # Prepare the input data as a DataFrame
+    input_data = pd.DataFrame([{
+        "dealer_type": dealer_type,
+        "stock_type": stock_type,
+        "mileage": mileage,
+        "price": price,
+        "model_year": model_year,
+        "make": make,
+        "model": model,
+        "certified": certified,
+        "fuel_type_from_vin": fuel_type,
+        "number_price_changes": number_price_changes
+    }])
+
+    # Preprocess input (encode categorical variables and ensure matching columns)
     input_data = pd.get_dummies(input_data, drop_first=True)
+
+    # Display the features entered by the user
+    st.write("### Features Entered:")
+    st.write(input_data)
 
     if st.button("Generate Prediction"):
         try:
