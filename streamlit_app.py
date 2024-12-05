@@ -48,23 +48,10 @@ elif section == "EDA":
     st.write("""
     Visualizations help us understand patterns, distributions, and relationships within the dataset.
     """)
-st.subheader("1️⃣ Dataset Information")
-st.image("info1.jpeg.png", caption="Dataset Overview")
-st.image("info2.jpeg.png")
-st.write("These images provide an overview of the dataset, highlighting key attributes and structures.")
-
-st.subheader("2️⃣ Transmission Type Distribution")
-st.image("chart7.jpeg.png", caption="Proportion of Automatic vs Manual Transmissions")
-st.write("This chart displays the distribution of vehicles with automatic and manual transmissions in the dataset.")
-
-st.subheader("3️⃣ Price vs Mileage Scatter Plot")
-st.image("chart2.png", caption="Price vs Mileage for Different Vehicles")
-st.write("This scatter plot shows how vehicle price correlates with mileage, offering insights into pricing trends based on usage.")
-
-st.subheader("4️⃣ Correlation Heatmap")
-st.image("plt3.png", caption="Correlation Among Dataset Features")
-st.write("The heatmap illustrates the correlation strength between different features, revealing potential relationships and dependencies.")
-
+    st.image("info1.jpeg.png","info2.jpeg.png", caption="Dataset Information")
+    st.image("chart7.jpeg.png", caption="Transmission Distribution (Auto vs Manual)")
+    st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
+    st.image("plt3.png", caption="Correlation Heatmap") 
 
 # ML Model Section
 elif section == "ML Model":
