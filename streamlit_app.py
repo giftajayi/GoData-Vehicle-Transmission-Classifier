@@ -26,7 +26,7 @@ def load_and_merge_data():
 merged_df = load_and_merge_data()
 
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Dashboard", "EDA", "ML Model", "Model Prediction", "Power BI Dashboard"])
+section = st.sidebar.radio("Go to", ["Dashboard", "EDA", "Feature Engineering and Model Training", "Model Prediction", "Power BI Dashboard"])
 
 # Dashboard Section
 if section == "Dashboard":
@@ -46,7 +46,7 @@ elif section == "EDA":
     st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
     st.image("plt3.png", caption="Correlation Heatmap")
 
-# ML Model Section
+# Model Training Section
 elif section == "Feature Engineering and Model Training":
     st.title("🧑‍🔬 Feature Engineering and Model Training")
 
@@ -105,7 +105,7 @@ elif section == "Feature Engineering and Model Training":
         st.write("### Data split into training and testing sets.")
 
         # 2. Training the RandomForestClassifier
-        model = RandomForestClassifier()
+        model = RandomForestClassifier(random_state=42)
         model.fit(X_train, y_train)
         st.write("### Model training completed.")
 
@@ -158,3 +158,13 @@ elif section == "Model Prediction":
             st.write(f"### Predicted Transmission: {'Automatic' if prediction[0] == 1 else 'Manual'}")
         except Exception as e:
             st.error(f"Prediction error: {e}")
+
+# Power BI Dashboard Section
+elif section == "Power BI Dashboard":
+    st.title("📊 Power BI Dashboard")
+    st.write("""
+    The dashboard provides insights and visualizations on transmission types, pricing trends, and more.
+    """)
+
+    # Link to Power BI Dashboard
+    st.write("Click [here](https://app.powerbi.com/groups/me/reports/c9772dbc-0131-4e5a-a559-43a5c22874b3/ca237ccb0ae673ae960a?experience=power-bi) to view the Power BI dashboard.")
