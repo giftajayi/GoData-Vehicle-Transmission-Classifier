@@ -149,24 +149,16 @@ elif section == "Model Prediction":
     st.subheader("Enter Vehicle Details:")
 
     # Create input fields for each feature
-    dealer_type = st.selectbox("Dealer Type", ["I", "F"])
-    stock_type = st.selectbox("Stock Type", ["Used", "New"])  # Updated stock type options
+    dealer_type = st.selectbox("Dealer Type", ["I", "F"])  # 'I' for Independent, 'F' for Franchise
+    stock_type = st.selectbox("Stock Type", ["Used", "New"])
     mileage = st.number_input("Mileage (in km)", min_value=0, max_value=500000, value=30000)
     price = st.number_input("Price (in CAD)", min_value=0, value=25000)
-    model_year = st.number_input("Model Year", min_value=2000, max_value=2024, value=2020)
-    
-    # Dropdown options for Make and Model (example lists for demonstration)
-    make = st.selectbox("Make", ["Toyota", "Honda", "Ford", "BMW", "Mazda", "Volkswagen"])  # List of vehicle makes
-    model = st.selectbox("Model", ["Corolla", "Civic", "F-150", "3 Series", "Mazda3", "Golf"])  # List of vehicle models
-
-    # Certified dropdown options
-    certified = st.selectbox("Certified", ["Yes", "No"])  # "Yes" or "No"
-    
-    # Fuel Type options
-    fuel_type = st.selectbox("Fuel Type", ["Gas", "Electric", "CNG", "Hybrid"])
-    
-    # Number of Price Changes
-    number_price_changes = st.number_input("Number of Price Changes", min_value=0, max_value=10, value=3)
+    model_year = st.number_input("Model Year", min_value=1988, max_value=2024, value=2020)
+    make = st.selectbox("Make", ["Chrysler", "Cadillac", "Volkswagen", "Toyota", "Mazda", "BMW", "Acura", "Dodge", "Ford", "Honda", "Subaru", "Lexus"])
+    model = st.selectbox("Model", ["Fifth Avenue", "DeVille", "Cabriolet", "Corolla", "Miata", "Z3", "NSX-T", "Camry", "Taurus", "Accord", "Forester", "RX300"])
+    certified = st.selectbox("Certified", ["Yes", "No"])
+    fuel_type = st.selectbox("Fuel Type", ["Gas", "Diesel", "CNG", "Electric", "Hybrid"])
+    number_price_changes = st.number_input("Number of Price Changes", min_value=0, max_value=50, value=3)
 
     # Prepare the input data as a DataFrame
     input_data = pd.DataFrame([{
@@ -177,22 +169,26 @@ elif section == "Model Prediction":
         "model_year": model_year,
         "make": make,
         "model": model,
-        "certified": 1 if certified == "Yes" else 0,  # Convert Yes/No to 1/0
+        "certified": 1 if certified == "Yes" else 0,
         "fuel_type_from_vin": fuel_type,
         "number_price_changes": number_price_changes
     }])
 
-    # Preprocess input (encode categorical variables and ensure matching columns)
-    input_data = pd.get_dummies(input_data, drop_first=True)
-
-    # Display the features entered by the user
-    st.write("### Features Entered:")
+    # Display the features entered by the user (before encoding)
+    st.write("### Features Entered (Before Encoding):")
     st.write(input_data)
+
+    # Preprocess input (encode categorical variables and ensure matching columns)
+    input_data_encoded = pd.get_dummies(input_data, drop_first=True)
+
+    # Display the features after encoding
+    st.write("### Features Entered (After Encoding):")
+    st.write(input_data_encoded)
 
     if st.button("Generate Prediction"):
         try:
             # Predict using the aligned input data
-            prediction = predict_transmission(input_data)
+            prediction = predict_transmission(input_data_encoded)
             st.write(f"### Predicted Transmission: {'Automatic' if prediction[0] == 1 else 'Manual'}")
         except Exception as e:
             st.error(f"Prediction error: {e}")
