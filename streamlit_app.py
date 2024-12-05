@@ -48,52 +48,80 @@ elif section == "EDA":
     st.image("plt3.png", caption="Correlation Heatmap")
 
 # ML Model Section
-elif section == "ML Model":
-    st.title("🏋️ Model Training & Hyperparameter Tuning")
+elif section == "Feature Engineering and Model Training":
+    st.title("🧑‍🔬 Feature Engineering and Model Training")
 
-    def train_model():
-        merged_df.dropna(subset=['transmission_from_vin'], inplace=True)
-        le = LabelEncoder()
-        merged_df['transmission_encoded'] = le.fit_transform(merged_df['transmission_from_vin'])
+    # Feature Engineering Steps
+    st.subheader("🔧 Feature Engineering")
 
-        features = ["dealer_type", "stock_type", "mileage", "price", "model_year", "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"]
-        X = merged_df[features]
-        y = merged_df['transmission_encoded']
-
-        # Encode categorical variables
-        X = pd.get_dummies(X, drop_first=True)
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
-        joblib.dump(scaler, "scaler.pkl")
-
-        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-        smote = SMOTE()
-        X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
-
-        param_grid = {
-            'n_estimators': [100, 200],
-            'max_depth': [10, None],
-            'min_samples_split': [2, 5],
-            'min_samples_leaf': [1, 2]
-        }
-
-        grid_search = GridSearchCV(RandomForestClassifier(), param_grid, cv=3, scoring='accuracy', n_jobs=-1)
-        grid_search.fit(X_train_res, y_train_res)
-        
-        return grid_search, X_test, y_test, features
+    st.write("""
+    In this section, we apply transformations and preprocessing steps to prepare the data for training. 
+    Feature engineering is critical as it impacts the model’s performance.
+    """)
 
     try:
-        grid_search, X_test, y_test, features = train_model()
-        y_pred = grid_search.best_estimator_.predict(X_test)
-        st.write("### Best Hyperparameters:", grid_search.best_params_)
-        st.write("### Accuracy:", accuracy_score(y_test, y_pred))
+        # 1. Encoding categorical variables using LabelEncoder
+        le = LabelEncoder()
+        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+
+        # 2. Handling missing data (if applicable)
+        # We drop rows with missing values for simplicity. Alternatively, we could impute values.
+        merged_df = merged_df.dropna()
+
+        # 3. Selecting features to use in the model
+        X = merged_df[[
+            "dealer_type", "stock_type", "mileage", "price", "model_year",
+            "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
+        ]]
+        
+        # Target variable
+        y = merged_df["transmission_from_vin"]
+
+        # 4. Encoding categorical features in X (if any)
+        for col in X.select_dtypes(include=['object']).columns:
+            X[col] = le.fit_transform(X[col].astype(str))
+
+        # 5. Scaling numerical features
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        st.write("### Preprocessing completed: Features prepared for model training.")
+
+    except Exception as e:
+        st.error(f"Error during feature engineering: {e}")
+
+    # Model Training Steps
+    st.subheader("🏋️‍♂️ Model Training")
+
+    st.write("""
+    In this section, we will split the data into training and testing sets, train the RandomForestClassifier, 
+    and evaluate its initial performance. 
+    """)
+
+    try:
+        # 1. Splitting the data into training and test sets
+        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+        st.write("### Data split into training and testing sets.")
+
+        # 2. Training the RandomForestClassifier
+        model = RandomForestClassifier()
+        model.fit(X_train, y_train)
+        st.write("### Model training completed.")
+
+        # 3. Predicting and evaluating on the test set
+        y_pred = model.predict(X_test)
+
+        st.write("### Initial Model Evaluation:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
-        st.write("### Confusion Matrix:")
-        st.write(confusion_matrix(y_test, y_pred))
-        joblib.dump(grid_search.best_estimator_, "vehicle_transmission_model.pkl")
+
+        # Save the trained model
+        joblib.dump(model, "vehicle_transmission_model.pkl")
+        st.success("Model trained and saved successfully.")
+
     except Exception as e:
-        st.error(f"Model training error: {e}")
+        st.error(f"Error during model training: {e}")
 
 # Model Prediction Section
 elif section == "Model Prediction":
