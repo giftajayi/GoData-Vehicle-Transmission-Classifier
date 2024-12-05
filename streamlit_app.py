@@ -149,15 +149,15 @@ elif section == "Model Prediction":
     st.subheader("Enter Vehicle Details:")
 
     # Create input fields for each feature
-    dealer_type = st.selectbox("Dealer Type", ["New", "Used"])
-    stock_type = st.selectbox("Stock Type", ["Certified", "Non-Certified"])
+    dealer_type = st.selectbox("Dealer Type", ["I", "F"])  # 'I' for Independent, 'F' for Franchise
+    stock_type = st.selectbox("Stock Type", ["USED"])  # Since the dataset only uses "USED"
     mileage = st.number_input("Mileage (in km)", min_value=0, max_value=500000, value=30000)
     price = st.number_input("Price (in CAD)", min_value=0, value=25000)
     model_year = st.number_input("Model Year", min_value=2000, max_value=2024, value=2020)
     make = st.text_input("Make (e.g., Toyota)")
     model = st.text_input("Model (e.g., Corolla)")
-    certified = st.selectbox("Certified", [1, 0])  # 1 for Yes, 0 for No
-    fuel_type = st.selectbox("Fuel Type", ["Gasoline", "Diesel", "Electric", "Hybrid"])
+    certified = st.selectbox("Certified", [1, 0])  # 1 for Certified, 0 for Non-Certified
+    fuel_type = st.selectbox("Fuel Type", ["Gas", "Diesel", "CNG", "Electric", "Hybrid"])
     number_price_changes = st.number_input("Number of Price Changes", min_value=0, max_value=10, value=3)
 
     # Prepare the input data as a DataFrame
