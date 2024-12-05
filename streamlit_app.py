@@ -46,83 +46,42 @@ elif section == "EDA":
     st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
     st.image("plt3.png", caption="Correlation Heatmap")
 
-# Model Training Section
-elif section == "Feature Engineering and Model Training":
-    st.title("🧑‍🔬 Feature Engineering and Model Training")
+# Model Training Steps
+st.subheader("🏋️‍♂️ Model Training")
 
-    # Feature Engineering Steps
-    st.subheader("🔧 Feature Engineering")
+st.write("""
+In this section, we will split the data into training and testing sets, train the RandomForestClassifier, 
+and evaluate its initial performance. 
+""")
 
-    st.write("""
-    In this section, we apply transformations and preprocessing steps to prepare the data for training. 
-    Feature engineering is critical as it impacts the model’s performance.
-    """)
+try:
+    # 1. Splitting the data into training and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+    st.write("### Data split into training and testing sets.")
 
-    try:
-        # 1. Encoding categorical variables using LabelEncoder
-        le = LabelEncoder()
-        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+    # 2. Training the RandomForestClassifier
+    model = RandomForestClassifier(random_state=42)
+    model.fit(X_train, y_train)
+    st.write("### Model training completed.")
 
-        # 2. Handling missing data (if applicable)
-        # We drop rows with missing values for simplicity. Alternatively, we could impute values.
-        merged_df = merged_df.dropna()
+    # 3. Predicting and evaluating on the test set
+    y_pred = model.predict(X_test)
 
-        # 3. Selecting features to use in the model
-        X = merged_df[[ 
-            "dealer_type", "stock_type", "mileage", "price", "model_year",
-            "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
-        ]]
-        
-        # Target variable
-        y = merged_df["transmission_from_vin"]
+    st.write("### Initial Model Evaluation:")
+    st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+    st.write("### Classification Report:")
+    st.text(classification_report(y_test, y_pred))
 
-        # 4. Encoding categorical features in X (if any)
-        X = pd.get_dummies(X, drop_first=True)
+    # Save the trained model
+    joblib.dump(model, "vehicle_transmission_model.pkl")
+    st.success("Model trained and saved successfully.")
 
-        # 5. Scaling numerical features
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
+    # Save the column names used during training
+    original_columns = X.columns.tolist()
+    joblib.dump(original_columns, "original_columns.pkl")
 
-        # Save the scaler for future use in predictions
-        joblib.dump(scaler, "scaler.pkl")
-
-        st.write("### Preprocessing completed: Features prepared for model training.")
-
-    except Exception as e:
-        st.error(f"Error during feature engineering: {e}")
-
-    # Model Training Steps
-    st.subheader("🏋️‍♂️ Model Training")
-
-    st.write("""
-    In this section, we will split the data into training and testing sets, train the RandomForestClassifier, 
-    and evaluate its initial performance. 
-    """)
-
-    try:
-        # 1. Splitting the data into training and test sets
-        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-        st.write("### Data split into training and testing sets.")
-
-        # 2. Training the RandomForestClassifier
-        model = RandomForestClassifier(random_state=42)
-        model.fit(X_train, y_train)
-        st.write("### Model training completed.")
-
-        # 3. Predicting and evaluating on the test set
-        y_pred = model.predict(X_test)
-
-        st.write("### Initial Model Evaluation:")
-        st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
-        st.write("### Classification Report:")
-        st.text(classification_report(y_test, y_pred))
-
-        # Save the trained model
-        joblib.dump(model, "vehicle_transmission_model.pkl")
-        st.success("Model trained and saved successfully.")
-
-    except Exception as e:
-        st.error(f"Error during model training: {e}")
+except Exception as e:
+    st.error(f"Error during model training: {e}")
 
 # Model Prediction Section
 elif section == "Model Prediction":
@@ -131,7 +90,16 @@ elif section == "Model Prediction":
     def predict_transmission(input_data):
         model = joblib.load("vehicle_transmission_model.pkl")
         scaler = joblib.load("scaler.pkl")
+
+        # Load the original feature columns used during training
+        original_columns = joblib.load("original_columns.pkl")
+        
+        # Ensure that input_data has the same columns as the training data
+        input_data = input_data.reindex(columns=original_columns, fill_value=0)
+        
+        # Apply the same scaling as the training data
         scaled_input = scaler.transform(input_data)
+
         return model.predict(scaled_input)
 
     # Example feature input for user testing
@@ -154,6 +122,7 @@ elif section == "Model Prediction":
 
     if st.button("Generate Prediction"):
         try:
+            # Predict using the aligned input data
             prediction = predict_transmission(input_data)
             st.write(f"### Predicted Transmission: {'Automatic' if prediction[0] == 1 else 'Manual'}")
         except Exception as e:
