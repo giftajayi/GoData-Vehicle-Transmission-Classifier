@@ -148,14 +148,33 @@ elif section == "Model Prediction":
     # Example feature input for user testing
     st.subheader("Enter Vehicle Details:")
 
-    # Create input fields for each feature
+    # Create a dictionary of makes and their corresponding models
+    make_model_dict = {
+        "Chrysler": ["Fifth Avenue", "300", "Pacifica"],
+        "Cadillac": ["DeVille", "Escalade", "CTS"],
+        "Volkswagen": ["Cabriolet", "Jetta", "Passat"],
+        "Toyota": ["Corolla", "Camry", "RAV4"],
+        "Mazda": ["Miata", "CX-5", "Mazda3"],
+        "BMW": ["Z3", "X5", "3 Series"],
+        "Acura": ["NSX-T", "MDX", "TLX"],
+        "Dodge": ["Charger", "Durango", "Ram"],
+        "Ford": ["Taurus", "F-150", "Explorer"],
+        "Honda": ["Accord", "Civic", "CR-V"],
+        "Subaru": ["Forester", "Outback", "Impreza"],
+        "Lexus": ["RX300", "ES350", "NX"]
+    }
+
+    # Dropdown for make selection
+    make = st.selectbox("Make", list(make_model_dict.keys()))
+
+    # Dropdown for model selection, dynamically populated based on selected make
+    model = st.selectbox("Model", make_model_dict[make])
+
     dealer_type = st.selectbox("Dealer Type", ["I", "F"])  # 'I' for Independent, 'F' for Franchise
     stock_type = st.selectbox("Stock Type", ["Used", "New"])
     mileage = st.number_input("Mileage (in km)", min_value=0, max_value=500000, value=30000)
     price = st.number_input("Price (in CAD)", min_value=0, value=25000)
     model_year = st.number_input("Model Year", min_value=1988, max_value=2024, value=2020)
-    make = st.selectbox("Make", ["Chrysler", "Cadillac", "Volkswagen", "Toyota", "Mazda", "BMW", "Acura", "Dodge", "Ford", "Honda", "Subaru", "Lexus"])
-    model = st.selectbox("Model", ["Fifth Avenue", "DeVille", "Cabriolet", "Corolla", "Miata", "Z3", "NSX-T", "Camry", "Taurus", "Accord", "Forester", "RX300"])
     certified = st.selectbox("Certified", ["Yes", "No"])
     fuel_type = st.selectbox("Fuel Type", ["Gas", "Diesel", "CNG", "Electric", "Hybrid"])
     number_price_changes = st.number_input("Number of Price Changes", min_value=0, max_value=50, value=3)
@@ -174,8 +193,16 @@ elif section == "Model Prediction":
         "number_price_changes": number_price_changes
     }])
 
+    # Display the features entered by the user (before encoding)
+    st.write("### Features Entered (Before Encoding):")
+    st.write(input_data)
+
     # Preprocess input (encode categorical variables and ensure matching columns)
     input_data_encoded = pd.get_dummies(input_data, drop_first=True)
+
+    # Display the features after encoding
+    st.write("### Features Entered (After Encoding):")
+    st.write(input_data_encoded)
 
     if st.button("Generate Prediction"):
         try:
