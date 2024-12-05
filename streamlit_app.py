@@ -48,7 +48,7 @@ elif section == "EDA":
     st.write("""
     Visualizations help us understand patterns, distributions, and relationships within the dataset.
     """)
-    st.subheader("1️⃣ Dataset Information")
+st.subheader("1️⃣ Dataset Information")
 st.image("info1.jpeg.png", caption="Dataset Overview")
 st.image("info2.jpeg.png")
 st.write("These images provide an overview of the dataset, highlighting key attributes and structures.")
