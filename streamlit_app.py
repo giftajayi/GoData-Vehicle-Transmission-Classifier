@@ -149,7 +149,7 @@ elif section == "Model Prediction":
     st.subheader("Enter Vehicle Details:")
 
     # Create input fields for each feature
-    dealer_type = st.selectbox("Dealer Type", ["New", "Used"])
+    dealer_type = st.selectbox("Dealer Type", ["I", "F"])
     stock_type = st.selectbox("Stock Type", ["Used", "New"])  # Updated stock type options
     mileage = st.number_input("Mileage (in km)", min_value=0, max_value=500000, value=30000)
     price = st.number_input("Price (in CAD)", min_value=0, value=25000)
