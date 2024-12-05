@@ -4,7 +4,6 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-from imblearn.over_sampling import SMOTE
 import joblib
 import warnings
 
@@ -69,7 +68,7 @@ elif section == "Feature Engineering and Model Training":
         merged_df = merged_df.dropna()
 
         # 3. Selecting features to use in the model
-        X = merged_df[[
+        X = merged_df[[ 
             "dealer_type", "stock_type", "mileage", "price", "model_year",
             "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
         ]]
@@ -78,12 +77,14 @@ elif section == "Feature Engineering and Model Training":
         y = merged_df["transmission_from_vin"]
 
         # 4. Encoding categorical features in X (if any)
-        for col in X.select_dtypes(include=['object']).columns:
-            X[col] = le.fit_transform(X[col].astype(str))
+        X = pd.get_dummies(X, drop_first=True)
 
         # 5. Scaling numerical features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
+
+        # Save the scaler for future use in predictions
+        joblib.dump(scaler, "scaler.pkl")
 
         st.write("### Preprocessing completed: Features prepared for model training.")
 
@@ -149,7 +150,7 @@ elif section == "Model Prediction":
     }])  # Example data; integrate with user inputs later.
 
     # Preprocess input
-    input_data = pd.get_dummies(input_data.reindex(columns=features, fill_value=0))
+    input_data = pd.get_dummies(input_data, drop_first=True)
 
     if st.button("Generate Prediction"):
         try:
