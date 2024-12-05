@@ -1,4 +1,4 @@
-import streamlit as st
+    import streamlit as st
 import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
@@ -42,29 +42,25 @@ if section == "Dashboard":
 
     """)
 
-    # Dataset Information Section
+# Visualization Section
+# Visualization Section
+elif section == "Data Visualization":
+    st.title("📊 Data Visualization")
+    st.write("""
+    Visualizations help us understand patterns, distributions, and relationships within the dataset.
+    """)
+
+    # Dataset Information
     st.subheader("Dataset Information")
-    st.image("info1.png", caption="Dataset Overview - Part 1")
-    st.image("info2.png", caption="Dataset Overview - Part 2")
+    st.image("info1.jpeg", caption="Dataset Overview - Part 1")
+    st.image("info2.jpeg", caption="Dataset Overview - Part 2")
     st.write("These images provide an overview of the dataset, including key attributes and data structure.")
     
-    # Visualizations Section
+    # Visualizations
     st.subheader("Visualizations")
-    
-    # Transmission Type Distribution
-    st.subheader("1️⃣ Transmission Type Distribution")
-    st.image("chart7.jpeg.png", caption="Proportion of Automatic vs Manual Transmissions")
-    st.write("This chart displays the distribution of vehicles with automatic and manual transmissions in the dataset.")
-    
-    # Price vs Mileage Scatter Plot
-    st.subheader("2️⃣ Price vs Mileage Scatter Plot")
-    st.image("chart2.png", caption="Price vs Mileage for Different Vehicles")
-    st.write("This scatter plot shows how vehicle price correlates with mileage, offering insights into pricing trends based on usage.")
-    
-    # Correlation Heatmap
-    st.subheader("3️⃣ Correlation Heatmap")
-    st.image("plt3.png", caption="Correlation Among Dataset Features")
-    st.write("The heatmap illustrates the correlation strength between different features, revealing potential relationships and dependencies.")
+    st.image("chart7.jpeg, caption="Transmission Distribution (Auto vs Manual)")
+    st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
+    st.image("plt3.png", caption="Correlation Heatmap") 
     
 # ML Model Section
 elif section == "ML Model":
