@@ -53,7 +53,7 @@ elif section == "Feature Engineering and Model Training":
     st.subheader("🔧 Feature Engineering")
 
     try:
-        # Encoding target variable
+        # Encoding the target variable
         le = LabelEncoder()
         merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
 
@@ -86,8 +86,16 @@ elif section == "Feature Engineering and Model Training":
     st.subheader("🏋️‍♂️ Model Training and Bias Mitigation")
 
     try:
+        # Addressing class imbalance with SMOTE
+        from imblearn.over_sampling import SMOTE
+
+        smote = SMOTE(random_state=42)
+        X_resampled, y_resampled = smote.fit_resample(X_scaled, y)
+
+        st.write("### Resampling completed: Class distribution balanced.")
+
         # Splitting data into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.2, random_state=42)
 
         # Training RandomForestClassifier with balanced class weights
         model = RandomForestClassifier(random_state=42, class_weight="balanced")
@@ -105,13 +113,18 @@ elif section == "Feature Engineering and Model Training":
         st.text(classification_report(y_test, y_pred))
 
         # Confusion Matrix
-        conf_matrix = confusion_matrix(y_test, y_pred)
-        st.write("### Confusion Matrix:")
-        st.write(pd.DataFrame(conf_matrix, index=le.classes_, columns=le.classes_))
+        conf_matrix = confusion_matrix(y_test, y_pred, normalize="true")
+        st.write("### Normalized Confusion Matrix:")
+        st.dataframe(pd.DataFrame(conf_matrix, index=le.classes_, columns=le.classes_))
 
-        # Resampling Check
-        class_distribution = pd.Series(y).value_counts(normalize=True)
-        st.write("### Class Distribution:")
+        # Feature Importance
+        feature_importances = pd.Series(model.feature_importances_, index=original_columns).sort_values(ascending=False)
+        st.write("### Feature Importance:")
+        st.bar_chart(feature_importances)
+
+        # Class Distribution Visualization
+        st.write("### Resampled Class Distribution:")
+        class_distribution = pd.Series(y_resampled).value_counts(normalize=True)
         st.bar_chart(class_distribution)
 
         st.success("Model training and bias mitigation completed successfully.")
