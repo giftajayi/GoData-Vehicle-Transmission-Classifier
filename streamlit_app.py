@@ -53,32 +53,31 @@ elif section == "Feature Engineering and Model Training":
     st.subheader("🔧 Feature Engineering")
 
     try:
-        # Encoding the target variable
+        # Encode the target variable
         le = LabelEncoder()
         merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
 
-        # Handling missing data
+        # Drop missing data
         merged_df = merged_df.dropna()
 
-        # Selecting features and target variable
-        X = merged_df[[
+        # Select features and target variable
+        feature_columns = [
             "dealer_type", "stock_type", "mileage", "price", "model_year",
             "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
-        ]]
+        ]
+        X = merged_df[feature_columns]
         y = merged_df["transmission_from_vin"]
 
-        # Encoding categorical features
+        # Encode categorical features and scale numerical features
         X = pd.get_dummies(X, drop_first=True)
-
-        # Scaling numerical features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        # Save the scaler and original columns
+        # Save the scaler and feature columns for future use
         joblib.dump(scaler, "scaler.pkl")
         joblib.dump(X.columns.tolist(), "original_columns.pkl")
 
-        st.write("### Preprocessing completed: Features prepared for model training.")
+        st.write("### Preprocessing completed successfully.")
     except Exception as e:
         st.error(f"Error during feature engineering: {e}")
         return
@@ -86,36 +85,30 @@ elif section == "Feature Engineering and Model Training":
     st.subheader("🏋️‍♂️ Model Training and Evaluation")
 
     try:
-        # Splitting data into training and testing sets
+        # Split the data
         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
-        # Training RandomForestClassifier with balanced class weights
-        model = RandomForestClassifier(random_state=42, class_weight="balanced")
+        # Train the model with balanced class weights
+        model = RandomForestClassifier(random_state=42, class_weight="balanced", n_estimators=100, max_depth=10)
         model.fit(X_train, y_train)
 
-        # Save the trained model
+        # Save the model
         joblib.dump(model, "vehicle_transmission_model.pkl")
 
         # Evaluate the model
         y_pred = model.predict(X_test)
         acc_score = accuracy_score(y_test, y_pred)
-        st.write(f"### Model Accuracy: {acc_score:.4f}")
+        conf_matrix = confusion_matrix(y_test, y_pred)
 
+        # Display evaluation results
+        st.write(f"### Model Accuracy: {acc_score:.4f}")
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
 
-        # Confusion Matrix
-        conf_matrix = confusion_matrix(y_test, y_pred)
         st.write("### Confusion Matrix:")
         st.dataframe(pd.DataFrame(conf_matrix, index=le.classes_, columns=le.classes_))
 
-        # Feature Importance
-        feature_importances = pd.Series(model.feature_importances_, index=X.columns).sort_values(ascending=False)
-        st.write("### Feature Importance:")
-        st.bar_chart(feature_importances)
-
         st.success("Model training and evaluation completed successfully.")
-
     except Exception as e:
         st.error(f"Error during model training: {e}")
 
