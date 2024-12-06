@@ -28,13 +28,11 @@ def load_and_merge_data():
     except Exception as e:
         st.error(f"Error loading datasets: {e}")
 
-
 @st.cache_data
 def optimize_dataframe(df):
     for col in df.select_dtypes(include=["float64", "int64"]).columns:
         df[col] = pd.to_numeric(df[col], downcast="float")
     return df
-
 
 merged_df = optimize_dataframe(load_and_merge_data())
 
@@ -104,12 +102,19 @@ elif section == "Feature Engineering and Model Training":
         X_train, X_test, y_train, y_test = preprocess_data(merged_df)
 
         # SMOTE for balancing
-        smote = SMOTE(random_state=42)
+        smote = SMOTE(sampling_strategy="auto", random_state=42)
         X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
+
+        # Check resampled class distribution
+        st.write("### Resampled Class Distribution:")
+        st.write(pd.Series(y_train_resampled).value_counts())
 
         # Model Training
         model = RandomForestClassifier(
-            random_state=42, class_weight="balanced", n_estimators=100, max_depth=10
+            random_state=42,
+            class_weight={"Manual": 1, "Automatic": 3},  # Bias towards automatic
+            n_estimators=100,
+            max_depth=10,
         )
         model.fit(X_train_resampled, y_train_resampled)
 
