@@ -21,10 +21,27 @@ csv_urls = [
 # Cache loading and merging of datasets
 @st.cache_data
 def load_and_merge_data():
-    dfs = [pd.read_csv(url) for url in csv_urls]
-    return pd.concat(dfs, ignore_index=True)
+    dfs = []
+    for url in csv_urls:
+        try:
+            df = pd.read_csv(url)
+            dfs.append(df)
+        except Exception as e:
+            st.error(f"Error loading dataset from {url}: {e}")
+    combined_df = pd.concat(dfs, ignore_index=True)
+    return combined_df
+
+
+@st.cache_data
+def optimize_dataframe(df):
+    # Downcast numeric columns to reduce memory usage
+    for col in df.select_dtypes(include=["float64", "int64"]).columns:
+        df[col] = pd.to_numeric(df[col], downcast="float")
+    return df
+
 
 merged_df = load_and_merge_data()
+merged_df = optimize_dataframe(merged_df)
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
@@ -54,12 +71,8 @@ if section == "Dashboard":
 elif section == "EDA":
     st.title("📊 Exploratory Data Analysis (EDA)")
     st.subheader("Dataset Information")
-    st.image("info1.jpeg", caption="Dataset Overview - Part 1")
-    st.image("info2.jpeg", caption="Dataset Overview - Part 2")
-    st.subheader("Visualizations")
-    st.image("chart7.jpeg", caption="Transmission Distribution (Auto vs Manual)")
-    st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
-    st.image("plt3.png", caption="Correlation Heatmap")
+    st.write(f"Dataset Shape: {merged_df.shape}")
+    st.write(merged_df.head())
 
 # Feature Engineering and Model Training Section
 elif section == "Feature Engineering and Model Training":
@@ -83,8 +96,6 @@ elif section == "Feature Engineering and Model Training":
             "mileage",
             "price",
             "model_year",
-            "make",
-            "model",
             "certified",
             "fuel_type_from_vin",
             "number_price_changes",
@@ -114,7 +125,7 @@ elif section == "Feature Engineering and Model Training":
 
         # Train the model with balanced class weights
         model = RandomForestClassifier(
-            random_state=42, class_weight="balanced", n_estimators=100, max_depth=10
+            random_state=42, class_weight="balanced", n_estimators=50, max_depth=8
         )
         model.fit(X_train, y_train)
 
@@ -153,37 +164,22 @@ elif section == "Model Prediction":
         return model.predict(scaled_input)
 
     st.subheader("Enter Vehicle Details:")
-
-    make_model_dict = {
-        "Chrysler": ["Fifth Avenue", "300", "Pacifica"],
-        "Cadillac": ["DeVille", "Escalade", "CTS"],
-        "Volkswagen": ["Cabriolet", "Jetta", "Passat"],
-    }
-
-    make = st.selectbox("Make", list(make_model_dict.keys()))
-    model = st.selectbox("Model", make_model_dict[make])
-    dealer_type = st.selectbox("Dealer Type", ["I", "F"])
-    stock_type = st.selectbox("Stock Type", ["Used", "New"])
     mileage = st.number_input("Mileage (in km)", value=30000)
     price = st.number_input("Price (in CAD)", value=25000)
     model_year = st.number_input("Model Year", value=2020)
-    certified = st.selectbox("Certified", ["Yes", "No"])
-    fuel_type = st.selectbox("Fuel Type", ["Gas", "Diesel", "CNG", "Electric", "Hybrid"])
     number_price_changes = st.number_input("Number of Price Changes", value=3)
+    certified = st.selectbox("Certified", ["Yes", "No"])
+    fuel_type = st.selectbox("Fuel Type", ["Gas", "Diesel", "Electric", "Hybrid"])
 
     input_data = pd.DataFrame(
         [
             {
-                "dealer_type": dealer_type,
-                "stock_type": stock_type,
                 "mileage": mileage,
                 "price": price,
                 "model_year": model_year,
-                "make": make,
-                "model": model,
+                "number_price_changes": number_price_changes,
                 "certified": 1 if certified == "Yes" else 0,
                 "fuel_type_from_vin": fuel_type,
-                "number_price_changes": number_price_changes,
             }
         ]
     )
@@ -200,11 +196,4 @@ elif section == "Model Prediction":
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-    st.write(
-        """
-        The dashboard provides insights and visualizations on transmission types, pricing trends, and more.
-        """
-    )
-    st.write(
-        "Click [here](https://app.powerbi.com/groups/me/reports/c9772dbc-0131-4e5a-a559-43a5c22874b3/ca237ccb0ae673ae960a?experience=power-bi) to view the Power BI dashboard."
-    )
+    st.write("Power BI dashboard link goes here.")
