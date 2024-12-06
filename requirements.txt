@@ -4,3 +4,4 @@ panda
 scikit-learn
 imbalanced-learn
 joblib
+xgboost
