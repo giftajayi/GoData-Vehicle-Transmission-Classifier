@@ -80,7 +80,7 @@ elif section == "Feature Engineering and Model Training":
         st.write("### Preprocessing completed successfully.")
     except Exception as e:
         st.error(f"Error during feature engineering: {e}")
-        return
+            return
 
     st.subheader("🏋️‍♂️ Model Training and Evaluation")
 
