@@ -3,7 +3,17 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.preprocessing import StandardScaler, OrdinalEncoder
+from sklearn.impute import SimpleImputer
+from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import KFold, cross_val_score, GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
 import joblib
 import warnings
 
@@ -21,27 +31,21 @@ csv_urls = [
 # Cache loading and merging of datasets
 @st.cache_data
 def load_and_merge_data():
-    dfs = []
-    for url in csv_urls:
-        try:
-            df = pd.read_csv(url)
-            dfs.append(df)
-        except Exception as e:
-            st.error(f"Error loading dataset from {url}: {e}")
-    combined_df = pd.concat(dfs, ignore_index=True)
-    return combined_df
+    try:
+        dfs = [pd.read_csv(url) for url in csv_urls]
+        return pd.concat(dfs, ignore_index=True)
+    except Exception as e:
+        st.error(f"Error loading datasets: {e}")
 
 
 @st.cache_data
 def optimize_dataframe(df):
-    # Downcast numeric columns to reduce memory usage
     for col in df.select_dtypes(include=["float64", "int64"]).columns:
         df[col] = pd.to_numeric(df[col], downcast="float")
     return df
 
 
-merged_df = load_and_merge_data()
-merged_df = optimize_dataframe(merged_df)
+merged_df = optimize_dataframe(load_and_merge_data())
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
@@ -78,18 +82,8 @@ elif section == "EDA":
 elif section == "Feature Engineering and Model Training":
     st.title("🧑‍🔬 Feature Engineering and Model Training")
 
-    st.subheader("🔧 Feature Engineering")
-    try:
-        # Encode the target variable
-        le = LabelEncoder()
-        merged_df["transmission_from_vin"] = le.fit_transform(
-            merged_df["transmission_from_vin"]
-        )
-
-        # Drop missing data
-        merged_df = merged_df.dropna()
-
-        # Select features and target variable
+    @st.cache_data
+    def preprocess_data(df):
         feature_columns = [
             "dealer_type",
             "stock_type",
@@ -100,54 +94,48 @@ elif section == "Feature Engineering and Model Training":
             "fuel_type_from_vin",
             "number_price_changes",
         ]
-        X = merged_df[feature_columns]
-        y = merged_df["transmission_from_vin"]
+        X = pd.get_dummies(df[feature_columns], drop_first=True)
+        y = df["transmission_from_vin"]
 
-        # Encode categorical features and scale numerical features
-        X = pd.get_dummies(X, drop_first=True)
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        # Save the scaler and feature columns for future use
         joblib.dump(scaler, "scaler.pkl")
         joblib.dump(X.columns.tolist(), "original_columns.pkl")
 
-        st.write("### Preprocessing completed successfully.")
-    except Exception as e:
-        st.error(f"Error during feature engineering: {e}")
+        return train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
-    st.subheader("🏋️‍♂️ Model Training and Evaluation")
     try:
-        # Split the data
-        X_train, X_test, y_train, y_test = train_test_split(
-            X_scaled, y, test_size=0.2, random_state=42
-        )
+        X_train, X_test, y_train, y_test = preprocess_data(merged_df)
 
-        # Train the model with balanced class weights
+        # SMOTE for balancing
+        smote = SMOTE(random_state=42)
+        X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
+
+        # Model Training
         model = RandomForestClassifier(
             random_state=42, class_weight="balanced", n_estimators=50, max_depth=8
         )
-        model.fit(X_train, y_train)
+        model.fit(X_train_resampled, y_train_resampled)
 
         # Save the model
         joblib.dump(model, "vehicle_transmission_model.pkl")
 
-        # Evaluate the model
+        # Evaluation
         y_pred = model.predict(X_test)
         acc_score = accuracy_score(y_test, y_pred)
-        conf_matrix = confusion_matrix(y_test, y_pred)
-
-        # Display evaluation results
         st.write(f"### Model Accuracy: {acc_score:.4f}")
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
 
         st.write("### Confusion Matrix:")
         st.dataframe(
-            pd.DataFrame(conf_matrix, index=le.classes_, columns=le.classes_)
+            pd.DataFrame(
+                confusion_matrix(y_test, y_pred),
+                columns=["Predicted Manual", "Predicted Automatic"],
+                index=["Actual Manual", "Actual Automatic"],
+            )
         )
-
-        st.success("Model training and evaluation completed successfully.")
     except Exception as e:
         st.error(f"Error during model training: {e}")
 
