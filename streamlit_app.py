@@ -3,17 +3,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from sklearn.preprocessing import StandardScaler, OrdinalEncoder
-from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
 from imblearn.over_sampling import SMOTE
-from sklearn.model_selection import KFold, cross_val_score, GridSearchCV
-from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
-from xgboost import XGBClassifier
 import joblib
 import warnings
 
@@ -75,8 +66,12 @@ if section == "Dashboard":
 elif section == "EDA":
     st.title("📊 Exploratory Data Analysis (EDA)")
     st.subheader("Dataset Information")
-    st.write(f"Dataset Shape: {merged_df.shape}")
-    st.write(merged_df.head())
+    st.image("info1.jpeg", caption="Dataset Overview - Part 1")
+    st.image("info2.jpeg", caption="Dataset Overview - Part 2")
+    st.subheader("Visualizations")
+    st.image("chart7.jpeg", caption="Transmission Distribution (Auto vs Manual)")
+    st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
+    st.image("plt3.png", caption="Correlation Heatmap")
 
 # Feature Engineering and Model Training Section
 elif section == "Feature Engineering and Model Training":
@@ -103,7 +98,7 @@ elif section == "Feature Engineering and Model Training":
         joblib.dump(scaler, "scaler.pkl")
         joblib.dump(X.columns.tolist(), "original_columns.pkl")
 
-        return train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+        return train_test_split(X_scaled, y, test_size=0.2, stratify=y, random_state=42)
 
     try:
         X_train, X_test, y_train, y_test = preprocess_data(merged_df)
@@ -114,7 +109,7 @@ elif section == "Feature Engineering and Model Training":
 
         # Model Training
         model = RandomForestClassifier(
-            random_state=42, class_weight="balanced", n_estimators=50, max_depth=8
+            random_state=42, class_weight="balanced", n_estimators=100, max_depth=10
         )
         model.fit(X_train_resampled, y_train_resampled)
 
@@ -185,4 +180,3 @@ elif section == "Model Prediction":
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
     st.write("Power BI dashboard link goes here.")
- 
