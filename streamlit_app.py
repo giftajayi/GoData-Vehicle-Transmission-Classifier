@@ -45,7 +45,7 @@ elif section == "EDA":
     st.image("chart7.jpeg", caption="Transmission Distribution (Auto vs Manual)")
     st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
     st.image("plt3.png", caption="Correlation Heatmap")
-
+    
 # Feature Engineering and Model Training Section
 elif section == "Feature Engineering and Model Training":
     st.title("🧑‍🔬 Feature Engineering and Model Training")
@@ -76,26 +76,18 @@ elif section == "Feature Engineering and Model Training":
 
         # Save the scaler and original columns
         joblib.dump(scaler, "scaler.pkl")
-        original_columns = X.columns.tolist()
-        joblib.dump(original_columns, "original_columns.pkl")
+        joblib.dump(X.columns.tolist(), "original_columns.pkl")
 
         st.write("### Preprocessing completed: Features prepared for model training.")
     except Exception as e:
         st.error(f"Error during feature engineering: {e}")
+        return
 
-    st.subheader("🏋️‍♂️ Model Training and Bias Mitigation")
+    st.subheader("🏋️‍♂️ Model Training and Evaluation")
 
     try:
-        # Addressing class imbalance with SMOTE
-        from imblearn.over_sampling import SMOTE
-
-        smote = SMOTE(random_state=42)
-        X_resampled, y_resampled = smote.fit_resample(X_scaled, y)
-
-        st.write("### Resampling completed: Class distribution balanced.")
-
         # Splitting data into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
         # Training RandomForestClassifier with balanced class weights
         model = RandomForestClassifier(random_state=42, class_weight="balanced")
@@ -113,21 +105,16 @@ elif section == "Feature Engineering and Model Training":
         st.text(classification_report(y_test, y_pred))
 
         # Confusion Matrix
-        conf_matrix = confusion_matrix(y_test, y_pred, normalize="true")
-        st.write("### Normalized Confusion Matrix:")
+        conf_matrix = confusion_matrix(y_test, y_pred)
+        st.write("### Confusion Matrix:")
         st.dataframe(pd.DataFrame(conf_matrix, index=le.classes_, columns=le.classes_))
 
         # Feature Importance
-        feature_importances = pd.Series(model.feature_importances_, index=original_columns).sort_values(ascending=False)
+        feature_importances = pd.Series(model.feature_importances_, index=X.columns).sort_values(ascending=False)
         st.write("### Feature Importance:")
         st.bar_chart(feature_importances)
 
-        # Class Distribution Visualization
-        st.write("### Resampled Class Distribution:")
-        class_distribution = pd.Series(y_resampled).value_counts(normalize=True)
-        st.bar_chart(class_distribution)
-
-        st.success("Model training and bias mitigation completed successfully.")
+        st.success("Model training and evaluation completed successfully.")
 
     except Exception as e:
         st.error(f"Error during model training: {e}")
