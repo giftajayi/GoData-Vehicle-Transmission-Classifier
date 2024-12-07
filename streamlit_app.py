@@ -7,6 +7,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import joblib
 import warnings
+import numpy as np
 
 warnings.filterwarnings("ignore")
 
@@ -40,13 +41,15 @@ merged_df = optimize_dataframe(load_and_merge_data())
 if not os.path.exists('models'):
     os.makedirs('models')  # Create directory if not exists
 
-# Wrapper class for LabelEncoder to handle unseen labels
-class CustomLabelEncoder(LabelEncoder):
-    def transform(self, y):
-        new_labels = set(y) - set(self.classes_)
-        if new_labels:
-            self.classes_ = np.append(self.classes_, list(new_labels))
-        return super().transform(y)
+# Helper function to encode categorical features using LabelEncoder
+def encode_features(df, encoders=None):
+    if encoders is None:
+        encoders = {col: LabelEncoder().fit(df[col]) for col in df.select_dtypes(include=['object']).columns}
+    
+    for col, encoder in encoders.items():
+        df[col] = encoder.transform(df[col])
+    
+    return df, encoders
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
@@ -88,12 +91,15 @@ if section == "Feature Engineering and Model Training":
     st.title("🧑‍🔬 Feature Engineering and Model Training")
 
     try:
-        # 1. Encoding categorical variables using CustomLabelEncoder
-        le = CustomLabelEncoder()
-        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+        # 1. Encoding categorical variables using LabelEncoder
+        merged_df, encoders = encode_features(merged_df)
 
-        # Save the label encoder for later use
-        joblib.dump(le, "models/label_encoder.pkl")
+        le_transmission = LabelEncoder()
+        merged_df["transmission_from_vin"] = le_transmission.fit_transform(merged_df["transmission_from_vin"])
+
+        # Save the encoders and label encoder for later use
+        joblib.dump(encoders, "models/encoders.pkl")
+        joblib.dump(le_transmission, "models/le_transmission.pkl")
 
         # Continue with the rest of the code as before
         merged_df = merged_df.dropna()
@@ -103,9 +109,6 @@ if section == "Feature Engineering and Model Training":
             "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
         ]]
         y = merged_df["transmission_from_vin"]
-
-        for col in X.select_dtypes(include=['object']).columns:
-            X[col] = le.fit_transform(X[col].astype(str))
 
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
@@ -138,7 +141,8 @@ elif section == "Model Prediction":
     try:
         model = joblib.load('models/vehicle_transmission_model.pkl')
         scaler = joblib.load('models/scaler.pkl')
-        label_encoder = joblib.load('models/label_encoder.pkl')
+        encoders = joblib.load('models/encoders.pkl')
+        le_transmission = joblib.load('models/le_transmission.pkl')
         original_columns = joblib.load('models/original_columns.pkl')
         st.write("Model and files loaded successfully.")
     except Exception as e:
@@ -181,14 +185,14 @@ elif section == "Model Prediction":
         try:
             input_data = input_data.reindex(columns=original_columns, fill_value=0)
 
-            for col in input_data.select_dtypes(include=['object']).columns:
-                input_data[col] = label_encoder.transform(input_data[col])
+            for col, encoder in encoders.items():
+                input_data[col] = input_data[col].apply(lambda x: encoder.transform([x])[0] if x in encoder.classes_ else -1)
 
             scaled_input = scaler.transform(input_data)
 
             prediction = model.predict(scaled_input)
 
-            predicted_transmission = label_encoder.inverse_transform(prediction)
+            predicted_transmission = le_transmission.inverse_transform(prediction)
 
             st.write(f"### Predicted Transmission: {predicted_transmission[0]}")
         except Exception as e:
