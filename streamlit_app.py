@@ -134,15 +134,14 @@ if section == "Feature Engineering and Model Training":
     except Exception as e:
         st.error(f"Error during feature engineering or model training: {e}")
 
-# Model Prediction Section
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
     try:
         model = joblib.load('models/vehicle_transmission_model.pkl')
         scaler = joblib.load('models/scaler.pkl')
-        encoders = joblib.load('models/encoders.pkl')
-        le_transmission = joblib.load('models/le_transmission.pkl')
+        encoders = joblib.load('models/encoders.pkl')  # Load encoders here
+        le_transmission = joblib.load('models/le_transmission.pkl')  # Load label encoder here
         original_columns = joblib.load('models/original_columns.pkl')  # Load original columns here
         st.write("Model and files loaded successfully.")
     except Exception as e:
@@ -186,7 +185,8 @@ elif section == "Model Prediction":
             input_data = input_data.reindex(columns=original_columns, fill_value=0)
 
             for col, encoder in encoders.items():
-                input_data[col] = input_data[col].apply(lambda x: encoder.transform([x])[0] if x in encoder.classes_ else encoder.transform(['unknown'])[0])
+                if col in input_data.columns:
+                    input_data[col] = input_data[col].apply(lambda x: encoder.transform([x])[0] if x in encoder.classes_ else encoder.transform(['unknown'])[0])
 
             scaled_input = scaler.transform(input_data)
 
