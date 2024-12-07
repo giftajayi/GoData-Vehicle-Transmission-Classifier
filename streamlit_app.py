@@ -85,11 +85,11 @@ elif section == "Feature Engineering and Model Training":
     )
 
     try:
-        # 1. Encoding categorical variables using LabelEncoder
-        le = LabelEncoder()
-        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+        # 1. Encoding target variable
+        le_target = LabelEncoder()
+        merged_df["transmission_from_vin"] = le_target.fit_transform(merged_df["transmission_from_vin"])
 
-        # 2. Handling missing data (if applicable)
+        # 2. Handling missing data
         merged_df = merged_df.dropna()
 
         # 3. Selecting features to use in the model
@@ -101,17 +101,21 @@ elif section == "Feature Engineering and Model Training":
         ]
         y = merged_df["transmission_from_vin"]
 
-        # 4. Encoding categorical features in X (if any)
-        for col in X.select_dtypes(include=['object']).columns:
+        # 4. Encoding categorical features
+        encoders = {}
+        for col in X.select_dtypes(include=["object"]).columns:
+            le = LabelEncoder()
             X[col] = le.fit_transform(X[col].astype(str))
+            encoders[col] = le
 
         # 5. Scaling numerical features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        # Save the scaler, label encoder, and feature columns
+        # Save artifacts
         joblib.dump(scaler, "scaler.pkl")
-        joblib.dump(le, "label_encoder.pkl")
+        joblib.dump(le_target, "label_encoder.pkl")
+        joblib.dump(encoders, "label_encoders.pkl")
         joblib.dump(X.columns, "original_columns.pkl")
 
         st.write("### Preprocessing completed: Features prepared for model training.")
@@ -158,15 +162,26 @@ elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
     def predict_transmission(input_data):
+        # Load saved artifacts
         model = joblib.load("vehicle_transmission_model.pkl")
         scaler = joblib.load("scaler.pkl")
         original_columns = joblib.load("original_columns.pkl")
+        encoders = joblib.load("label_encoders.pkl")
         label_encoder = joblib.load("label_encoder.pkl")
 
+        # Align input data
         input_data = input_data.reindex(columns=original_columns, fill_value=0)
-        scaled_input = scaler.transform(input_data)
-        prediction = model.predict(scaled_input)
 
+        # Encode categorical features
+        for col in input_data.select_dtypes(include=["object"]).columns:
+            if col in encoders:
+                input_data[col] = encoders[col].transform(input_data[col].astype(str))
+
+        # Scale the input
+        scaled_input = scaler.transform(input_data)
+
+        # Predict
+        prediction = model.predict(scaled_input)
         return label_encoder.inverse_transform(prediction)
 
     st.subheader("Enter Vehicle Details:")
