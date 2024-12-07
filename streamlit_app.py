@@ -144,7 +144,7 @@ elif section == "Feature Engineering and Model Training":
 
         # Save the trained model
         joblib.dump(model, "models/vehicle_transmission_model.pkl")
-        st.success("Model trained and saved successfully.")
+        st.success("Model and artifacts saved successfully.")
 
     except Exception as e:
         st.error(f"Error during model training: {e}")
@@ -154,7 +154,12 @@ elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
     def predict_transmission(input_data):
-        model = joblib.load("models/vehicle_transmission_model.pkl")
+        model_path = "models/vehicle_transmission_model.pkl"
+        if not os.path.exists(model_path):
+            st.error("Model file not found. Please train the model first.")
+            return None
+        
+        model = joblib.load(model_path)
         scaler = joblib.load("models/scaler.pkl")
         original_columns = joblib.load("models/original_columns.pkl")
         label_encoder = joblib.load("models/label_encoder.pkl")
@@ -191,7 +196,8 @@ elif section == "Model Prediction":
     if st.button("Generate Prediction"):
         try:
             prediction = predict_transmission(input_data)
-            st.write(f"### Predicted Transmission: {prediction[0]}")
+            if prediction is not None:
+                st.write(f"### Predicted Transmission: {prediction[0]}")
         except Exception as e:
             st.error(f"Prediction error: {e}")
 
