@@ -1,12 +1,13 @@
+import os
 import streamlit as st
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.preprocessing import StandardScaler, LabelEncoder
+from imblearn.over_sampling import SMOTE
 import joblib
 import warnings
-import os
 
 warnings.filterwarnings("ignore")
 
@@ -35,6 +36,10 @@ def optimize_dataframe(df):
     return df
 
 merged_df = optimize_dataframe(load_and_merge_data())
+
+# Ensure the models directory exists
+if not os.path.exists('models'):
+    os.makedirs('models')  # Create directory if not exists
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
@@ -81,44 +86,33 @@ elif section == "Feature Engineering and Model Training":
     st.write("""
     In this section, we apply transformations and preprocessing steps to prepare the data for training. 
     Feature engineering is critical as it impacts the model’s performance.
-    """)
+    """) 
 
     try:
-        # 1. Encoding target variable
-        le_target = LabelEncoder()
-        merged_df["transmission_from_vin"] = le_target.fit_transform(merged_df["transmission_from_vin"])
+        # 1. Encoding categorical variables using LabelEncoder
+        le = LabelEncoder()
+        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
 
-        # 2. Handling missing data
+        # 2. Handling missing data (if applicable)
+        # We drop rows with missing values for simplicity. Alternatively, we could impute values.
         merged_df = merged_df.dropna()
 
         # 3. Selecting features to use in the model
-        X = merged_df[
-            [
-                "dealer_type", "stock_type", "mileage", "price", "model_year",
-                "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
-            ]
-        ]
+        X = merged_df[[
+            "dealer_type", "stock_type", "mileage", "price", "model_year",
+            "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
+        ]]
+        
+        # Target variable
         y = merged_df["transmission_from_vin"]
 
-        # 4. Encoding categorical features
-        encoders = {}
-        for col in X.select_dtypes(include=["object"]).columns:
-            le = LabelEncoder()
+        # 4. Encoding categorical features in X (if any)
+        for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
-            encoders[col] = le
 
         # 5. Scaling numerical features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
-
-        # Save artifacts
-        if not os.path.exists('models'):
-            os.makedirs('models')
-
-        joblib.dump(scaler, "models/scaler.pkl")
-        joblib.dump(le_target, "models/label_encoder.pkl")
-        joblib.dump(encoders, "models/label_encoders.pkl")
-        joblib.dump(X.columns, "models/original_columns.pkl")
 
         st.write("### Preprocessing completed: Features prepared for model training.")
 
@@ -127,6 +121,7 @@ elif section == "Feature Engineering and Model Training":
 
     # Model Training Steps
     st.subheader("🏋️‍♂️ Model Training")
+
     st.write("""
     In this section, we will split the data into training and testing sets, train the RandomForestClassifier, 
     and evaluate its initial performance. 
@@ -142,18 +137,25 @@ elif section == "Feature Engineering and Model Training":
         model.fit(X_train, y_train)
         st.write("### Model training completed.")
 
-        # Check if the model directory exists and create it if not
-        model_path = "models/vehicle_transmission_model.pkl"
-        if not os.path.exists('models'):
-            os.makedirs('models')  # Ensure the models directory exists
+        # 3. Predicting and evaluating on the test set
+        y_pred = model.predict(X_test)
+
+        st.write("### Initial Model Evaluation:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+        st.write("### Classification Report:")
+        st.text(classification_report(y_test, y_pred))
 
         # Save the trained model
-        joblib.dump(model, model_path)
-        st.success(f"Model trained and saved successfully at {model_path}.")
+        joblib.dump(model, "models/vehicle_transmission_model.pkl")
+        joblib.dump(scaler, "models/scaler.pkl")  # Save the scaler
+        joblib.dump(le, "models/label_encoders.pkl")  # Save the label encoder
+        joblib.dump(X.columns, "models/original_columns.pkl")  # Save original column names
+
+        st.success("Model trained and saved successfully.")
 
     except Exception as e:
         st.error(f"Error during model training: {e}")
-
+        
 # Model Prediction Section
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
@@ -165,18 +167,23 @@ elif section == "Model Prediction":
             st.error("Model file not found. Please train the model first.")
             return None
 
-        model = joblib.load(model_path)
-        scaler = joblib.load("models/scaler.pkl")
-        original_columns = joblib.load("models/original_columns.pkl")
-        label_encoder = joblib.load("models/label_encoder.pkl")
+        try:
+            model = joblib.load(model_path)  # Load the trained model
+            scaler = joblib.load("models/scaler.pkl")  # Load the scaler
+            original_columns = joblib.load("models/original_columns.pkl")  # Load original column names
+            label_encoder = joblib.load("models/label_encoders.pkl")  # Load the label encoder
 
-        # Reindex to match the original columns used during training
-        input_data = input_data.reindex(columns=original_columns, fill_value=0)
-        scaled_input = scaler.transform(input_data)
-        prediction = model.predict(scaled_input)
-        
-        # Decode the prediction back to the original label
-        return label_encoder.inverse_transform(prediction)
+            # Reindex input data to match the original columns
+            input_data = input_data.reindex(columns=original_columns, fill_value=0)
+            scaled_input = scaler.transform(input_data)  # Scale input data
+            prediction = model.predict(scaled_input)  # Make prediction
+            
+            # Decode prediction
+            return label_encoder.inverse_transform(prediction)
+
+        except Exception as e:
+            st.error(f"Error during prediction: {e}")
+            return None
 
     st.subheader("Enter Vehicle Details:")
     mileage = st.number_input("Mileage (in km)", value=30000)
@@ -203,7 +210,9 @@ elif section == "Model Prediction":
         try:
             prediction = predict_transmission(input_data)
             if prediction is not None:
-                st.write(f"### Predicted Transmission: {prediction[0]}")
+                st.write(
+                    f"### Predicted Transmission: {prediction[0]}"
+                )
         except Exception as e:
             st.error(f"Prediction error: {e}")
 
