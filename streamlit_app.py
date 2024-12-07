@@ -10,48 +10,14 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-# URLs for datasets
-csv_urls = [
-    "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data1.csv",
-    "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data2.csv",
-    "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data3.csv",
-    "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data4.csv",
-    "https://raw.githubusercontent.com/giftajayi/GoData-Vehicle-Transmission-Classifier/master/Cleaned_data5.csv",
-]
-
-# Cache loading and merging of datasets
+# Load the dataset
 @st.cache_data
-def load_and_merge_data():
-    try:
-        dfs = [pd.read_csv(url) for url in csv_urls]
-        return pd.concat(dfs, ignore_index=True)
-    except Exception as e:
-        st.error(f"Error loading datasets: {e}")
-        return pd.DataFrame()
+def load_data(file_path):
+    return pd.read_csv(file_path)
 
-@st.cache_data
-def optimize_dataframe(df):
-    for col in df.select_dtypes(include=["float64", "int64"]).columns:
-        df[col] = pd.to_numeric(df[col], downcast="float")
-    return df
-
-merged_df = load_and_merge_data()
-if merged_df.empty:
-    st.error("Dataset loading failed. Check URLs or file access.")
-else:
-    merged_df = optimize_dataframe(merged_df)
-
-# Ensure the models directory exists
-if not os.path.exists("models"):
-    os.makedirs("models")  # Create directory if not exists
-
-# Helper function to encode categorical features using LabelEncoder
-def encode_features(df, encoders=None):
-    if encoders is None:
-        encoders = {col: LabelEncoder().fit(df[col]) for col in df.select_dtypes(include=["object"]).columns}
-    for col, encoder in encoders.items():
-        df[col] = encoder.transform(df[col])
-    return df, encoders
+# Load the uploaded dataset
+data_file_path = "/mnt/data/Cleaned_data1.csv"
+df = load_data(data_file_path)
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
@@ -62,7 +28,6 @@ section = st.sidebar.radio(
         "EDA",
         "Feature Engineering and Model Training",
         "Model Prediction",
-        "Power BI Dashboard",
     ],
 )
 
@@ -71,105 +36,96 @@ if section == "Dashboard":
     st.title("🚗 Vehicle Transmission Classifier")
     st.write(
         """
-        The primary objective of this project is to develop a machine learning model 
-        to predict a vehicle's transmission type, enhancing Go Auto’s decision-making 
-        and marketing strategies.
+        This application predicts the type of transmission (Automatic or Manual) 
+        for vehicles based on various features.
         """
     )
 
-# EDA Section
-elif section == "EDA":
-    st.title("📊 Exploratory Data Analysis (EDA)")
-    st.subheader("Dataset Information")
-    st.write(f"Number of Rows: {merged_df.shape[0]}")
-    st.write(f"Number of Columns: {merged_df.shape[1]}")
-    st.write("Column Names:")
-    st.write(merged_df.columns.tolist())
-    st.write("Sample Data:")
-    st.dataframe(merged_df.head())
+# EDA Section elif section == "EDA": st.title("📊 Exploratory Data Analysis (EDA)") st.subheader("Dataset Information") st.image("info1.jpeg", caption="Dataset Overview - Part 1") st.image("info2.jpeg", caption="Dataset Overview - Part 2") st.subheader("Visualizations") st.image("chart7.jpeg", caption="Transmission Distribution (Auto vs Manual)") st.image("chart2.png", caption="Price vs Mileage Scatter Plot") st.image("plt3.png", caption="Correlation Heatmap")
 
 # Feature Engineering and Model Training Section
-if section == "Feature Engineering and Model Training":
+elif section == "Feature Engineering and Model Training":
     st.title("🧑‍🔬 Feature Engineering and Model Training")
 
-    try:
-        # Encoding categorical variables using LabelEncoder
-        merged_df, encoders = encode_features(merged_df)
+    # Encode categorical variables
+    st.write("### Encoding Categorical Variables")
+    le = LabelEncoder()
+    df["transmission_from_vin"] = le.fit_transform(df["transmission_from_vin"])
+    joblib.dump(le, "models/label_encoder.pkl")  # Save the label encoder
 
-        le_transmission = LabelEncoder()
-        merged_df["transmission_from_vin"] = le_transmission.fit_transform(merged_df["transmission_from_vin"])
+    st.write("### Handling Missing Data")
+    df = df.dropna()  # Drop rows with missing values
 
-        # Save the encoders and label encoder for later use
-        joblib.dump(encoders, "models/encoders.pkl")
-        joblib.dump(le_transmission, "models/le_transmission.pkl")
+    # Select features and target
+    X = df[
+        [
+            "dealer_type",
+            "stock_type",
+            "mileage",
+            "price",
+            "model_year",
+            "make",
+            "model",
+            "certified",
+            "fuel_type_from_vin",
+            "number_price_changes",
+        ]
+    ]
+    y = df["transmission_from_vin"]
 
-        # Drop missing values
-        merged_df = merged_df.dropna()
+    # Encode categorical features
+    for col in X.select_dtypes(include=["object"]).columns:
+        X[col] = le.fit_transform(X[col].astype(str))
 
-        # Define features and target
-        X = merged_df[[
-            "dealer_type", "stock_type", "mileage", "price", "model_year",
-            "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
-        ]]
-        y = merged_df["transmission_from_vin"]
+    # Scale numerical features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    joblib.dump(scaler, "models/scaler.pkl")  # Save the scaler
 
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
+    # Split the dataset
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_scaled, y, test_size=0.2, random_state=42
+    )
 
-        # Split data into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+    # Train the model with class weighting
+    model = RandomForestClassifier(class_weight="balanced", random_state=42)
+    model.fit(X_train, y_train)
 
-        # Train Random Forest model
-        model = RandomForestClassifier(random_state=42)
-        model.fit(X_train, y_train)
+    # Save the model
+    joblib.dump(model, "models/vehicle_transmission_model.pkl")
 
-        # Evaluate model
-        y_pred = model.predict(X_test)
-        st.write("### Initial Model Evaluation:")
-        st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
-        st.write("### Classification Report:")
-        st.text(classification_report(y_test, y_pred))
+    # Evaluate the model
+    y_pred = model.predict(X_test)
+    st.write("### Model Evaluation")
+    st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+    st.write("### Classification Report")
+    st.text(classification_report(y_test, y_pred, target_names=le.classes_))
 
-        # Save model and associated files
-        joblib.dump(model, "models/vehicle_transmission_model.pkl")
-        joblib.dump(scaler, "models/scaler.pkl")
-        joblib.dump(list(X.columns), "models/original_columns.pkl")
+    st.success("Model training completed and saved successfully.")
 
-        st.success("Model trained and saved successfully.")
-
-    except Exception as e:
-        st.error(f"Error during feature engineering or model training: {e}")
-
+# Model Prediction Section
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
     try:
-        # Load necessary files
-        model = joblib.load('models/vehicle_transmission_model.pkl')
-        scaler = joblib.load('models/scaler.pkl')
-        label_encoder = joblib.load('models/label_encoder.pkl')
-        original_columns = joblib.load('models/original_columns.pkl')
-
-        # Debugging: Check loaded objects
-        st.write(f"Model Type: {type(model)}")
-        st.write(f"Scaler Type: {type(scaler)}")
-        st.write(f"Label Encoder Type: {type(label_encoder)}")
+        model = joblib.load("models/vehicle_transmission_model.pkl")
+        scaler = joblib.load("models/scaler.pkl")
+        label_encoder = joblib.load("models/label_encoder.pkl")
         st.write("Model and files loaded successfully.")
     except Exception as e:
         st.error(f"Error loading files: {e}")
 
     st.subheader("Enter Vehicle Details:")
 
-    # User inputs for prediction
-    dealer_type = st.selectbox("Dealer Type", merged_df['dealer_type'].unique())
-    stock_type = st.selectbox("Stock Type", merged_df['stock_type'].unique())
+    dealer_type = st.selectbox("Dealer Type", df["dealer_type"].unique())
+    stock_type = st.selectbox("Stock Type", df["stock_type"].unique())
     mileage = st.number_input("Mileage", min_value=0)
     price = st.number_input("Price", min_value=0)
     model_year = st.number_input("Model Year", min_value=2000, max_value=2024)
-    make = st.selectbox("Make", merged_df['make'].unique())
-    model_input = st.selectbox("Model", merged_df['model'].unique())
+    make = st.selectbox("Make", df["make"].unique())
+    model = st.selectbox("Model", df["model"].unique())
     certified = st.radio("Certified", ["Yes", "No"])
-    fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].unique())
+    fuel_type = st.selectbox("Fuel Type", df["fuel_type_from_vin"].unique())
     price_changes = st.number_input("Number of Price Changes", min_value=0)
 
     input_data = pd.DataFrame(
@@ -181,7 +137,7 @@ elif section == "Model Prediction":
                 "price": price,
                 "model_year": model_year,
                 "make": make,
-                "model": model_input,
+                "model": model,
                 "certified": 1 if certified == "Yes" else 0,
                 "fuel_type_from_vin": fuel_type,
                 "number_price_changes": price_changes,
@@ -194,17 +150,12 @@ elif section == "Model Prediction":
 
     if st.button("Generate Prediction"):
         try:
-            input_data = input_data.reindex(columns=original_columns, fill_value=0)
-
-            for col in input_data.select_dtypes(include=['object']).columns:
-                input_data[col] = label_encoder.transform(input_data[col])
+            for col in input_data.select_dtypes(include=["object"]).columns:
+                input_data[col] = label_encoder.transform(input_data[col].astype(str))
 
             scaled_input = scaler.transform(input_data)
-
-            prediction = model.predict(scaled_input)  # Ensure 'model' is a trained ML model
+            prediction = model.predict(scaled_input)
             predicted_transmission = label_encoder.inverse_transform(prediction)
-
             st.write(f"### Predicted Transmission: {predicted_transmission[0]}")
         except Exception as e:
             st.error(f"Prediction error: {e}")
-
