@@ -40,6 +40,14 @@ merged_df = optimize_dataframe(load_and_merge_data())
 if not os.path.exists('models'):
     os.makedirs('models')  # Create directory if not exists
 
+# Wrapper class for LabelEncoder to handle unseen labels
+class CustomLabelEncoder(LabelEncoder):
+    def transform(self, y):
+        new_labels = set(y) - set(self.classes_)
+        if new_labels:
+            self.classes_ = np.append(self.classes_, list(new_labels))
+        return super().transform(y)
+
 # Sidebar Navigation
 st.sidebar.title("Navigation")
 section = st.sidebar.radio(
@@ -80,8 +88,8 @@ if section == "Feature Engineering and Model Training":
     st.title("🧑‍🔬 Feature Engineering and Model Training")
 
     try:
-        # 1. Encoding categorical variables using LabelEncoder
-        le = LabelEncoder()
+        # 1. Encoding categorical variables using CustomLabelEncoder
+        le = CustomLabelEncoder()
         merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
 
         # Save the label encoder for later use
@@ -174,10 +182,6 @@ elif section == "Model Prediction":
             input_data = input_data.reindex(columns=original_columns, fill_value=0)
 
             for col in input_data.select_dtypes(include=['object']).columns:
-                # Set unknown labels to -1
-                input_data[col] = input_data[col].apply(
-                    lambda x: x if x in label_encoder.classes_ else -1
-                )
                 input_data[col] = label_encoder.transform(input_data[col])
 
             scaled_input = scaler.transform(input_data)
