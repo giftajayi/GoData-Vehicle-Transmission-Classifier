@@ -58,7 +58,7 @@ section = st.sidebar.radio(
     [
         "Dashboard",
         "EDA",
-        "Feature Engineering and Model Training",
+        "Model Building",
         "Model Prediction",
         "Power BI Dashboard",
     ],
@@ -89,20 +89,20 @@ if section == " Model Building ":
     st.title("🧑‍🔬  Model Building ")
     st.write(
         """
-Model Selection and Preprocessing:
-
-The code evaluates multiple classifiers, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost.
-A SimpleImputer is used to handle missing values, replacing them with a constant (0) to ensure consistent model training.
-Each model is integrated into a pipeline, combining imputation and the classifier for seamless preprocessing and training.
-Cross-Validation:
-
-A 5-fold cross-validation is performed for each pipeline to ensure unbiased evaluation and better generalization.
-For every fold, the data is split into training and testing subsets, and the model is evaluated on accuracy.
-Mean and standard deviation of the accuracy scores are calculated to assess each model's performance and stability.
-Results Storage and Comparison:
-
-Cross-validation results are stored for all models, allowing a clear comparison of their accuracy and reliability.
-The framework enables streamlined model evaluation and facilitates selecting the most effective classifier for the dataset.
+    Model Selection and Preprocessing:
+    
+    The code evaluates multiple classifiers, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost.
+    A SimpleImputer is used to handle missing values, replacing them with a constant (0) to ensure consistent model training.
+    Each model is integrated into a pipeline, combining imputation and the classifier for seamless preprocessing and training.
+    Cross-Validation:
+    
+    A 5-fold cross-validation is performed for each pipeline to ensure unbiased evaluation and better generalization.
+    For every fold, the data is split into training and testing subsets, and the model is evaluated on accuracy.
+    Mean and standard deviation of the accuracy scores are calculated to assess each model's performance and stability.
+    Results Storage and Comparison:
+    
+    Cross-validation results are stored for all models, allowing a clear comparison of their accuracy and reliability.
+    The framework enables streamlined model evaluation and facilitates selecting the most effective classifier for the dataset.
         """
     )
 
