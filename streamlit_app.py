@@ -133,6 +133,12 @@ if section == "Feature Engineering and Model Training":
     except Exception as e:
         st.error(f"Error during feature engineering or model training: {e}")
 
+
+            st.write(f"### Predicted Transmission: {predicted_transmission[0]}")
+        except Exception as e:
+            st.error(f"Prediction error: {e}")
+
+
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
@@ -186,23 +192,21 @@ elif section == "Model Prediction":
 
     if st.button("Generate Prediction"):
         try:
-            st.write("Reindexing input data...")
             input_data = input_data.reindex(columns=original_columns, fill_value=0)
 
-            st.write("Encoding input data...")
             for col, encoder in encoders.items():
                 if col in input_data.columns:
                     input_data[col] = input_data[col].apply(lambda x: encoder.transform([x])[0] if x in encoder.classes_ else encoder.transform(['unknown'])[0])
 
-            st.write("Scaling input data...")
             scaled_input = scaler.transform(input_data)
 
-            st.write("Making prediction...")
             prediction = model.predict(scaled_input)
 
             predicted_transmission = le_transmission.inverse_transform(prediction)
 
-            st.write(f"### Predicted Transmission: {predicted_transmission[0]}")
+            # Output the prediction as "Transmission type: Manual/Automatic"
+            st.write(f"### Transmission type: {predicted_transmission[0]}")
         except Exception as e:
             st.error(f"Prediction error: {e}")
+
 
