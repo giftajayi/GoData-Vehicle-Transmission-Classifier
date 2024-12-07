@@ -7,7 +7,6 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import joblib
 import warnings
-import numpy as np
 
 warnings.filterwarnings("ignore")
 
@@ -134,6 +133,7 @@ if section == "Feature Engineering and Model Training":
     except Exception as e:
         st.error(f"Error during feature engineering or model training: {e}")
 
+# Model Prediction Section
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
