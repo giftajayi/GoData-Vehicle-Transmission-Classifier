@@ -142,9 +142,14 @@ elif section == "Feature Engineering and Model Training":
         model.fit(X_train, y_train)
         st.write("### Model training completed.")
 
+        # Check if the model directory exists and create it if not
+        model_path = "models/vehicle_transmission_model.pkl"
+        if not os.path.exists('models'):
+            os.makedirs('models')  # Ensure the models directory exists
+
         # Save the trained model
-        joblib.dump(model, "models/vehicle_transmission_model.pkl")
-        st.success("Model and artifacts saved successfully.")
+        joblib.dump(model, model_path)
+        st.success(f"Model trained and saved successfully at {model_path}.")
 
     except Exception as e:
         st.error(f"Error during model training: {e}")
@@ -155,10 +160,11 @@ elif section == "Model Prediction":
 
     def predict_transmission(input_data):
         model_path = "models/vehicle_transmission_model.pkl"
+        
         if not os.path.exists(model_path):
             st.error("Model file not found. Please train the model first.")
             return None
-        
+
         model = joblib.load(model_path)
         scaler = joblib.load("models/scaler.pkl")
         original_columns = joblib.load("models/original_columns.pkl")
