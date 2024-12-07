@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from imblearn.over_sampling import SMOTE
 import joblib
 import warnings
@@ -87,9 +87,15 @@ elif section == "Feature Engineering and Model Training":
             "fuel_type_from_vin",
             "number_price_changes",
         ]
+        # One-hot encoding for categorical features
         X = pd.get_dummies(df[feature_columns], drop_first=True)
-        y = df["transmission_from_vin"]
 
+        # Encode the target variable (Manual -> 0, Automatic -> 1)
+        label_encoder = LabelEncoder()
+        y = label_encoder.fit_transform(df["transmission_from_vin"])  # Encode target labels
+        joblib.dump(label_encoder, "label_encoder.pkl")  # Save the encoder for future predictions
+
+        # Standardize the features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
@@ -99,10 +105,11 @@ elif section == "Feature Engineering and Model Training":
         return train_test_split(X_scaled, y, test_size=0.2, stratify=y, random_state=42)
 
     try:
+        # Preprocess the data
         X_train, X_test, y_train, y_test = preprocess_data(merged_df)
 
-        # SMOTE for balancing (Oversample "Manual" class more)
-        smote = SMOTE(sampling_strategy={"Manual": 0.7, "Automatic": 0.3}, random_state=42)
+        # SMOTE for balancing the target classes
+        smote = SMOTE(sampling_strategy={0: 3000, 1: 2000}, random_state=42)  # Adjust numbers as needed
         X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
 
         # Check resampled class distribution
@@ -112,7 +119,7 @@ elif section == "Feature Engineering and Model Training":
         # Model Training
         model = RandomForestClassifier(
             random_state=42,
-            class_weight={"Manual": 3, "Automatic": 1},  # Bias towards manual
+            class_weight={0: 3, 1: 1},  # Adjust weights for Manual (0) and Automatic (1)
             n_estimators=100,
             max_depth=10,
         )
@@ -126,7 +133,8 @@ elif section == "Feature Engineering and Model Training":
         acc_score = accuracy_score(y_test, y_pred)
         st.write(f"### Model Accuracy: {acc_score:.4f}")
         st.write("### Classification Report:")
-        st.text(classification_report(y_test, y_pred))
+        label_encoder = joblib.load("label_encoder.pkl")
+        st.text(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
 
         st.write("### Confusion Matrix:")
         st.dataframe(
@@ -147,9 +155,14 @@ elif section == "Model Prediction":
         model = joblib.load("vehicle_transmission_model.pkl")
         scaler = joblib.load("scaler.pkl")
         original_columns = joblib.load("original_columns.pkl")
+        label_encoder = joblib.load("label_encoder.pkl")
+
         input_data = input_data.reindex(columns=original_columns, fill_value=0)
         scaled_input = scaler.transform(input_data)
-        return model.predict(scaled_input)
+        prediction = model.predict(scaled_input)
+        
+        # Decode the prediction back to the original label
+        return label_encoder.inverse_transform(prediction)
 
     st.subheader("Enter Vehicle Details:")
     mileage = st.number_input("Mileage (in km)", value=30000)
@@ -176,7 +189,7 @@ elif section == "Model Prediction":
         try:
             prediction = predict_transmission(input_data)
             st.write(
-                f"### Predicted Transmission: {'Automatic' if prediction[0] == 1 else 'Manual'}"
+                f"### Predicted Transmission: {prediction[0]}"
             )
         except Exception as e:
             st.error(f"Prediction error: {e}")
