@@ -123,7 +123,7 @@ if section == "Feature Engineering and Model Training":
     except Exception as e:
         st.error(f"Error during feature engineering or model training: {e}")
 
-# Updated Model Prediction Section
+# Model Prediction Section
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
@@ -176,87 +176,17 @@ elif section == "Model Prediction":
             for col in input_data.select_dtypes(include=['object']).columns:
                 input_data[col] = label_encoder.transform(input_data[col])
 
-            scaled_input = scaler.transform(input_data)
-
-            prediction = model.predict(scaled_input)
-
-            predicted_transmission = label_encoder.inverse_transform(prediction)
-
-            st.write(f"### Predicted Transmission: {predicted_transmission[0]}")
-        except Exception as e:
-            st.error(f"Prediction error: {e}")
-
-
-# Model Prediction Section
-elif section == "Model Prediction":
-    st.title("🔮 Model Prediction")
-
-    # Load necessary files
-    try:
-        model = joblib.load('models/vehicle_transmission_model.pkl')
-        scaler = joblib.load('models/scaler.pkl')
-        label_encoder = joblib.load('models/label_encoders.pkl')
-        original_columns = joblib.load('models/original_columns.pkl')
-        st.write("Model and files loaded successfully.")
-    except Exception as e:
-        st.error(f"Error loading files: {e}")
-
-    st.subheader("Enter Vehicle Details:")
-
-    # User inputs for prediction (use features as specified)
-    dealer_type = st.selectbox("Dealer Type", merged_df['dealer_type'].unique())
-    stock_type = st.selectbox("Stock Type", merged_df['stock_type'].unique())
-    mileage = st.number_input("Mileage", min_value=0)
-    price = st.number_input("Price", min_value=0)
-    model_year = st.number_input("Model Year", min_value=2000, max_value=2024)
-    make = st.selectbox("Make", merged_df['make'].unique())
-    model = st.selectbox("Model", merged_df['model'].unique())
-    certified = st.radio("Certified", ["Yes", "No"])
-    fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].unique())
-    price_changes = st.number_input("Number of Price Changes", min_value=0)
-
-    # Prepare the input data
-    input_data = pd.DataFrame(
-        [
-            {
-                "dealer_type": dealer_type,
-                "stock_type": stock_type,
-                "mileage": mileage,
-                "price": price,
-                "model_year": model_year,
-                "make": make,
-                "model": model,
-                "certified": 1 if certified == "Yes" else 0,
-                "fuel_type_from_vin": fuel_type,
-                "number_price_changes": price_changes,
-            }
-        ]
-    )
-
-    # Check the input data
-    st.write("Input Data for Prediction:")
-    st.write(input_data)
-
-    # Make prediction when button is pressed
-    if st.button("Generate Prediction"):
-        try:
-            # Ensure that the input data has the correct columns (align with original columns)
-            input_data = input_data.reindex(columns=original_columns, fill_value=0)
-
-            # Handle categorical features by encoding them
+            # Handle unseen labels during prediction
             for col in input_data.select_dtypes(include=['object']).columns:
-                input_data[col] = label_encoder.transform(input_data[col])  # Use transform instead of fit_transform
+                input_data[col] = input_data[col].apply(lambda x: x if x in label_encoder.classes_ else 'unknown')
+                input_data[col] = label_encoder.transform(input_data[col])
 
-            # Scale the input data
             scaled_input = scaler.transform(input_data)
 
-            # Make the prediction
             prediction = model.predict(scaled_input)
 
-            # Decode the prediction label back to the original class
             predicted_transmission = label_encoder.inverse_transform(prediction)
 
-            # Output the prediction
             st.write(f"### Predicted Transmission: {predicted_transmission[0]}")
         except Exception as e:
             st.error(f"Prediction error: {e}")
