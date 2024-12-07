@@ -190,7 +190,7 @@ elif section == "Model Prediction":
 
             # Handle categorical features by encoding them
             for col in input_data.select_dtypes(include=['object']).columns:
-                input_data[col] = label_encoder.fit_transform(input_data[col])
+                input_data[col] = label_encoder.transform(input_data[col])  # Use transform instead of fit_transform
 
             # Scale the input data
             scaled_input = scaler.transform(input_data)
@@ -209,4 +209,4 @@ elif section == "Model Prediction":
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-    st.write("Power BI dashboard link goes here.") 
+    st.write("Power BI dashboard link goes here.")
