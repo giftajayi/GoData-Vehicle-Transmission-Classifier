@@ -213,4 +213,6 @@ elif section == "Model Prediction":
             # Predict and decode the output
             prediction = model.predict(scaled_input)
             predicted_transmission = label_encoder.inverse_transform(prediction)
-            st.write(f
+            st.write(f"### Predicted Transmission: {predicted_transmission[0]}")
+        except Exception as e:
+            st.error(f"Prediction error: {e}")
