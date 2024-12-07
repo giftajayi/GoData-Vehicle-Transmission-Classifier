@@ -85,7 +85,7 @@ elif section == "EDA":
     st.image("plt3.png", caption="Correlation Heatmap")
 
 # Model Building Section
-if section == " Model Building ":
+if section == "Model Building":  # Corrected section name by removing extra spaces
     st.title("🧑‍🔬  Model Building ")
     st.write(
         """
