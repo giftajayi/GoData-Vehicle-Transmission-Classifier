@@ -2,11 +2,11 @@ import streamlit as st
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from imblearn.over_sampling import SMOTE
 import joblib
 import warnings
+import os
 
 warnings.filterwarnings("ignore")
 
@@ -77,12 +77,11 @@ elif section == "Feature Engineering and Model Training":
 
     # Feature Engineering Steps
     st.subheader("🔧 Feature Engineering")
-    st.write(
-        """
-        In this section, we apply transformations and preprocessing steps to prepare the data for training. 
-        Feature engineering is critical as it impacts the model’s performance.
-        """
-    )
+
+    st.write("""
+    In this section, we apply transformations and preprocessing steps to prepare the data for training. 
+    Feature engineering is critical as it impacts the model’s performance.
+    """)
 
     try:
         # 1. Encoding target variable
@@ -113,6 +112,9 @@ elif section == "Feature Engineering and Model Training":
         X_scaled = scaler.fit_transform(X)
 
         # Save artifacts
+        if not os.path.exists('models'):
+            os.makedirs('models')
+
         joblib.dump(scaler, "models/scaler.pkl")
         joblib.dump(le_target, "models/label_encoder.pkl")
         joblib.dump(encoders, "models/label_encoders.pkl")
@@ -125,12 +127,10 @@ elif section == "Feature Engineering and Model Training":
 
     # Model Training Steps
     st.subheader("🏋️‍♂️ Model Training")
-    st.write(
-        """
-        In this section, we will split the data into training and testing sets, train the RandomForestClassifier, 
-        and evaluate its initial performance. 
-        """
-    )
+    st.write("""
+    In this section, we will split the data into training and testing sets, train the RandomForestClassifier, 
+    and evaluate its initial performance. 
+    """)
 
     try:
         # 1. Splitting the data into training and test sets
@@ -141,14 +141,6 @@ elif section == "Feature Engineering and Model Training":
         model = RandomForestClassifier()
         model.fit(X_train, y_train)
         st.write("### Model training completed.")
-
-        # 3. Predicting and evaluating on the test set
-        y_pred = model.predict(X_test)
-
-        st.write("### Initial Model Evaluation:")
-        st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
-        st.write("### Classification Report:")
-        st.text(classification_report(y_test, y_pred))
 
         # Save the trained model
         joblib.dump(model, "models/vehicle_transmission_model.pkl")
@@ -162,24 +154,17 @@ elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
     def predict_transmission(input_data):
-        # Load the trained model, scaler, and label encoders
         model = joblib.load("models/vehicle_transmission_model.pkl")
         scaler = joblib.load("models/scaler.pkl")
         original_columns = joblib.load("models/original_columns.pkl")
-        encoders = joblib.load("models/label_encoders.pkl")
         label_encoder = joblib.load("models/label_encoder.pkl")
 
-        # Align input data with original columns and handle categorical features
+        # Reindex to match the original columns used during training
         input_data = input_data.reindex(columns=original_columns, fill_value=0)
-
-        # Encode categorical columns in the input
-        for col in input_data.select_dtypes(include=["object"]).columns:
-            if col in encoders:
-                input_data[col] = encoders[col].transform(input_data[col].astype(str))
-
-        # Scale input data and make prediction
         scaled_input = scaler.transform(input_data)
         prediction = model.predict(scaled_input)
+        
+        # Decode the prediction back to the original label
         return label_encoder.inverse_transform(prediction)
 
     st.subheader("Enter Vehicle Details:")
@@ -193,16 +178,12 @@ elif section == "Model Prediction":
     input_data = pd.DataFrame(
         [
             {
-                "dealer_type": "Independent",
-                "stock_type": "Used",
                 "mileage": mileage,
                 "price": price,
                 "model_year": model_year,
-                "make": "Toyota",
-                "model": "Corolla",
+                "number_price_changes": number_price_changes,
                 "certified": 1 if certified == "Yes" else 0,
                 "fuel_type_from_vin": fuel_type,
-                "number_price_changes": number_price_changes,
             }
         ]
     )
