@@ -138,7 +138,6 @@ if section == "Feature Engineering and Model Training":
         except Exception as e:
             st.error(f"Prediction error: {e}")
 
-
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
@@ -196,7 +195,9 @@ elif section == "Model Prediction":
 
             for col, encoder in encoders.items():
                 if col in input_data.columns:
-                    input_data[col] = input_data[col].apply(lambda x: encoder.transform([x])[0] if x in encoder.classes_ else encoder.transform(['unknown'])[0])
+                    input_data[col] = input_data[col].apply(
+                        lambda x: encoder.transform([x])[0] if x in encoder.classes_ else encoder.transform(['unknown'])[0]
+                    )
 
             scaled_input = scaler.transform(input_data)
 
@@ -204,9 +205,9 @@ elif section == "Model Prediction":
 
             predicted_transmission = le_transmission.inverse_transform(prediction)
 
-            # Output the prediction as "Transmission type: Manual/Automatic"
             st.write(f"### Transmission type: {predicted_transmission[0]}")
         except Exception as e:
             st.error(f"Prediction error: {e}")
+
 
 
