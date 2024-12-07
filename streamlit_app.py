@@ -3,9 +3,8 @@ import streamlit as st
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from imblearn.over_sampling import SMOTE
 import joblib
 import warnings
 
@@ -54,30 +53,8 @@ section = st.sidebar.radio(
     ],
 )
 
-# Dashboard Section
-if section == "Dashboard":
-    st.title("🚗 Vehicle Transmission Classifier")
-    st.write(
-        """
-        The primary objective of this project is to develop a machine learning model 
-        to predict a vehicle's transmission type, enhancing Go Auto’s decision-making 
-        and marketing strategies.
-        """
-    )
-
-# EDA Section
-elif section == "EDA":
-    st.title("📊 Exploratory Data Analysis (EDA)")
-    st.subheader("Dataset Information")
-    st.image("info1.jpeg", caption="Dataset Overview - Part 1")
-    st.image("info2.jpeg", caption="Dataset Overview - Part 2")
-    st.subheader("Visualizations")
-    st.image("chart7.jpeg", caption="Transmission Distribution (Auto vs Manual)")
-    st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
-    st.image("plt3.png", caption="Correlation Heatmap")
-
 # Feature Engineering and Model Training Section
-elif section == "Feature Engineering and Model Training":
+if section == "Feature Engineering and Model Training":
     st.title("🧑‍🔬 Feature Engineering and Model Training")
 
     # Feature Engineering Steps
@@ -86,7 +63,7 @@ elif section == "Feature Engineering and Model Training":
     st.write("""
     In this section, we apply transformations and preprocessing steps to prepare the data for training. 
     Feature engineering is critical as it impacts the model’s performance.
-    """) 
+    """)
 
     try:
         # 1. Encoding categorical variables using LabelEncoder
@@ -94,15 +71,14 @@ elif section == "Feature Engineering and Model Training":
         merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
 
         # 2. Handling missing data (if applicable)
-        # We drop rows with missing values for simplicity. Alternatively, we could impute values.
-        merged_df = merged_df.dropna()
+        merged_df = merged_df.dropna()  # Drop rows with missing values
 
         # 3. Selecting features to use in the model
         X = merged_df[[
             "dealer_type", "stock_type", "mileage", "price", "model_year",
             "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
         ]]
-        
+
         # Target variable
         y = merged_df["transmission_from_vin"]
 
@@ -145,7 +121,7 @@ elif section == "Feature Engineering and Model Training":
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
 
-        # Save the trained model
+        # Save the trained model and necessary files
         joblib.dump(model, "models/vehicle_transmission_model.pkl")
         joblib.dump(scaler, "models/scaler.pkl")  # Save the scaler
         joblib.dump(le, "models/label_encoders.pkl")  # Save the label encoder
@@ -155,66 +131,6 @@ elif section == "Feature Engineering and Model Training":
 
     except Exception as e:
         st.error(f"Error during model training: {e}")
-        
-# Model Prediction Section
-elif section == "Model Prediction":
-    st.title("🔮 Model Prediction")
-
-    def predict_transmission(input_data):
-        model_path = "models/vehicle_transmission_model.pkl"
-        
-        if not os.path.exists(model_path):
-            st.error("Model file not found. Please train the model first.")
-            return None
-
-        try:
-            model = joblib.load(model_path)  # Load the trained model
-            scaler = joblib.load("models/scaler.pkl")  # Load the scaler
-            original_columns = joblib.load("models/original_columns.pkl")  # Load original column names
-            label_encoder = joblib.load("models/label_encoders.pkl")  # Load the label encoder
-
-            # Reindex input data to match the original columns
-            input_data = input_data.reindex(columns=original_columns, fill_value=0)
-            scaled_input = scaler.transform(input_data)  # Scale input data
-            prediction = model.predict(scaled_input)  # Make prediction
-            
-            # Decode prediction
-            return label_encoder.inverse_transform(prediction)
-
-        except Exception as e:
-            st.error(f"Error during prediction: {e}")
-            return None
-
-    st.subheader("Enter Vehicle Details:")
-    mileage = st.number_input("Mileage (in km)", value=30000)
-    price = st.number_input("Price (in CAD)", value=25000)
-    model_year = st.number_input("Model Year", value=2020)
-    number_price_changes = st.number_input("Number of Price Changes", value=3)
-    certified = st.selectbox("Certified", ["Yes", "No"])
-    fuel_type = st.selectbox("Fuel Type", ["Gas", "Diesel", "Electric", "Hybrid"])
-
-    input_data = pd.DataFrame(
-        [
-            {
-                "mileage": mileage,
-                "price": price,
-                "model_year": model_year,
-                "number_price_changes": number_price_changes,
-                "certified": 1 if certified == "Yes" else 0,
-                "fuel_type_from_vin": fuel_type,
-            }
-        ]
-    )
-
-    if st.button("Generate Prediction"):
-        try:
-            prediction = predict_transmission(input_data)
-            if prediction is not None:
-                st.write(
-                    f"### Predicted Transmission: {prediction[0]}"
-                )
-        except Exception as e:
-            st.error(f"Prediction error: {e}")
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
