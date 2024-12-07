@@ -53,7 +53,29 @@ section = st.sidebar.radio(
     ],
 )
 
-# Updated Feature Engineering and Model Training Section
+# Dashboard Section
+if section == "Dashboard":
+    st.title("🚗 Vehicle Transmission Classifier")
+    st.write(
+        """
+        The primary objective of this project is to develop a machine learning model 
+        to predict a vehicle's transmission type, enhancing Go Auto’s decision-making 
+        and marketing strategies.
+        """
+    )
+
+# EDA Section
+elif section == "EDA":
+    st.title("📊 Exploratory Data Analysis (EDA)")
+    st.subheader("Dataset Information")
+    st.image("info1.jpeg", caption="Dataset Overview - Part 1")
+    st.image("info2.jpeg", caption="Dataset Overview - Part 2")
+    st.subheader("Visualizations")
+    st.image("chart7.jpeg", caption="Transmission Distribution (Auto vs Manual)")
+    st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
+    st.image("plt3.png", caption="Correlation Heatmap")
+    
+# Feature Engineering and Model Training Section
 if section == "Feature Engineering and Model Training":
     st.title("🧑‍🔬 Feature Engineering and Model Training")
 
