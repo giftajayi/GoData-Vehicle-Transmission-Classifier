@@ -174,11 +174,10 @@ elif section == "Model Prediction":
             input_data = input_data.reindex(columns=original_columns, fill_value=0)
 
             for col in input_data.select_dtypes(include=['object']).columns:
-                input_data[col] = label_encoder.transform(input_data[col])
-
-            # Handle unseen labels during prediction
-            for col in input_data.select_dtypes(include=['object']).columns:
-                input_data[col] = input_data[col].apply(lambda x: x if x in label_encoder.classes_ else 'unknown')
+                # Set unknown labels to -1
+                input_data[col] = input_data[col].apply(
+                    lambda x: x if x in label_encoder.classes_ else -1
+                )
                 input_data[col] = label_encoder.transform(input_data[col])
 
             scaled_input = scaler.transform(input_data)
