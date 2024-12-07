@@ -53,67 +53,38 @@ section = st.sidebar.radio(
     ],
 )
 
-# Feature Engineering and Model Training Section
+# Updated Feature Engineering and Model Training Section
 if section == "Feature Engineering and Model Training":
     st.title("🧑‍🔬 Feature Engineering and Model Training")
-
-    # Feature Engineering Steps
-    st.subheader("🔧 Feature Engineering")
-
-    st.write("""
-    In this section, we apply transformations and preprocessing steps to prepare the data for training. 
-    Feature engineering is critical as it impacts the model’s performance.
-    """)
 
     try:
         # 1. Encoding categorical variables using LabelEncoder
         le = LabelEncoder()
         merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
 
-        # 2. Handling missing data (if applicable)
-        merged_df = merged_df.dropna()  # Drop rows with missing values
+        # Save the label encoder for later use
+        joblib.dump(le, "models/label_encoder.pkl")
 
-        # 3. Selecting features to use in the model
+        # Continue with the rest of the code as before
+        merged_df = merged_df.dropna()
+
         X = merged_df[[
             "dealer_type", "stock_type", "mileage", "price", "model_year",
             "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
         ]]
-
-        # Target variable
         y = merged_df["transmission_from_vin"]
 
-        # 4. Encoding categorical features in X (if any)
         for col in X.select_dtypes(include=['object']).columns:
             X[col] = le.fit_transform(X[col].astype(str))
 
-        # 5. Scaling numerical features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        st.write("### Preprocessing completed: Features prepared for model training.")
-
-    except Exception as e:
-        st.error(f"Error during feature engineering: {e}")
-
-    # Model Training Steps
-    st.subheader("🏋️‍♂️ Model Training")
-
-    st.write("""
-    In this section, we will split the data into training and testing sets, train the RandomForestClassifier, 
-    and evaluate its initial performance. 
-    """)
-
-    try:
-        # 1. Splitting the data into training and test sets
         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-        st.write("### Data split into training and testing sets.")
 
-        # 2. Training the RandomForestClassifier
         model = RandomForestClassifier()
         model.fit(X_train, y_train)
-        st.write("### Model training completed.")
 
-        # 3. Predicting and evaluating on the test set
         y_pred = model.predict(X_test)
 
         st.write("### Initial Model Evaluation:")
@@ -121,16 +92,78 @@ if section == "Feature Engineering and Model Training":
         st.write("### Classification Report:")
         st.text(classification_report(y_test, y_pred))
 
-        # Save the trained model and necessary files
         joblib.dump(model, "models/vehicle_transmission_model.pkl")
-        joblib.dump(scaler, "models/scaler.pkl")  # Save the scaler
-        joblib.dump(le, "models/label_encoders.pkl")  # Save the label encoder
-        joblib.dump(X.columns, "models/original_columns.pkl")  # Save original column names
+        joblib.dump(scaler, "models/scaler.pkl")
+        joblib.dump(X.columns, "models/original_columns.pkl")
 
         st.success("Model trained and saved successfully.")
 
     except Exception as e:
-        st.error(f"Error during model training: {e}")
+        st.error(f"Error during feature engineering or model training: {e}")
+
+# Updated Model Prediction Section
+elif section == "Model Prediction":
+    st.title("🔮 Model Prediction")
+
+    try:
+        model = joblib.load('models/vehicle_transmission_model.pkl')
+        scaler = joblib.load('models/scaler.pkl')
+        label_encoder = joblib.load('models/label_encoder.pkl')
+        original_columns = joblib.load('models/original_columns.pkl')
+        st.write("Model and files loaded successfully.")
+    except Exception as e:
+        st.error(f"Error loading files: {e}")
+
+    st.subheader("Enter Vehicle Details:")
+
+    dealer_type = st.selectbox("Dealer Type", merged_df['dealer_type'].unique())
+    stock_type = st.selectbox("Stock Type", merged_df['stock_type'].unique())
+    mileage = st.number_input("Mileage", min_value=0)
+    price = st.number_input("Price", min_value=0)
+    model_year = st.number_input("Model Year", min_value=2000, max_value=2024)
+    make = st.selectbox("Make", merged_df['make'].unique())
+    model = st.selectbox("Model", merged_df['model'].unique())
+    certified = st.radio("Certified", ["Yes", "No"])
+    fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].unique())
+    price_changes = st.number_input("Number of Price Changes", min_value=0)
+
+    input_data = pd.DataFrame(
+        [
+            {
+                "dealer_type": dealer_type,
+                "stock_type": stock_type,
+                "mileage": mileage,
+                "price": price,
+                "model_year": model_year,
+                "make": make,
+                "model": model,
+                "certified": 1 if certified == "Yes" else 0,
+                "fuel_type_from_vin": fuel_type,
+                "number_price_changes": price_changes,
+            }
+        ]
+    )
+
+    st.write("Input Data for Prediction:")
+    st.write(input_data)
+
+    if st.button("Generate Prediction"):
+        try:
+            input_data = input_data.reindex(columns=original_columns, fill_value=0)
+
+            for col in input_data.select_dtypes(include=['object']).columns:
+                input_data[col] = label_encoder.transform(input_data[col])
+
+            scaled_input = scaler.transform(input_data)
+
+            prediction = model.predict(scaled_input)
+
+            predicted_transmission = label_encoder.inverse_transform(prediction)
+
+            st.write(f"### Predicted Transmission: {predicted_transmission[0]}")
+        except Exception as e:
+            st.error(f"Prediction error: {e}")
+
 
 # Model Prediction Section
 elif section == "Model Prediction":
