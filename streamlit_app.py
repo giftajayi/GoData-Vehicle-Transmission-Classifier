@@ -126,7 +126,7 @@ if section == "Feature Engineering and Model Training":
 
         joblib.dump(model, "models/vehicle_transmission_model.pkl")
         joblib.dump(scaler, "models/scaler.pkl")
-        joblib.dump(X.columns, "models/original_columns.pkl")  # Save original columns here
+        joblib.dump(list(X.columns), "models/original_columns.pkl")  # Save original columns as list
 
         st.success("Model trained and saved successfully.")
 
