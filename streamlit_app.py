@@ -127,7 +127,7 @@ if section == "Feature Engineering and Model Training":
 
         joblib.dump(model, "models/vehicle_transmission_model.pkl")
         joblib.dump(scaler, "models/scaler.pkl")
-        joblib.dump(X.columns, "models/original_columns.pkl")
+        joblib.dump(X.columns, "models/original_columns.pkl")  # Save original columns here
 
         st.success("Model trained and saved successfully.")
 
@@ -143,7 +143,7 @@ elif section == "Model Prediction":
         scaler = joblib.load('models/scaler.pkl')
         encoders = joblib.load('models/encoders.pkl')
         le_transmission = joblib.load('models/le_transmission.pkl')
-        original_columns = joblib.load('models/original_columns.pkl')
+        original_columns = joblib.load('models/original_columns.pkl')  # Load original columns here
         st.write("Model and files loaded successfully.")
     except Exception as e:
         st.error(f"Error loading files: {e}")
@@ -186,7 +186,7 @@ elif section == "Model Prediction":
             input_data = input_data.reindex(columns=original_columns, fill_value=0)
 
             for col, encoder in encoders.items():
-                input_data[col] = input_data[col].apply(lambda x: encoder.transform([x])[0] if x in encoder.classes_ else -1)
+                input_data[col] = input_data[col].apply(lambda x: encoder.transform([x])[0] if x in encoder.classes_ else encoder.transform(['unknown'])[0])
 
             scaled_input = scaler.transform(input_data)
 
