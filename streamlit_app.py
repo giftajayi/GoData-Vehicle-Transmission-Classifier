@@ -75,87 +75,78 @@ elif section == "EDA":
 elif section == "Feature Engineering and Model Training":
     st.title("🧑‍🔬 Feature Engineering and Model Training")
 
-    @st.cache_data
-    def preprocess_data(df):
-        feature_columns = [
-            "dealer_type",
-            "stock_type",
-            "mileage",
-            "price",
-            "model_year",
-            "certified",
-            "fuel_type_from_vin",
-            "number_price_changes",
-        ]
-        # One-hot encoding for categorical features
-        X = pd.get_dummies(df[feature_columns], drop_first=True)
+    # Feature Engineering Steps
+    st.subheader("🔧 Feature Engineering")
 
-        # Encode the target variable (Manual -> 0, Automatic -> 1)
-        label_encoder = LabelEncoder()
-        y = label_encoder.fit_transform(df["transmission_from_vin"])  # Encode target labels
-        joblib.dump(label_encoder, "label_encoder.pkl")  # Save the encoder for future predictions
+    st.write("""
+    In this section, we apply transformations and preprocessing steps to prepare the data for training. 
+    Feature engineering is critical as it impacts the model’s performance.
+    """) 
 
-        # Standardize the features
+    try:
+        # 1. Encoding categorical variables using LabelEncoder
+        le = LabelEncoder()
+        merged_df["transmission_from_vin"] = le.fit_transform(merged_df["transmission_from_vin"])
+
+        # 2. Handling missing data (if applicable)
+        # We drop rows with missing values for simplicity. Alternatively, we could impute values.
+        merged_df = merged_df.dropna()
+
+        # 3. Selecting features to use in the model
+        X = merged_df[[
+            "dealer_type", "stock_type", "mileage", "price", "model_year",
+            "make", "model", "certified", "fuel_type_from_vin", "number_price_changes"
+        ]]
+        
+        # Target variable
+        y = merged_df["transmission_from_vin"]
+
+        # 4. Encoding categorical features in X (if any)
+        for col in X.select_dtypes(include=['object']).columns:
+            X[col] = le.fit_transform(X[col].astype(str))
+
+        # 5. Scaling numerical features
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        joblib.dump(scaler, "scaler.pkl")
-        joblib.dump(X.columns.tolist(), "original_columns.pkl")
+        st.write("### Preprocessing completed: Features prepared for model training.")
 
-        return train_test_split(X_scaled, y, test_size=0.2, stratify=y, random_state=42)
+    except Exception as e:
+        st.error(f"Error during feature engineering: {e}")
+
+    # Model Training Steps
+    st.subheader("🏋️‍♂️ Model Training")
+
+    st.write("""
+    In this section, we will split the data into training and testing sets, train the RandomForestClassifier, 
+    and evaluate its initial performance. 
+    """)
 
     try:
-        # Preprocess the data
-        X_train, X_test, y_train, y_test = preprocess_data(merged_df)
+        # 1. Splitting the data into training and test sets
+        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+        st.write("### Data split into training and testing sets.")
 
-        # Check class distribution before SMOTE
-        original_class_distribution = pd.Series(y_train).value_counts()
-        st.write("### Original Class Distribution:")
-        st.write(original_class_distribution)
+        # 2. Training the RandomForestClassifier
+        model = RandomForestClassifier()
+        model.fit(X_train, y_train)
+        st.write("### Model training completed.")
 
-        # SMOTE for balancing the target classes
-        smote = SMOTE(
-            sampling_strategy="auto",  # Automatically balance the minority class
-            random_state=42
-        )
-        X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
-
-        # Check resampled class distribution
-        st.write("### Resampled Class Distribution:")
-        resampled_class_distribution = pd.Series(y_train_resampled).value_counts()
-        st.write(resampled_class_distribution)
-
-        # Model Training
-        model = RandomForestClassifier(
-            random_state=42,
-            class_weight="balanced",  # Automatically adjust weights based on class distribution
-            n_estimators=100,
-            max_depth=10,
-        )
-        model.fit(X_train_resampled, y_train_resampled)
-
-        # Save the model
-        joblib.dump(model, "vehicle_transmission_model.pkl")
-
-        # Evaluation
+        # 3. Predicting and evaluating on the test set
         y_pred = model.predict(X_test)
-        acc_score = accuracy_score(y_test, y_pred)
-        st.write(f"### Model Accuracy: {acc_score:.4f}")
-        st.write("### Classification Report:")
-        label_encoder = joblib.load("label_encoder.pkl")
-        st.text(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
 
-        st.write("### Confusion Matrix:")
-        st.dataframe(
-            pd.DataFrame(
-                confusion_matrix(y_test, y_pred),
-                columns=["Predicted Manual", "Predicted Automatic"],
-                index=["Actual Manual", "Actual Automatic"],
-            )
-        )
+        st.write("### Initial Model Evaluation:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+        st.write("### Classification Report:")
+        st.text(classification_report(y_test, y_pred))
+
+        # Save the trained model
+        joblib.dump(model, "vehicle_transmission_model.pkl")
+        st.success("Model trained and saved successfully.")
+
     except Exception as e:
         st.error(f"Error during model training: {e}")
-
+        
 # Model Prediction Section
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
