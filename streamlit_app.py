@@ -108,18 +108,27 @@ elif section == "Feature Engineering and Model Training":
         # Preprocess the data
         X_train, X_test, y_train, y_test = preprocess_data(merged_df)
 
+        # Check class distribution before SMOTE
+        original_class_distribution = pd.Series(y_train).value_counts()
+        st.write("### Original Class Distribution:")
+        st.write(original_class_distribution)
+
         # SMOTE for balancing the target classes
-        smote = SMOTE(sampling_strategy={0: 3000, 1: 2000}, random_state=42)  # Adjust numbers as needed
+        smote = SMOTE(
+            sampling_strategy="auto",  # Automatically balance the minority class
+            random_state=42
+        )
         X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
 
         # Check resampled class distribution
         st.write("### Resampled Class Distribution:")
-        st.write(pd.Series(y_train_resampled).value_counts())
+        resampled_class_distribution = pd.Series(y_train_resampled).value_counts()
+        st.write(resampled_class_distribution)
 
         # Model Training
         model = RandomForestClassifier(
             random_state=42,
-            class_weight={0: 3, 1: 1},  # Adjust weights for Manual (0) and Automatic (1)
+            class_weight="balanced",  # Automatically adjust weights based on class distribution
             n_estimators=100,
             max_depth=10,
         )
