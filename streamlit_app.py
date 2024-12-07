@@ -84,7 +84,7 @@ elif section == "EDA":
     st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
     st.image("plt3.png", caption="Correlation Heatmap")
 
-# Feature Engineering and Model Training Section
+# Model Building Section
 if section == " Model Building ":
     st.title("🧑‍🔬  Model Building ")
     st.write(
