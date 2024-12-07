@@ -140,73 +140,71 @@ if section == "Feature Engineering and Model Training":
     except Exception as e:
         st.error(f"Error during feature engineering or model training: {e}")
 
-# Model Prediction Section
-if section == "Model Prediction":
+elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
     try:
-        # Load model and supporting files
-        model = joblib.load("models/vehicle_transmission_model.pkl")
-        scaler = joblib.load("models/scaler.pkl")
-        encoders = joblib.load("models/encoders.pkl")
-        le_transmission = joblib.load("models/le_transmission.pkl")
-        original_columns = joblib.load("models/original_columns.pkl")
+        # Load necessary files
+        model = joblib.load('models/vehicle_transmission_model.pkl')
+        scaler = joblib.load('models/scaler.pkl')
+        label_encoder = joblib.load('models/label_encoder.pkl')
+        original_columns = joblib.load('models/original_columns.pkl')
 
-        st.success("Model and required files loaded successfully.")
+        # Debugging: Check loaded objects
+        st.write(f"Model Type: {type(model)}")
+        st.write(f"Scaler Type: {type(scaler)}")
+        st.write(f"Label Encoder Type: {type(label_encoder)}")
+        st.write("Model and files loaded successfully.")
     except Exception as e:
         st.error(f"Error loading files: {e}")
 
     st.subheader("Enter Vehicle Details:")
 
-    # Input fields
-    dealer_type = st.selectbox("Dealer Type", merged_df["dealer_type"].unique())
-    stock_type = st.selectbox("Stock Type", merged_df["stock_type"].unique())
-    mileage = st.number_input("Mileage", min_value=0, value=0)
-    price = st.number_input("Price", min_value=0, value=0)
-    model_year = st.number_input("Model Year", min_value=2000, max_value=2024, value=2020)
-    make = st.selectbox("Make", merged_df["make"].unique())
-    model = st.selectbox("Model", merged_df["model"].unique())
+    # User inputs for prediction
+    dealer_type = st.selectbox("Dealer Type", merged_df['dealer_type'].unique())
+    stock_type = st.selectbox("Stock Type", merged_df['stock_type'].unique())
+    mileage = st.number_input("Mileage", min_value=0)
+    price = st.number_input("Price", min_value=0)
+    model_year = st.number_input("Model Year", min_value=2000, max_value=2024)
+    make = st.selectbox("Make", merged_df['make'].unique())
+    model_input = st.selectbox("Model", merged_df['model'].unique())
     certified = st.radio("Certified", ["Yes", "No"])
-    fuel_type = st.selectbox("Fuel Type", merged_df["fuel_type_from_vin"].unique())
-    price_changes = st.number_input("Number of Price Changes", min_value=0, value=0)
+    fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].unique())
+    price_changes = st.number_input("Number of Price Changes", min_value=0)
 
-    # Create input data
-    input_data = pd.DataFrame([{
-        "dealer_type": dealer_type,
-        "stock_type": stock_type,
-        "mileage": mileage,
-        "price": price,
-        "model_year": model_year,
-        "make": make,
-        "model": model,
-        "certified": 1 if certified == "Yes" else 0,
-        "fuel_type_from_vin": fuel_type,
-        "number_price_changes": price_changes
-    }])
+    input_data = pd.DataFrame(
+        [
+            {
+                "dealer_type": dealer_type,
+                "stock_type": stock_type,
+                "mileage": mileage,
+                "price": price,
+                "model_year": model_year,
+                "make": make,
+                "model": model_input,
+                "certified": 1 if certified == "Yes" else 0,
+                "fuel_type_from_vin": fuel_type,
+                "number_price_changes": price_changes,
+            }
+        ]
+    )
 
     st.write("Input Data for Prediction:")
-    st.dataframe(input_data)
+    st.write(input_data)
 
     if st.button("Generate Prediction"):
         try:
-            # Align input data with training columns
             input_data = input_data.reindex(columns=original_columns, fill_value=0)
 
-            # Encode categorical variables
-            for col, encoder in encoders.items():
-                if col in input_data.columns:
-                    input_data[col] = input_data[col].apply(
-                        lambda x: encoder.transform([x])[0] if x in encoder.classes_ else -1
-                    )
+            for col in input_data.select_dtypes(include=['object']).columns:
+                input_data[col] = label_encoder.transform(input_data[col])
 
-            # Scale data
             scaled_input = scaler.transform(input_data)
 
-            # Predict transmission type
-            prediction = model.predict(scaled_input)
-            predicted_transmission = le_transmission.inverse_transform(prediction)
+            prediction = model.predict(scaled_input)  # Ensure 'model' is a trained ML model
+            predicted_transmission = label_encoder.inverse_transform(prediction)
 
-            st.write(f"### Predicted Transmission Type: {predicted_transmission[0]}")
-
+            st.write(f"### Predicted Transmission: {predicted_transmission[0]}")
         except Exception as e:
-            st.error(f"Error during prediction: {e}")
+            st.error(f"Prediction error: {e}")
+
