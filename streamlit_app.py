@@ -220,3 +220,4 @@ elif section == "Model Prediction":
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
     st.write("Power BI dashboard link goes here.")
+ 
