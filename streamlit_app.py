@@ -133,11 +133,6 @@ if section == "Feature Engineering and Model Training":
     except Exception as e:
         st.error(f"Error during feature engineering or model training: {e}")
 
-
-            st.write(f"### Predicted Transmission: {predicted_transmission[0]}")
-        except Exception as e:
-            st.error(f"Prediction error: {e}")
-
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
 
@@ -208,6 +203,3 @@ elif section == "Model Prediction":
             st.write(f"### Transmission type: {predicted_transmission[0]}")
         except Exception as e:
             st.error(f"Prediction error: {e}")
-
-
-
