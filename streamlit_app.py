@@ -94,12 +94,11 @@ The EDA revealed key patterns and correlations in the data, such as newer vehicl
 if section == "Model Building":  # Corrected section name by removing extra spaces
     st.title("🧑‍🔬  Model Building ")
     st.write(
-        """
-    Model Selection and Preprocessing:
-    
-    The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable. The process began by selecting a diverse range of models, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost. To handle missing values, a `SimpleImputer` was employed to replace them with a constant (0), ensuring consistency across all folds of the training data. Each model was incorporated into a pipeline alongside the imputer, streamlining the preprocessing and training stages.
+        """ The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable. The process began by selecting a diverse range of models, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost. To handle missing values, a `SimpleImputer` was employed to replace them with a constant (0), ensuring consistency across all folds of the training data. Each model was incorporated into a pipeline alongside the imputer, streamlining the preprocessing and training stages.
+        
 
-To ensure robust evaluation, 5-fold cross-validation was conducted for each pipeline. This method split the data into training and testing subsets in multiple iterations, calculating the accuracy for each fold. The mean and standard deviation of these accuracy scores provided insights into the performance and stability of the models. The results were stored systematically, allowing for easy comparison and enabling the selection of the most effective classifier for the dataset. This approach ensured fairness in evaluation and enhanced the reliability of the chosen model.
+            To ensure robust evaluation, 5-fold cross-validation was conducted for each pipeline. 
+            This method split the data into training and testing subsets in multiple iterations, calculating the accuracy for each fold. The mean and standard deviation of these accuracy scores provided insights into the performance and stability of the models. The results were stored systematically, allowing for easy comparison and enabling the selection of the most effective classifier for the dataset. This approach ensured fairness in evaluation and enhanced the reliability of the chosen model.
         """
     )
 
