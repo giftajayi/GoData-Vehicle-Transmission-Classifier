@@ -88,8 +88,8 @@ else:
         """
     )
 
- # EDA Section
- elif section == "EDA":
+# EDA Section
+elif section == "EDA":
     st.title("📊 Exploratory Data Analysis (EDA)")
     st.subheader("Dataset Information")
     st.image("info1.jpeg", caption="Dataset Overview - Part 1")
