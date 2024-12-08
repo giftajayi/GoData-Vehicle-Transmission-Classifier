@@ -219,3 +219,9 @@ elif section == "Model Prediction":
                 
             except Exception as e:
                 st.error(f"Prediction error: {e}")
+
+# Power BI Dashboard Section
+elif section == "Power BI Dashboard":
+    st.title("📊 Power BI Dashboard")
+    st.write("Click [here](https://app.powerbi.com/groups/me/reports/c9772dbc-0131-4e5a-a559-43a5c22874b3/ca237ccb0ae673ae960a?experience=power-bi) to view the Power BI dashboard.")
+
