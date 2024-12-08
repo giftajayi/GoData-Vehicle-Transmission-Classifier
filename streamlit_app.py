@@ -65,15 +65,17 @@ section = st.sidebar.radio(
 )
 
 # Dashboard Section
-if section == "Dashboard":
+# Check if the images exist before attempting to display
+if os.path.exists("logo1.png") and os.path.exists("logo2.png"):
     col1, col2 = st.columns([1, 9])
-
-    # Display logos
     with col1:
-        st.image("/absolute/path/to/logo1.png", width=50)
+        st.image("logo1.png", width=50)
     with col2:
-        st.image("/absolute/path/to/logo2.png", width=50)
+        st.image("logo2.png", width=50)
+else:
+    st.error("Logos not found. Please check the file paths.")
 
+# Dashboard Title
     st.title("🚗 Vehicle Transmission Classifier")
 
     # Project description
