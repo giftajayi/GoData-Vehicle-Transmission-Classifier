@@ -67,6 +67,14 @@ section = st.sidebar.radio(
 # Dashboard Section
 if section == "Dashboard":
     st.title("🚗 Vehicle Transmission Classifier")
+    # Adding logos
+    col1, col2 = st.columns(2)  # Create two columns for side-by-side layout
+    
+    with col1:
+        st.image("logo1.png", use_column_width=True)  # Replace with the path to your first logo
+
+    with col2:
+        st.image("logo2.png", use_column_width=True)  # Replace with the path to your second logo
     st.write(
         """
         The primary objective of this project is to develop a machine learning model that can reliably predict whether a vehicle has an automatic or manual transmission. By leveraging this model, Go Auto aims to enhance its decision-making processes, streamline inventory classification, and target marketing efforts more effectively. A successful model would not only improve operational efficiency but also provide valuable insights into consumer preferences, helping dealerships better align their offerings with market demand. The ability to accurately identify the transmission type can contribute significantly to improving customer experiences and boosting sales.
