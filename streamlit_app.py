@@ -88,7 +88,7 @@ if section == "Dashboard":
         </style>
         <div class="logo-container">
             <img src="logo1.png" class="logo" alt="Logo 1">
-            <img src="logo2.png" class="logo" alt="Logo 2">
+            <img src="logo2.jpg" class="logo" alt="Logo 2">
         </div>
         """,
         unsafe_allow_html=True,
