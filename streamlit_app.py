@@ -66,9 +66,7 @@ section = st.sidebar.radio(
 
 # Dashboard Section
 if section == "Dashboard":
-    st.title("🚗 Vehicle Transmission Classifier")
-
-    # Adding small logos to the corners
+    # Adding small logos to the corners before the title
     st.markdown(
         """
         <style>
@@ -84,6 +82,9 @@ if section == "Dashboard":
                 height: 50px;
                 margin: 0 20px;
             }
+            .dashboard-title {
+                margin-top: 60px;  /* Ensure title appears below the logos */
+            }
         </style>
         <div class="logo-container">
             <img src="logo1.png" class="logo" alt="Logo 1">
@@ -92,7 +93,9 @@ if section == "Dashboard":
         """,
         unsafe_allow_html=True,
     )
-    
+
+    # Title for the dashboard
+    st.markdown('<h1 class="dashboard-title">🚗 Vehicle Transmission Classifier</h1>', unsafe_allow_html=True)
 
     # Project description
     st.write(
