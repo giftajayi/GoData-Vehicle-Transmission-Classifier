@@ -92,6 +92,7 @@ if section == "Dashboard":
         """,
         unsafe_allow_html=True,
     )
+    
 
     # Project description
     st.write(
