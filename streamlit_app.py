@@ -81,15 +81,45 @@ if section == "Dashboard":
         """
     )
 
-# EDA Section
-elif section == "EDA":
-    st.title("📊 Exploratory Data Analysis (EDA)")
-    st.write(
-        """ In the initial phase of this project, we performed Exploratory Data Analysis (EDA) to gain a deeper understanding of the dataset and its characteristics. This process included cleaning the data, addressing missing values, and resolving inconsistencies, such as handling outliers and data imbalance. We examined the distribution of numerical features such as vehicle year, price, and mileage, while also exploring relationships between categorical features like make, model, and dealer information.
-The EDA revealed key patterns and correlations in the data, such as newer vehicles and specific brands being more likely to have automatic transmissions. Visualizations, including bar charts and heatmaps, effectively highlighted these insights.
+# Dashboard Section
+if section == "Dashboard":
+    st.title("🚗 Vehicle Transmission Classifier")
 
+    # Adding small logos to the corners
+    st.markdown(
+        """
+        <style>
+            .logo-container {
+                position: absolute;
+                top: 10px;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                z-index: 1000;
+            }
+            .logo {
+                height: 50px;
+                margin: 0 20px;
+            }
+        </style>
+        <div class="logo-container">
+            <img src="logo1.png" class="logo" alt="Logo 1">
+            <img src="logo2.png" class="logo" alt="Logo 2">
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Project description
+    st.write(
+        """
+        The primary objective of this project is to develop a machine learning model that can reliably predict whether a vehicle has an automatic or manual transmission. 
+        By leveraging this model, Go Auto aims to enhance its decision-making processes, streamline inventory classification, and target marketing efforts more effectively. 
+        A successful model would not only improve operational efficiency but also provide valuable insights into consumer preferences, helping dealerships better align their offerings with market demand. 
+        The ability to accurately identify the transmission type can contribute significantly to improving customer experiences and boosting sales.
         """
     )
+
     st.subheader("Dataset Information")
     st.image("info1.jpeg", caption="Dataset Overview - Part 1")
     st.image("info2.jpeg", caption="Dataset Overview - Part 2")
