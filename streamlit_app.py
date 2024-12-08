@@ -66,29 +66,17 @@ section = st.sidebar.radio(
 
 # Dashboard Section
 if section == "Dashboard":
-    # Adding small logos in the corners above the title
-    st.markdown(
-        """
-        <style>
-            .logo-container {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: -40px;
-            }
-            .logo-container img {
-                max-height: 50px;
-            }
-        </style>
-        <div class="logo-container">
-            <img src="logo1.png">
-            <img src="logo2.png">
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    # Title for the dashboard
-    st.markdown('<h1 class="dashboard-title">🚗 Vehicle Transmission Classifier</h1>', unsafe_allow_html=True)
+    # Create a layout with two columns for the logos
+    col1, col2 = st.columns([1, 9])  # Adjust width ratios as needed for alignment
+
+    # Place the logos in the two columns
+    with col1:
+        st.image("logo1.png", width=50)  # Path to the first logo, adjust width as needed
+    with col2:
+        st.image("logo2.png", width=50)  # Path to the second logo, adjust width as needed
+
+    # Title and description
+    st.title("🚗 Vehicle Transmission Classifier")
 
     # Project description
     st.write(
