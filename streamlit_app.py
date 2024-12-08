@@ -180,7 +180,11 @@ elif section == "Model Prediction":
         price = st.number_input("Price", min_value=0)
         model_year = st.number_input("Model Year", min_value=2000, max_value=2024)
         make = st.selectbox("Make", merged_df['make'].unique())
-        model_input = st.selectbox("Model", merged_df['model'].unique())
+
+        # Filter models based on the selected make
+        available_models = merged_df[merged_df['make'] == make]['model'].unique()
+        model_input = st.selectbox("Model", available_models)
+
         certified = st.radio("Certified", ["Yes", "No"])
         fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].unique())
         price_changes = st.number_input("Number of Price Changes", min_value=0)
