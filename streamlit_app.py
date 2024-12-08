@@ -71,7 +71,7 @@ if section == "Dashboard":
         with col1:
             st.image("logo1.png", width=50)
         with col2:
-            st.image("logo2.png", width=50)
+            st.image("logo2.jpg", width=50)
     else:
         st.error("Logos not found. Please check the file paths.")
 
