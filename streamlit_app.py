@@ -66,7 +66,7 @@ section = st.sidebar.radio(
 # Dashboard Section
 if section == "Dashboard":
     # Check if the images exist before attempting to display
-    if os.path.exists("logo1.png") and os.path.exists("logo2.png"):
+    if os.path.exists("logo1.png") and os.path.exists("logo2.jpg"):
         col1, col2 = st.columns([1, 9])
         with col1:
             st.image("logo1.png", width=50)
