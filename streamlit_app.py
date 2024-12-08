@@ -1,4 +1,3 @@
-
 import os
 import streamlit as st
 import pandas as pd
@@ -65,17 +64,18 @@ section = st.sidebar.radio(
 )
 
 # Dashboard Section
-# Check if the images exist before attempting to display
-if os.path.exists("logo1.png") and os.path.exists("logo2.png"):
-    col1, col2 = st.columns([1, 9])
-    with col1:
-        st.image("logo1.png", width=50)
-    with col2:
-        st.image("logo2.png", width=50)
-else:
-    st.error("Logos not found. Please check the file paths.")
+if section == "Dashboard":
+    # Check if the images exist before attempting to display
+    if os.path.exists("logo1.png") and os.path.exists("logo2.png"):
+        col1, col2 = st.columns([1, 9])
+        with col1:
+            st.image("logo1.png", width=50)
+        with col2:
+            st.image("logo2.png", width=50)
+    else:
+        st.error("Logos not found. Please check the file paths.")
 
-# Dashboard Title
+    # Dashboard Title
     st.title("🚗 Vehicle Transmission Classifier")
 
     # Project description
@@ -100,7 +100,7 @@ elif section == "EDA":
     st.image("plt3.png", caption="Correlation Heatmap")
 
 # Model Building Section
-if section == "Model Building":  # Corrected section name by removing extra spaces
+elif section == "Model Building":
     st.title("🧑‍🔬  Model Building ")
     st.write(
         """ The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable. The process began by selecting a diverse range of models, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost. To handle missing values, a `SimpleImputer` was employed to replace them with a constant (0), ensuring consistency across all folds of the training data. Each model was incorporated into a pipeline alongside the imputer, streamlining the preprocessing and training stages.
@@ -233,4 +233,3 @@ elif section == "Model Prediction":
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
     st.write("Click [here](https://app.powerbi.com/groups/me/reports/c9772dbc-0131-4e5a-a559-43a5c22874b3/ca237ccb0ae673ae960a?experience=power-bi) to view the Power BI dashboard.")
-
