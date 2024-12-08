@@ -76,6 +76,12 @@ if section == "Dashboard":
 # EDA Section
 elif section == "EDA":
     st.title("📊 Exploratory Data Analysis (EDA)")
+    st.write(
+        """ In the initial phase of this project, we performed Exploratory Data Analysis (EDA) to gain a deeper understanding of the dataset and its characteristics. This process included cleaning the data, addressing missing values, and resolving inconsistencies, such as handling outliers and data imbalance. We examined the distribution of numerical features such as vehicle year, price, and mileage, while also exploring relationships between categorical features like make, model, and dealer information.
+The EDA revealed key patterns and correlations in the data, such as newer vehicles and specific brands being more likely to have automatic transmissions. Visualizations, including bar charts and heatmaps, effectively highlighted these insights.
+
+        """
+    )
     st.subheader("Dataset Information")
     st.image("info1.jpeg", caption="Dataset Overview - Part 1")
     st.image("info2.jpeg", caption="Dataset Overview - Part 2")
@@ -91,18 +97,9 @@ if section == "Model Building":  # Corrected section name by removing extra spac
         """
     Model Selection and Preprocessing:
     
-    The code evaluates multiple classifiers, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost.
-    A SimpleImputer is used to handle missing values, replacing them with a constant (0) to ensure consistent model training.
-    Each model is integrated into a pipeline, combining imputation and the classifier for seamless preprocessing and training.
-    Cross-Validation:
-    
-    A 5-fold cross-validation is performed for each pipeline to ensure unbiased evaluation and better generalization.
-    For every fold, the data is split into training and testing subsets, and the model is evaluated on accuracy.
-    Mean and standard deviation of the accuracy scores are calculated to assess each model's performance and stability.
-    Results Storage and Comparison:
-    
-    Cross-validation results are stored for all models, allowing a clear comparison of their accuracy and reliability.
-    The framework enables streamlined model evaluation and facilitates selecting the most effective classifier for the dataset.
+    The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable. The process began by selecting a diverse range of models, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost. To handle missing values, a `SimpleImputer` was employed to replace them with a constant (0), ensuring consistency across all folds of the training data. Each model was incorporated into a pipeline alongside the imputer, streamlining the preprocessing and training stages.
+
+To ensure robust evaluation, 5-fold cross-validation was conducted for each pipeline. This method split the data into training and testing subsets in multiple iterations, calculating the accuracy for each fold. The mean and standard deviation of these accuracy scores provided insights into the performance and stability of the models. The results were stored systematically, allowing for easy comparison and enabling the selection of the most effective classifier for the dataset. This approach ensured fairness in evaluation and enhanced the reliability of the chosen model.
         """
     )
 
