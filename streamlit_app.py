@@ -126,7 +126,7 @@ if section == "Model Building":
         Features with the lowest p-values were considered most important. These included model_year, make, mileage, price, number_price_changes, stock_type, dealer_type, fuel_type_from_vin, and certified.
 
         - Feature Selection Result:
-        Based on the Chi-Squared test results, we identified the most influential features for the prediction model. These were selected to construct the final dataset used for model training.
+        Based on the Chi-Squared test results, we identified the most influential features for the prediction model. These were selected for model training.
         We created a new dataframe (df_model_features) with 11 columns, consisting of the selected features and the target variable.
 
         - Data Splitting:
@@ -134,15 +134,16 @@ if section == "Model Building":
         The training set consisted of 65% of the data, and the split was stratified to maintain the proportion of target variable classes.
 
         - Encoding Categorical Variables:
-            - Ordinal Encoding: We used OrdinalEncoder for the categorical features (make, model, stock_type, dealer_type, and fuel_type_from_vin) to convert them into numerical representations.
-            - Binary Encoding: For the make column, which had a high cardinality (45 unique values), we applied Binary Encoding to reduce dimensionality and prevent a large number of dummy variables.
+            - Binary Encoding: Applied to columns with unique values > 10 to handle high cardinality and reduce dimensionality effectively.
+            - Label Encoding (LE): Used for columns with unique values ≤ 10, providing a straightforward numerical representation.
+            - One-Hot Encoding (OHE): Implemented using get_dummies for the target variable to ensure proper representation for the predictive model.
 
         - Training and Testing:
         The preprocessed training data (X_train, y_train) was ready for model fitting. The features were encoded, and the final model training can begin once an appropriate algorithm (e.g., logistic regression, decision trees, or other classifiers) is selected.
         The test set (X_test, y_test) was used to evaluate the model's performance after training.
         """ )
     
-    st.image("confusion_m.png", caption="Confusion Matrix")
+    st.image("confusion_m.png", caption="Confusion Matrix Map")
 
     try:
         # Feature encoding and model training logic
@@ -181,7 +182,7 @@ if section == "Model Building":
         joblib.dump(scaler, "models/scaler.pkl")
         joblib.dump(list(X.columns), "models/original_columns.pkl")
 
-        st.success("Model trained and saved successfully.")
+        st.success("Model saved successfully.")
 
     except Exception as e:
         st.error(f"Error during feature engineering or model training: {e}")
