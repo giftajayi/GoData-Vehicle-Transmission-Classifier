@@ -108,26 +108,28 @@ elif section == "EDA":
 if section == "Model Building":
     st.title("🧑‍🔬  Model Building ")
     st.write(
-        """ The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable. 
-        ### Modeling Process Overview:
-        **Feature Selection (Chi-Squared Test):**
+        """ The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable.  """) 
+    st.write(
+        """ 
+        Modeling Process Overview:
+        Feature Selection (Chi-Squared Test):
         We began by defining the target variable (transmission_from_vin) and the features (independent variables) from the dataset.
         To assess the relevance of features, we applied the Chi-Squared test using chi2 from sklearn.feature_selection. The test evaluates the dependence between categorical features and the target variable.
         Features with the lowest p-values were considered most important. These included model_year, make, mileage, price, number_price_changes, stock_type, dealer_type, fuel_type_from_vin, and certified.
 
-        **Feature Selection Result:**
+        Feature Selection Result:
         Based on the Chi-Squared test results, we identified the most influential features for the prediction model. These were selected to construct the final dataset used for model training.
         We created a new dataframe (df_model_features) with 11 columns, consisting of the selected features and the target variable.
 
-        **Data Splitting:**
+        Data Splitting:
         To prepare for model training, we split the data into training and test sets using train_test_split from sklearn.model_selection.
         The training set consisted of 65% of the data, and the split was stratified to maintain the proportion of target variable classes.
 
-        **Encoding Categorical Variables:**
-        - **Ordinal Encoding:** We used OrdinalEncoder for the categorical features (make, model, stock_type, dealer_type, and fuel_type_from_vin) to convert them into numerical representations.
-        - **Binary Encoding:** For the make column, which had a high cardinality (45 unique values), we applied Binary Encoding to reduce dimensionality and prevent a large number of dummy variables.
+        Encoding Categorical Variables:
+        - Ordinal Encoding: We used OrdinalEncoder for the categorical features (make, model, stock_type, dealer_type, and fuel_type_from_vin) to convert them into numerical representations.
+        - Binary Encoding: For the make column, which had a high cardinality (45 unique values), we applied Binary Encoding to reduce dimensionality and prevent a large number of dummy variables.
 
-        **Training and Testing:**
+        - Training and Testing:
         The preprocessed training data (X_train, y_train) was ready for model fitting. The features were encoded, and the final model training can begin once an appropriate algorithm (e.g., logistic regression, decision trees, or other classifiers) is selected.
         The test set (X_test, y_test) was used to evaluate the model's performance after training.
         """
