@@ -82,8 +82,11 @@ if section == "Dashboard":
     st.write(
         """
         The primary objective of this project is to develop a machine learning model that can reliably predict whether a vehicle has an automatic or manual transmission. 
-        By leveraging this model, Go Auto aims to enhance its decision-making processes, streamline inventory classification, and target marketing efforts more effectively. 
-        A successful model would not only improve operational efficiency but also provide valuable insights into consumer preferences, helping dealerships better align their offerings with market demand. 
+        By leveraging this model, Go Auto aims to enhance its decision-making processes, streamline inventory classification, and target marketing efforts more effectively.  """
+    )
+        
+    st.write(
+        """ A successful model would not only improve operational efficiency but also provide valuable insights into consumer preferences, helping dealerships better align their offerings with market demand. 
         The ability to accurately identify the transmission type can contribute significantly to improving customer experiences and boosting sales.
         """
     )
