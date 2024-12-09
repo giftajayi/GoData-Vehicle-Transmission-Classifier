@@ -97,8 +97,13 @@ elif section == "EDA":
     st.write(
         """ In the initial phase of this project, we performed Exploratory Data Analysis (EDA) to gain a deeper understanding of the dataset and its characteristics. This process included cleaning the data, addressing missing values, and resolving inconsistencies, such as handling outliers and data imbalance. We examined the distribution of numerical features such as vehicle year, price, and mileage, while also exploring relationships between categorical features like make, model, and dealer information.
             The EDA revealed key patterns and correlations in the data, such as newer vehicles and specific brands being more likely to have automatic transmissions. Visualizations, including bar charts and heatmaps, effectively highlighted these insights.
-        """
-    )
+        """ )
+     st.write(
+        """  We examined the distribution of numerical features such as vehicle year, price, and mileage, while also exploring relationships between categorical features like make, model, and dealer information.
+        """ )
+     st.write(
+        """ The EDA revealed key patterns and correlations in the data, such as newer vehicles and specific brands being more likely to have automatic transmissions. Visualizations, including bar charts and heatmaps, effectively highlighted these insights.
+        """ )
     st.subheader("Dataset Information")
     st.image("info1.jpeg", caption="Dataset Overview - Part 1")
     st.image("info2.jpeg", caption="Dataset Overview - Part 2")
