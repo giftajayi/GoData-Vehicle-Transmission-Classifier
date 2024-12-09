@@ -108,9 +108,10 @@ elif section == "EDA":
     st.image("info2.jpeg", caption="Dataset Overview - Part 2")
     st.subheader("Visualizations")
     st.image("chart7.jpeg", caption="Transmission Distribution (Auto vs Manual)")
-    st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
     st.image("plt3.png", caption="Correlation Heatmap")
-
+    st.image("chart11.jpeg", caption="Price vs Mileage by Transmission Type Scatter Plot")
+    st.image("chart12.jpeg", caption="Vehicle Age Distribution by Transmission Type")
+    
 # Model Building Section
 if section == "Model Building":
     st.title("🧑‍🔬  Model Building ")
