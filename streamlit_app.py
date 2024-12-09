@@ -143,6 +143,8 @@ if section == "Model Building":
         The test set (X_test, y_test) was used to evaluate the model's performance after training.
         """ )
     
+    st.subheader("Model Evaluation Result")
+    st.image("confusin_matrix.jpg", caption="Confusion Matrix")
     st.image("confusion_m.png", caption="Confusion Matrix Map")
 
     try:
