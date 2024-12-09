@@ -55,7 +55,7 @@ st.sidebar.title("Navigation")
 section = st.sidebar.radio(
     "Go to",
     [
-        "Dashboard",
+        "Project Overview",
         "EDA",
         "Model Building",
         "Model Prediction",
@@ -63,8 +63,8 @@ section = st.sidebar.radio(
     ],
 )
 
-# Dashboard Section
-if section == "Dashboard":
+# Project Overview Section
+if section == "Project Overview":
     # Check if the images exist before attempting to display
     if os.path.exists("logo1.png") and os.path.exists("logo2.jpg"):
         col1, col2 = st.columns([1, 9])
