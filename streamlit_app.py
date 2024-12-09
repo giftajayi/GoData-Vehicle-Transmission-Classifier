@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 # Ensure the models directory exists
 if not os.path.exists('models'):
-    os.makedirs('models')  # Create directory if it doesn't exist
+    os.makedirs('models')  # Create directory if not exists
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
@@ -18,14 +18,11 @@ section = st.sidebar.radio(
 # Dashboard Section
 if section == "Dashboard":
     st.title("🚗 Vehicle Transmission Classifier")
-
-    # Project description
     st.write(
         """
-        The primary objective of this project is to develop a machine learning model that can reliably predict whether a vehicle has an automatic or manual transmission. 
-        By leveraging this model, Go Auto aims to enhance its decision-making processes, streamline inventory classification, and target marketing efforts more effectively. 
-        A successful model would not only improve operational efficiency but also provide valuable insights into consumer preferences, helping dealerships better align their offerings with market demand. 
-        The ability to accurately identify the transmission type can contribute significantly to improving customer experiences and boosting sales.
+        The primary objective of this project is to develop a machine learning model 
+        that can reliably predict whether a vehicle has an automatic or manual transmission. 
+        This supports Go Auto's decision-making, inventory management, and marketing efforts.
         """
     )
 
@@ -34,76 +31,53 @@ elif section == "EDA":
     st.title("📊 Exploratory Data Analysis (EDA)")
     st.write(
         """
-        In the initial phase of this project, we performed Exploratory Data Analysis (EDA) to gain a deeper understanding of the dataset and its characteristics. 
-        This process included cleaning the data, addressing missing values, and resolving inconsistencies, such as handling outliers and data imbalance. 
-        We examined the distribution of numerical features such as vehicle year, price, and mileage, while also exploring relationships between categorical features like make, model, and dealer information.
+        In the initial phase, we performed data cleaning, addressed missing values, resolved inconsistencies, 
+        and analyzed relationships between features like vehicle year, price, and mileage. 
+        Insights included patterns such as newer vehicles being more likely to have automatic transmissions.
         """
     )
-
-    st.subheader("Dataset Information")
-    st.image("info1.jpeg", caption="Dataset Overview - Part 1")
-    st.image("info2.jpeg", caption="Dataset Overview - Part 2")
-
-    st.subheader("Visualizations")
-    st.image("chart7.jpeg", caption="Transmission Distribution (Auto vs Manual)")
-    st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
-    st.image("plt3.png", caption="Correlation Heatmap")
+    st.subheader("Dataset Visualizations")
+    st.write("**Key Visualizations** (Add your EDA images or charts here)")
 
 # Model Training Section
 elif section == "Model Training":
     st.title("🧑‍🔬 Model Training")
     st.write(
         """
-        The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable. 
-        The process began by selecting a diverse range of models, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost. 
-        To handle missing values, a `SimpleImputer` was employed to replace them with a constant (0), ensuring consistency across all folds of the training data. 
-        Each model was incorporated into a pipeline alongside the imputer, streamlining the preprocessing and training stages.
+        Models such as Logistic Regression, Random Forest, and XGBoost were trained using pipelines for preprocessing 
+        (handling missing values, scaling, encoding) with 5-fold cross-validation. Results were compared for accuracy and stability.
         """
     )
-
-    st.subheader("Training Process")
-    st.write(
-        """
-        To ensure robust evaluation, 5-fold cross-validation was conducted for each pipeline. 
-        This method split the data into training and testing subsets in multiple iterations, calculating the accuracy for each fold. 
-        The mean and standard deviation of these accuracy scores provided insights into the performance and stability of the models. 
-        The results were stored systematically, allowing for easy comparison and enabling the selection of the most effective classifier for the dataset. 
-        This approach ensured fairness in evaluation and enhanced the reliability of the chosen model.
-        """
-    )
-    st.image("model_performance.png", caption="Model Performance Metrics")
+    st.write("Add visualizations or performance metrics here if available.")
+    st.warning("No performance metrics visualization available yet.")
 
 # Model Prediction Section
 elif section == "Model Prediction":
     st.title("🔮 Model Prediction")
-
     try:
-        # Load pre-trained model and other required files
+        # Load model and related files
         model = joblib.load('models/vehicle_transmission_model.pkl')
         scaler = joblib.load('models/scaler.pkl')
         encoders = joblib.load('models/encoders.pkl')
         le_transmission = joblib.load('models/le_transmission.pkl')
         original_columns = joblib.load('models/original_columns.pkl')
+        merged_df = pd.read_csv("models/merged_dataset.csv")  # Add the path to your dataset
     except Exception as e:
-        st.error(f"Error loading model files: {e}")
-        model, scaler, encoders, le_transmission, original_columns = None, None, None, None, None
+        st.error(f"Error loading files: {e}")
+        model, scaler, encoders, le_transmission, original_columns, merged_df = None, None, None, None, None, None
 
     if model:
-        # Input for prediction
         st.subheader("Enter Vehicle Details:")
-
-        dealer_type = st.selectbox("Dealer Type", ["Dealer A", "Dealer B", "Dealer C"])
-        stock_type = st.selectbox("Stock Type", ["New", "Used"])
+        dealer_type = st.selectbox("Dealer Type", merged_df['dealer_type'].unique())
+        stock_type = st.selectbox("Stock Type", merged_df['stock_type'].unique())
         mileage = st.number_input("Mileage", min_value=0)
         price = st.number_input("Price", min_value=0)
         model_year = st.number_input("Model Year", min_value=2000, max_value=2024)
-        make = st.selectbox("Make", ["Toyota", "Honda", "Ford"])
-
-        # Simulated options for models
-        model_input = st.selectbox("Model", ["Model X", "Model Y", "Model Z"])
-
+        make = st.selectbox("Make", merged_df['make'].unique())
+        available_models = merged_df[merged_df['make'] == make]['model'].unique()
+        model_input = st.selectbox("Model", available_models)
         certified = st.radio("Certified", ["Yes", "No"])
-        fuel_type = st.selectbox("Fuel Type", ["Gasoline", "Diesel", "Electric"])
+        fuel_type = st.selectbox("Fuel Type", merged_df['fuel_type_from_vin'].unique())
         price_changes = st.number_input("Number of Price Changes", min_value=0)
 
         input_data = pd.DataFrame(
@@ -122,33 +96,27 @@ elif section == "Model Prediction":
                 }
             ]
         )
+        st.write("Input Data for Prediction:")
+        st.write(input_data)
 
         if st.button("Generate Prediction"):
             try:
-                # Reindex input data to match original columns
                 input_df = input_data.reindex(columns=original_columns, fill_value=0)
-
-                # Encode categorical features
                 for col, encoder in encoders.items():
                     if col in input_df.columns:
-                        input_df[col] = encoder.transform(input_df[col].astype(str))
-
-                # Scale input data
+                        try:
+                            input_df[col] = encoder.transform(input_df[col].astype(str))
+                        except KeyError:
+                            input_df[col] = encoder.transform([input_df[col].mode()[0]])[0]
                 scaled_input = scaler.transform(input_df)
-
-                # Predict transmission type
                 prediction = model.predict(scaled_input)
-
-                # Map predictions to the corresponding transmission type (Manual/Automatic)
                 transmission_mapping = {0: "Automatic", 1: "Manual"}
                 predicted_transmission = transmission_mapping.get(prediction[0], "Unknown")
-
                 st.write(f"### Predicted Transmission: {predicted_transmission}")
-
             except Exception as e:
                 st.error(f"Prediction error: {e}")
 
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-    st.write("Click [here](https://app.powerbi.com/groups/me/reports/c9772dbc-0131-4e5a-a559-43a5c22874b3/ca237ccb0ae673ae960a?experience=power-bi) to view the Power BI dashboard.")
+    st.write("Click [here](https://app.powerbi.com) to view the dashboard.")
