@@ -105,15 +105,36 @@ elif section == "EDA":
     st.image("plt3.png", caption="Correlation Heatmap")
 
 # Model Building Section
-elif section == "Model Building":
+if section == "Model Building":
     st.title("🧑‍🔬  Model Building ")
     st.write(
-        """ The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable. The process began by selecting a diverse range of models, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost. To handle missing values, a `SimpleImputer` was employed to replace them with a constant (0), ensuring consistency across all folds of the training data. Each model was incorporated into a pipeline alongside the imputer, streamlining the preprocessing and training stages.
-        To ensure robust evaluation, 5-fold cross-validation was conducted for each pipeline. This method split the data into training and testing subsets in multiple iterations, calculating the accuracy for each fold. The mean and standard deviation of these accuracy scores provided insights into the performance and stability of the models. The results were stored systematically, allowing for easy comparison and enabling the selection of the most effective classifier for the dataset. This approach ensured fairness in evaluation and enhanced the reliability of the chosen model.
+        """ The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable. 
+        ### Modeling Process Overview:
+        **Feature Selection (Chi-Squared Test):**
+        We began by defining the target variable (transmission_from_vin) and the features (independent variables) from the dataset.
+        To assess the relevance of features, we applied the Chi-Squared test using chi2 from sklearn.feature_selection. The test evaluates the dependence between categorical features and the target variable.
+        Features with the lowest p-values were considered most important. These included model_year, make, mileage, price, number_price_changes, stock_type, dealer_type, fuel_type_from_vin, and certified.
+
+        **Feature Selection Result:**
+        Based on the Chi-Squared test results, we identified the most influential features for the prediction model. These were selected to construct the final dataset used for model training.
+        We created a new dataframe (df_model_features) with 11 columns, consisting of the selected features and the target variable.
+
+        **Data Splitting:**
+        To prepare for model training, we split the data into training and test sets using train_test_split from sklearn.model_selection.
+        The training set consisted of 65% of the data, and the split was stratified to maintain the proportion of target variable classes.
+
+        **Encoding Categorical Variables:**
+        - **Ordinal Encoding:** We used OrdinalEncoder for the categorical features (make, model, stock_type, dealer_type, and fuel_type_from_vin) to convert them into numerical representations.
+        - **Binary Encoding:** For the make column, which had a high cardinality (45 unique values), we applied Binary Encoding to reduce dimensionality and prevent a large number of dummy variables.
+
+        **Training and Testing:**
+        The preprocessed training data (X_train, y_train) was ready for model fitting. The features were encoded, and the final model training can begin once an appropriate algorithm (e.g., logistic regression, decision trees, or other classifiers) is selected.
+        The test set (X_test, y_test) was used to evaluate the model's performance after training.
         """
     )
 
     try:
+        # Feature encoding and model training logic
         merged_df, encoders = encode_features(merged_df)
 
         le_transmission = LabelEncoder()
@@ -134,17 +155,15 @@ elif section == "Model Building":
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+        # Split the data into training and test sets with 65% for training and 35% for testing
+        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.35, random_state=42)
 
+        # Initialize and train the RandomForest model
         model = RandomForestClassifier()
         model.fit(X_train, y_train)
 
+        # Predict on the test set
         y_pred = model.predict(X_test)
-
-        st.write("### Initial Model Evaluation:")
-        st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
-        st.write("### Classification Report:")
-        st.text(classification_report(y_test, y_pred))
 
         # Save models and required files
         joblib.dump(model, "models/vehicle_transmission_model.pkl")
