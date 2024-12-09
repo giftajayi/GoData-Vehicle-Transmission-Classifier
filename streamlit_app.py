@@ -132,9 +132,9 @@ if section == "Model Building":
         - Training and Testing:
         The preprocessed training data (X_train, y_train) was ready for model fitting. The features were encoded, and the final model training can begin once an appropriate algorithm (e.g., logistic regression, decision trees, or other classifiers) is selected.
         The test set (X_test, y_test) was used to evaluate the model's performance after training.
-        """
-    )
-     st.image("confusion_m.png", caption="Confusion Matrix")
+        """ )
+    
+    st.image("confusion_m.png", caption="Confusion Matrix")
 
     try:
         # Feature encoding and model training logic
