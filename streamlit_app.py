@@ -6,16 +6,17 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 # Ensure the models directory exists
 if not os.path.exists('models'):
-    os.makedirs('models')  # Create directory if not exists
+    os.makedirs('models')  # Create directory if it doesn't exist
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
 section = st.sidebar.radio(
     "Go to",
-    ["Dashboard", "Model Prediction", "Power BI Dashboard"],
+    ["Dashboard", "EDA", "Model Training", "Model Prediction", "Power BI Dashboard"],
 )
 
-# Dashboard Title
+# Dashboard Section
+if section == "Dashboard":
     st.title("🚗 Vehicle Transmission Classifier")
 
     # Project description
@@ -32,26 +33,45 @@ section = st.sidebar.radio(
 elif section == "EDA":
     st.title("📊 Exploratory Data Analysis (EDA)")
     st.write(
-        """ In the initial phase of this project, we performed Exploratory Data Analysis (EDA) to gain a deeper understanding of the dataset and its characteristics. This process included cleaning the data, addressing missing values, and resolving inconsistencies, such as handling outliers and data imbalance. We examined the distribution of numerical features such as vehicle year, price, and mileage, while also exploring relationships between categorical features like make, model, and dealer information.
-            The EDA revealed key patterns and correlations in the data, such as newer vehicles and specific brands being more likely to have automatic transmissions. Visualizations, including bar charts and heatmaps, effectively highlighted these insights.
+        """
+        In the initial phase of this project, we performed Exploratory Data Analysis (EDA) to gain a deeper understanding of the dataset and its characteristics. 
+        This process included cleaning the data, addressing missing values, and resolving inconsistencies, such as handling outliers and data imbalance. 
+        We examined the distribution of numerical features such as vehicle year, price, and mileage, while also exploring relationships between categorical features like make, model, and dealer information.
         """
     )
+
     st.subheader("Dataset Information")
     st.image("info1.jpeg", caption="Dataset Overview - Part 1")
     st.image("info2.jpeg", caption="Dataset Overview - Part 2")
+
     st.subheader("Visualizations")
     st.image("chart7.jpeg", caption="Transmission Distribution (Auto vs Manual)")
     st.image("chart2.png", caption="Price vs Mileage Scatter Plot")
     st.image("plt3.png", caption="Correlation Heatmap")
 
-# Model Building Section
-elif section == "Model Building":
-    st.title("🧑‍🔬  Model Building ")
+# Model Training Section
+elif section == "Model Training":
+    st.title("🧑‍🔬 Model Training")
     st.write(
-        """ The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable. The process began by selecting a diverse range of models, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost. To handle missing values, a `SimpleImputer` was employed to replace them with a constant (0), ensuring consistency across all folds of the training data. Each model was incorporated into a pipeline alongside the imputer, streamlining the preprocessing and training stages.
-        To ensure robust evaluation, 5-fold cross-validation was conducted for each pipeline. This method split the data into training and testing subsets in multiple iterations, calculating the accuracy for each fold. The mean and standard deviation of these accuracy scores provided insights into the performance and stability of the models. The results were stored systematically, allowing for easy comparison and enabling the selection of the most effective classifier for the dataset. This approach ensured fairness in evaluation and enhanced the reliability of the chosen model.
+        """
+        The model was built to evaluate the performance of various machine learning classifiers in predicting the target variable. 
+        The process began by selecting a diverse range of models, including Logistic Regression, K-Nearest Neighbors, Naive Bayes, Support Vector Machines, Random Forest, Decision Tree, and XGBoost. 
+        To handle missing values, a `SimpleImputer` was employed to replace them with a constant (0), ensuring consistency across all folds of the training data. 
+        Each model was incorporated into a pipeline alongside the imputer, streamlining the preprocessing and training stages.
         """
     )
+
+    st.subheader("Training Process")
+    st.write(
+        """
+        To ensure robust evaluation, 5-fold cross-validation was conducted for each pipeline. 
+        This method split the data into training and testing subsets in multiple iterations, calculating the accuracy for each fold. 
+        The mean and standard deviation of these accuracy scores provided insights into the performance and stability of the models. 
+        The results were stored systematically, allowing for easy comparison and enabling the selection of the most effective classifier for the dataset. 
+        This approach ensured fairness in evaluation and enhanced the reliability of the chosen model.
+        """
+    )
+    st.image("model_performance.png", caption="Model Performance Metrics")
 
 # Model Prediction Section
 elif section == "Model Prediction":
