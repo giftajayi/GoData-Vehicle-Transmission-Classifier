@@ -272,4 +272,4 @@ elif section == "Model Prediction":
 # Power BI Dashboard Section
 elif section == "Power BI Dashboard":
     st.title("📊 Power BI Dashboard")
-    st.write("Click [here](https://app.powerbi.com/groups/me/reports/c9772dbc-0131-4e5a-a559-43a5c22874b3/ca237ccb0ae673ae960a?experience=power-bi) to view the Power BI dashboard.")
+    st.write("Click [here](https://app.powerbi.com/groups/me/reports/b0797587-58dd-4b59-9eee-68b3145ef194/ReportSection?experience=power-bi")
